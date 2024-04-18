@@ -4,6 +4,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 import os
 import asyncio
+from typing import Optional
 from datetime import datetime, timedelta, timezone
 import httpx
 
@@ -35,6 +36,11 @@ last_update_time = datetime.now(timezone.utc)
 
 # Initialize AsyncIO scheduler
 scheduler = AsyncIOScheduler()
+
+competitions = {
+    "PL": "PL"
+}
+
 
 async def fetch_matches_for_competition(competition_code, date_from=None, date_to=None):
     try:
