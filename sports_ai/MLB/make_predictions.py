@@ -119,3 +119,4 @@ async def get_predictions():
         load_predictions(API_KEY)
     
     return predictions_data
+

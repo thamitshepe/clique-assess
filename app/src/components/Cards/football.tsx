@@ -95,7 +95,7 @@ export const FootballMatches: React.FC<{ leagues: Competition[] }> = ({ leagues 
   useEffect(() => {
     const fetchSoccerPredictions = async () => {
       try {
-        const response = await axios.get('http://localhost:8006/soccerpredictions');
+        const response = await axios.get('https://betvision.onrender.com/soccerpredictions');
         setPredictions(response.data);
       } catch (error) {
         console.error('Error fetching soccer predictions:', error);
