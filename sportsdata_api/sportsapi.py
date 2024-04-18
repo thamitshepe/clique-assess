@@ -116,7 +116,7 @@ async def get_football_data(date_from: Optional[str] = None, date_to: Optional[s
         now = datetime.now(timezone.utc)
 
         # Check if the current time exceeds the last update time by more than 7 seconds
-        if (now - last_update_time).total_seconds() >= 7:
+        if (now - last_update_time).total_seconds() >= 10:
             last_update_time = now
 
             # Fetch data for all competitions
