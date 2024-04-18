@@ -9,6 +9,7 @@ import { useAppSelector, useAppDispatch } from '../../redux/hooks'; // Import th
 import { setSelectedDate } from '../../redux/selectedDateSlice'; // Import the setSelectedDate action
 import 'react-calendar/dist/Calendar.css';
 import { format, addDays, getYear, isBefore } from 'date-fns';
+import axios from 'axios';
 
 interface DateWithIndex {
   date: string;
@@ -81,8 +82,8 @@ const ECommerce: React.FC = () => {
   const selectedDate = useAppSelector((state) => state.selectedDate.selectedDate ?? new Date()); // Use selectedDate from Redux store
   const [currentYear, setCurrentYear] = useState<number>(getYear(new Date()));
   const [datesWithIndex, setDatesWithIndex] = useState<DatesWithIndex>({});
-  const [leagues] = useState<Competition[]>([]);
-  const [games] = useState<Game[]>([]);
+  const [leagues, setLeagues] = useState<Competition[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
   const selectedDateValue = selectedDate || new Date();
   const dispatch = useAppDispatch();
   // Access the selectedSport value from the Redux store
@@ -112,6 +113,68 @@ const ECommerce: React.FC = () => {
       }
     };
 
+    useEffect(() => {
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+  
+      const fetchLeaguesData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/footballdata?date_from=${formatDate(selectedDateValue)}&date_to=${formatDate(selectedDateValue)}`);
+          // Fetch football data based on selected date
+          // Modify the API endpoint to include date_from and date_to parameters with the selected date
+          // Here, I'm using selectedDate as both date_from and date_to, you can adjust it as needed
+          const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
+            name: leagueData.matches.competition_info.competition.name,
+            code: leagueData.matches.competition_info.competition.code,
+            emblem: leagueData.matches.competition_info.competition.emblem,
+            competition_info: {
+              area: {
+                name: leagueData.matches.competition_info.area.name,
+              },
+            },
+            matches: leagueData.matches.matches,
+          }));
+          setLeagues(data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+  
+      fetchLeaguesData();
+    }, [selectedDate]);
+    
+  
+    useEffect(() => {
+      const fetchMLBData = async () => {
+        try {
+          const formatDate = (date: Date) => {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          };
+          
+          const response = await axios.get(`http://localhost:8080/api/mlbdata?start_date=${formatDate(selectedDateValue)}&end_date=${formatDate(selectedDateValue)}`);
+          // Fetch MLB data based on selected date range
+          // Modify the API endpoint to include start_date and end_date parameters with the selected date
+          // Here, I'm using selectedDate as both start_date and end_date, you can adjust it as needed
+          setGames(response.data);
+        } catch (error) {
+          console.error('Error fetching MLB data:', error);
+        }
+      };
+  
+      fetchMLBData();
+      const intervalId = setInterval(fetchMLBData, 7000); // Fetch data every 7 seconds
+  
+      return () => {
+        clearInterval(intervalId); // Clean up interval on unmount
+      };
+    }, [selectedDate]);
     
   
 const LeaguesSkeletonLoader: React.FC = () => (
@@ -352,4 +415,3 @@ const MatchesSkeletonLoader: React.FC = () => (
 
 
 export default ECommerce;
-

@@ -3,7 +3,6 @@ import axios from 'axios';
 import { format, isSameDay } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { useAppSelector } from '../../redux/hooks'; // Import the useAppSelector hook
 
 interface Game {
   gameDate: string;
@@ -20,23 +19,11 @@ interface Game {
 
 const MLB: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
-  const selectedDate = useAppSelector((state) => state.selectedDate.selectedDate ?? new Date()); // Use selectedDate from Redux store
-  const selectedDateValue = selectedDate || new Date();
 
   useEffect(() => {
     const fetchMLBData = async () => {
       try {
-        const formatDate = (date: Date) => {
-          const year = date.getFullYear();
-          const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          const day = date.getDate().toString().padStart(2, '0');
-          return `${year}-${month}-${day}`;
-        };
-        
-        const response = await axios.get(`http://localhost:8009/api/mlbdata?start_date=${formatDate(selectedDateValue)}&end_date=${formatDate(selectedDateValue)}`);
-        // Fetch MLB data based on selected date range
-        // Modify the API endpoint to include start_date and end_date parameters with the selected date
-        // Here, I'm using selectedDate as both start_date and end_date, you can adjust it as needed
+        const response = await axios.get('http://localhost:8080/api/mlbdata');
         setGames(response.data);
       } catch (error) {
         console.error('Error fetching MLB data:', error);
@@ -44,12 +31,12 @@ const MLB: React.FC = () => {
     };
 
     fetchMLBData();
-    const intervalId = setInterval(fetchMLBData, 7000); // Fetch data every 7 seconds
+    const intervalId = setInterval(fetchMLBData, 7000); // Fetch data every 70 seconds
 
     return () => {
       clearInterval(intervalId); // Clean up interval on unmount
     };
-  }, [selectedDate]);
+  }, []);
 
   return (
     <div className="custom-scrollbar-container">
