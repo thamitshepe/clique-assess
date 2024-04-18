@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta, timezone
 import asyncio
-import uvicorn
 from typing import Optional
 import httpx
 
