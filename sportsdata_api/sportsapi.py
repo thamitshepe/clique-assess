@@ -1,16 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import requests
-import json
-from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 import os
-from datetime import datetime, timedelta, timezone
 import asyncio
-from typing import Optional
+from datetime import datetime, timedelta, timezone
 import httpx
-
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,10 +17,9 @@ app = FastAPI()
 football_data_api_key = os.getenv('FOOTBALL_DATA_API_KEY')
 base_url = 'https://api.football-data.org/v4/'
 
-# Available competitions and their corresponding codes
-competitions = {
-    "PL": "PL"
-}
+# MLB-Data API Configuration
+mlb_base_url = 'https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1'
+mlb_date_url = 'https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1&startDate={}&endDate={}'
 
 # Enable CORS
 app.add_middleware(
@@ -38,6 +32,9 @@ app.add_middleware(
 
 # Maintain the last updated time
 last_update_time = datetime.now(timezone.utc)
+
+# Initialize AsyncIO scheduler
+scheduler = AsyncIOScheduler()
 
 async def fetch_matches_for_competition(competition_code, date_from=None, date_to=None):
     try:
@@ -106,47 +103,15 @@ async def fetch_matches_for_competition(competition_code, date_from=None, date_t
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching data for {competition_code}: {str(e)}")
 
-
-# Expose an endpoint to fetch matches data
-@app.get('/api/footballdata')
-async def get_football_data(date_from: Optional[str] = None, date_to: Optional[str] = None):
-    try:
-        global last_update_time
-        now = datetime.now(timezone.utc)
-
-        # Check if the current time exceeds the last update time by more than 7 seconds
-        if (now - last_update_time).total_seconds() >= 7:
-            last_update_time = now
-
-            # Fetch data for all competitions
-            data = {}
-            for code, name in competitions.items():
-                # Await fetch_matches_for_competition here
-                matches_data = await fetch_matches_for_competition(code, date_from, date_to)
-                data[code] = {"name": name, "matches": matches_data}
-
-            return data
-        else:
-            # Queue the request to wait until the next update time
-            await asyncio.sleep((last_update_time + timedelta(seconds=7) - now).total_seconds())
-            return await get_football_data(date_from, date_to)  # Await here
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
-
-# MLB-Data API Configuration
-mlb_base_url = 'https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1'
-mlb_date_url = 'https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1&startDate={}&endDate={}'
-
-def fetch_mlb_data(start_date=None, end_date=None):
+async def fetch_mlb_data(start_date=None, end_date=None):
     try:
         url = mlb_base_url
         if start_date and end_date:
             url = mlb_date_url.format(start_date, end_date)
-        response = requests.get(url)
-        response.raise_for_status()  # Raise exception for non-200 status codes
-        mlb_data = response.json()
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()  # Raise exception for non-200 status codes
+            mlb_data = response.json()
         # Extract relevant information from the JSON response
         extracted_data = []
         for date in mlb_data.get("dates", []):
@@ -168,18 +133,50 @@ def fetch_mlb_data(start_date=None, end_date=None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching MLB data: {str(e)}")
 
-# Expose an endpoint to fetch MLB data
-@app.get('/api/mlbdata')
-def get_mlb_data(start_date: str = None, end_date: str = None):
-    return fetch_mlb_data(start_date, end_date)
-
-async def fetch_and_store_all_data():
+async def fetch_and_store_all_data(start_date=None, end_date=None):
     # Fetch football data
     for code, name in competitions.items():
-        await fetch_matches_for_competition(code)
-    # Fetch MLB data synchronously (consider making this async as well)
-    fetch_mlb_data()
+        await fetch_matches_for_competition(code, start_date, end_date)
+    # Fetch MLB data
+    await fetch_mlb_data(start_date, end_date)
 
-scheduler = AsyncIOScheduler()
-scheduler.add_job(fetch_and_store_all_data, 'interval', seconds=3)
+def update_scheduler(start_date=None, end_date=None):
+    scheduler.remove_all_jobs()  # Remove all existing jobs
+    scheduler.add_job(fetch_and_store_all_data, 'interval', seconds=3, args=[start_date, end_date])
+
+# Expose an endpoint to fetch matches data with date range
+@app.get('/api/footballdata')
+async def get_football_data(date_from: Optional[str] = None, date_to: Optional[str] = None):
+    try:
+        global last_update_time
+        now = datetime.now(timezone.utc)
+
+        # Check if the current time exceeds the last update time by more than 7 seconds
+        if (now - last_update_time).total_seconds() >= 7:
+            last_update_time = now
+
+            # Update the scheduler with the new date range
+            update_scheduler(date_from, date_to)
+
+            # Fetch data for all competitions
+            data = {}
+            for code, name in competitions.items():
+                # Await fetch_matches_for_competition here
+                matches_data = await fetch_matches_for_competition(code, date_from, date_to)
+                data[code] = {"name": name, "matches": matches_data}
+
+            return data
+        else:
+            # Queue the request to wait until the next update time
+            await asyncio.sleep((last_update_time + timedelta(seconds=7) - now).total_seconds())
+            return await get_football_data(date_from, date_to)  # Await here
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+# Expose an endpoint to fetch MLB data
+@app.get('/api/mlbdata')
+async def get_mlb_data(start_date: str = None, end_date: str = None):
+    return await fetch_mlb_data(start_date, end_date)
+
+# Start the scheduler
 scheduler.start()
