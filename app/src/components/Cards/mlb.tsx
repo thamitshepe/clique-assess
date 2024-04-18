@@ -23,7 +23,7 @@ const MLB: React.FC = () => {
   useEffect(() => {
     const fetchMLBData = async () => {
       try {
-        const response = await axios.get('http://localhost:8008/api/mlbdata');
+        const response = await axios.get('https://betvision-hz2w.onrender.com/api/mlbdata');
         setGames(response.data);
       } catch (error) {
         console.error('Error fetching MLB data:', error);

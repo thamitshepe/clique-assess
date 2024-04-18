@@ -47,7 +47,7 @@ const Football: React.FC = () => {
   useEffect(() => {
     const fetchLeaguesData = async () => {
       try {
-        const response = await axios.get('http://localhost:8008/api/footballdata');
+        const response = await axios.get('https://betvision-hz2w.onrender.com/api/footballdata');
         const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
           name: leagueData.matches.competition_info.competition.name,
           code: leagueData.matches.competition_info.competition.code,

@@ -123,7 +123,7 @@ const ECommerce: React.FC = () => {
   
       const fetchLeaguesData = async () => {
         try {
-          const response = await axios.get(`http://localhost:8008/api/footballdata?date_from=${formatDate(selectedDateValue)}&date_to=${formatDate(selectedDateValue)}`);
+          const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDateValue)}&date_to=${formatDate(selectedDateValue)}`);
           // Fetch football data based on selected date
           // Modify the API endpoint to include date_from and date_to parameters with the selected date
           // Here, I'm using selectedDate as both date_from and date_to, you can adjust it as needed
@@ -158,7 +158,7 @@ const ECommerce: React.FC = () => {
             return `${year}-${month}-${day}`;
           };
           
-          const response = await axios.get(`http://localhost:8008/api/mlbdata?start_date=${formatDate(selectedDateValue)}&end_date=${formatDate(selectedDateValue)}`);
+          const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDateValue)}&end_date=${formatDate(selectedDateValue)}`);
           // Fetch MLB data based on selected date range
           // Modify the API endpoint to include start_date and end_date parameters with the selected date
           // Here, I'm using selectedDate as both start_date and end_date, you can adjust it as needed
