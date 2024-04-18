@@ -194,7 +194,3 @@ async def fetch_and_store_all_data():
 scheduler = AsyncIOScheduler()
 scheduler.add_job(fetch_and_store_all_data, 'interval', seconds=7)
 scheduler.start()
-
-# Run FastAPI using uvicorn
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv('PORT')))
