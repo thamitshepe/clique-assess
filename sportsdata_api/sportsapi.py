@@ -181,5 +181,5 @@ async def fetch_and_store_all_data():
     fetch_mlb_data()
 
 scheduler = AsyncIOScheduler()
-scheduler.add_job(fetch_and_store_all_data, 'interval', seconds=7)
+scheduler.add_job(fetch_and_store_all_data, 'interval', seconds=3)
 scheduler.start()
