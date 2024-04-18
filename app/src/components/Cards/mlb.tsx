@@ -23,7 +23,7 @@ const MLB: React.FC = () => {
   useEffect(() => {
     const fetchMLBData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/mlbdata');
+        const response = await axios.get('https://betvision-hz2w.onrender.com/api/mlbdata');
         setGames(response.data);
       } catch (error) {
         console.error('Error fetching MLB data:', error);
@@ -60,7 +60,7 @@ export const MLBGames: React.FC<{ games: Game[] }> = ({ games }) => {
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        const response = await axios.get('http://localhost:8005/mlbpredictions');
+        const response = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
         setPredictions(response.data);
       } catch (error) {
         console.error('Error fetching predictions:', error);
