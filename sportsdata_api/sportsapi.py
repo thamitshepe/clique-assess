@@ -37,11 +37,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Define a lock object
+lock = asyncio.Lock()
+
 # Maintain the last updated time
 last_update_time = datetime.now(timezone.utc)
 
+# Define a function to throttle requests
+async def throttle_requests():
+    # Acquire the lock
+    async with lock:
+        now = datetime.now(timezone.utc)
+        elapsed_time = (now - last_update_time).total_seconds()
+        if elapsed_time < 7:
+            # If less than 7 seconds have elapsed since the last update, wait
+            await asyncio.sleep(7 - elapsed_time)
+        # Update the last update time
+
 async def fetch_matches_for_competition(competition_code, date_from=None, date_to=None):
     try:
+        # Throttle requests
+        await throttle_requests()
         date_from = date_from or datetime.now(timezone.utc).strftime('%Y-%m-%d')
         date_to = date_to or date_from
 
@@ -115,26 +131,20 @@ async def get_football_data(date_from: Optional[str] = None, date_to: Optional[s
         global last_update_time
         now = datetime.now(timezone.utc)
 
-        # Check if the current time exceeds the last update time by more than 7 seconds
-        if (now - last_update_time).total_seconds() >= 10:
-            last_update_time = now
+        # Throttle requests
+        await throttle_requests()
 
-            # Fetch data for all competitions
-            data = {}
-            for code, name in competitions.items():
-                # Await fetch_matches_for_competition here
-                matches_data = await fetch_matches_for_competition(code, date_from, date_to)
-                data[code] = {"name": name, "matches": matches_data}
+        # Fetch data for all competitions
+        data = {}
+        for code, name in competitions.items():
+            # Await fetch_matches_for_competition here
+            matches_data = await fetch_matches_for_competition(code, date_from, date_to)
+            data[code] = {"name": name, "matches": matches_data}
 
-            return data
-        else:
-            # Queue the request to wait until the next update time
-            await asyncio.sleep((last_update_time + timedelta(seconds=7) - now).total_seconds())
-            return await get_football_data(date_from, date_to)  # Await here
+        return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
+    
 
 # MLB-Data API Configuration
 mlb_base_url = 'https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1'

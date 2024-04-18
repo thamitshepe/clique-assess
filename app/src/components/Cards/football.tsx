@@ -4,6 +4,7 @@ import { format, isSameDay } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import * as leagueIcons from '../../images/football/leagues'; // Import league SVGs
+import { useAppSelector } from '../../redux/hooks'; // Import the useAppSelector hook
 
 interface Match {
   utcDate: string;
@@ -43,11 +44,23 @@ interface Competition {
 
 const Football: React.FC = () => {
   const [leagues, setLeagues] = useState<Competition[]>([]);
+  const selectedDate = useAppSelector((state) => state.selectedDate.selectedDate ?? new Date()); // Use selectedDate from Redux store
+  const selectedDateValue = selectedDate || new Date();
 
   useEffect(() => {
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     const fetchLeaguesData = async () => {
       try {
-        const response = await axios.get('http://localhost:8009/api/footballdata');
+        const response = await axios.get(`http://localhost:8009/api/footballdata?date_from=${formatDate(selectedDateValue)}&date_to=${formatDate(selectedDateValue)}`);
+        // Fetch football data based on selected date
+        // Modify the API endpoint to include date_from and date_to parameters with the selected date
+        // Here, I'm using selectedDate as both date_from and date_to, you can adjust it as needed
         const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
           name: leagueData.matches.competition_info.competition.name,
           code: leagueData.matches.competition_info.competition.code,
@@ -64,13 +77,9 @@ const Football: React.FC = () => {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchLeaguesData();
-    const intervalId = setInterval(fetchLeaguesData, 7000);
-  
-    return () => clearInterval(intervalId);
-  }, []);
-  
+  }, [selectedDate]);
 
   return (
     <div className="custom-scrollbar-container">
