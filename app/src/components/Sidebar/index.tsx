@@ -2,20 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import Logo from '../../images/logo/logo.svg';
 import { useDispatch } from 'react-redux';
-import { setSelectedSport } from '../../redux/selectedSportSlice'; // Import the action creator
-
+import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Sidebar: React.FC<SidebarProps> = (props) => {
+  // Get the selected sport using the useSport hook
   const dispatch = useDispatch();
 
   // Function to handle icon click
   const handleIconClick = (sport: string) => {
     dispatch(setSelectedSport(sport)); // Dispatch the action with the selected sport
   };
+
+
 
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
 

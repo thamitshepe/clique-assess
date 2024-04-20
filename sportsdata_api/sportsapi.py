@@ -25,7 +25,7 @@ base_url = 'https://api.football-data.org/v4/'
 
 # Available competitions and their corresponding codes
 competitions = {
-    "PL": "PL"
+    "PL": "PremierLeague"
 }
 
 # Enable CORS
@@ -144,7 +144,7 @@ async def get_football_data(date_from: Optional[str] = None, date_to: Optional[s
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-    
+
 
 # MLB-Data API Configuration
 mlb_base_url = 'https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1'
@@ -183,14 +183,3 @@ def fetch_mlb_data(start_date=None, end_date=None):
 @app.get('/api/mlbdata')
 def get_mlb_data(start_date: str = None, end_date: str = None):
     return fetch_mlb_data(start_date, end_date)
-
-async def fetch_and_store_all_data():
-    # Fetch football data
-    for code, name in competitions.items():
-        await fetch_matches_for_competition(code)
-    # Fetch MLB data synchronously (consider making this async as well)
-    fetch_mlb_data()
-
-scheduler = AsyncIOScheduler()
-scheduler.add_job(fetch_and_store_all_data, 'interval', seconds=7)
-scheduler.start()

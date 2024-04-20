@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { format, isSameDay } from 'date-fns';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { isSameDay } from 'date-fns';
+import useLocalStorage from '../../hooks/useLocalStorage'; 
+import { format, toZonedTime } from 'date-fns-tz';
 import * as leagueIcons from '../../images/football/leagues'; // Import league SVGs
+
 
 interface Match {
   utcDate: string;
@@ -40,14 +41,30 @@ interface Competition {
   matches: Match[];
 }
 
-
 const Football: React.FC = () => {
   const [leagues, setLeagues] = useState<Competition[]>([]);
+  const selectedDate = localStorage.getItem('selectedDate') || '';
+  const [leaguesLoading, setLeaguesLoading] = useState(true);
 
+  const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
+    // Convert the input date to the required timezone
+    const date = new Date(dateInput);
+    const zonedDate = toZonedTime(date, timeZone);
+    
+    // Format the date as YYYY-MM-DD in the specified time zone
+    return format(zonedDate, 'yyyy-MM-dd', { timeZone });
+  };
+  
   useEffect(() => {
     const fetchLeaguesData = async () => {
       try {
-        const response = await axios.get('https://betvision-hz2w.onrender.com/api/footballdata');
+        // Set loading state to true before fetching data
+        setLeaguesLoading(true);
+  
+        // Fetch data from the API
+        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+  
+        // Extract the data from the response and map it to the Competition type
         const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
           name: leagueData.matches.competition_info.competition.name,
           code: leagueData.matches.competition_info.competition.code,
@@ -57,20 +74,25 @@ const Football: React.FC = () => {
               name: leagueData.matches.competition_info.area.name,
             },
           },
-          matches: leagueData.matches.matches,
+          matches: leagueData.matches.matches
         }));
+  
+        // Update the leagues state with the fetched data
         setLeagues(data);
       } catch (error) {
+        // Log any errors that occur during fetching
         console.error('Error fetching data:', error);
+      } finally {
+        // Set loading state to false after data is fetched or in case of error
+        setLeaguesLoading(false);
       }
     };
   
+    // Call the fetchLeaguesData function when the selectedDate changes
     fetchLeaguesData();
-    const intervalId = setInterval(fetchLeaguesData, 7000);
+  }, [selectedDate]);
   
-    return () => clearInterval(intervalId);
-  }, []);
-  
+ 
 
   return (
     <div className="custom-scrollbar-container">
@@ -84,7 +106,7 @@ export default Football;
 
 export const FootballMatches: React.FC<{ leagues: Competition[] }> = ({ leagues }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
-  const selectedDate = useSelector((state: RootState) => state.selectedDate.selectedDate ?? new Date());
+  const [selectedDate] = useLocalStorage('selectedDate', new Date());
 
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();

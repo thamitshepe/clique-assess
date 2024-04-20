@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, lazy } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
 import BG from '../../images/icons/BG.svg';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import CalendarIcon from '../../images/icons/calender.png';
 import Calendar from 'react-calendar';
-import { useAppSelector, useAppDispatch } from '../../redux/hooks'; // Import the useAppSelector hook
-import { setSelectedDate } from '../../redux/selectedDateSlice'; // Import the setSelectedDate action
+import useLocalStorage from '../../hooks/useLocalStorage';
 import 'react-calendar/dist/Calendar.css';
-import { format, addDays, getYear, isBefore } from 'date-fns';
+import { addDays, getYear, isBefore } from 'date-fns';
+import { toZonedTime, format } from 'date-fns-tz';
 import axios from 'axios';
+import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
+
+
+
 
 interface DateWithIndex {
   date: string;
@@ -68,6 +72,9 @@ interface Game {
   };
 }
 
+export interface SportState {
+  selectedSport: string;
+}
 
 // Lazy-loaded components for football and MLB
 const FootballLeagues = lazy(() => import('../../components/Cards/football').then(module => ({ default: module.FootballLeagues })));
@@ -79,15 +86,86 @@ const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => 
 const ECommerce: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
-  const selectedDate = useAppSelector((state) => state.selectedDate.selectedDate ?? new Date()); // Use selectedDate from Redux store
+  const [selectedDate, setSelectedDate] = useLocalStorage('selectedDate', new Date());
   const [currentYear, setCurrentYear] = useState<number>(getYear(new Date()));
   const [datesWithIndex, setDatesWithIndex] = useState<DatesWithIndex>({});
   const [leagues, setLeagues] = useState<Competition[]>([]);
   const [games, setGames] = useState<Game[]>([]);
-  const selectedDateValue = selectedDate || new Date();
-  const dispatch = useAppDispatch();
   // Access the selectedSport value from the Redux store
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
+  const [leaguesLoading, setLeaguesLoading] = useState(true);
+  const [matchesLoading, setMatchesLoading] = useState(true);
+
+  useEffect(() => {
+    console.log('Selected Sport:', selectedSport);
+  }, [selectedSport]);
+  
+
+  useEffect(() => {
+    const fetchMLBData = async () => {
+      setMatchesLoading(true); // Set loading state to true before fetching data
+      try {
+        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?startDate=${formatDate(selectedDate)}&endDate=${formatDate(selectedDate)}`);
+        setGames(response.data);
+      } catch (error) {
+        console.error('Error fetching MLB data:', error);
+      } finally {
+        // Set loading state to false whether the data is fetched successfully or not
+        setMatchesLoading(false);
+      }
+    };
+    
+    fetchMLBData();
+  }, [selectedDate]);
+  
+  
+  const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
+    // Convert the input date to the required timezone
+    const date = new Date(dateInput);
+    const zonedDate = toZonedTime(date, timeZone);
+    
+    // Format the date as YYYY-MM-DD in the specified time zone
+    return format(zonedDate, 'yyyy-MM-dd', { timeZone });
+  };
+  
+  useEffect(() => {
+    const fetchLeaguesData = async () => {
+      try {
+        // Set loading state to true before fetching data
+        setLeaguesLoading(true);
+  
+        // Fetch data from the API
+        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+  
+        // Extract the data from the response and map it to the Competition type
+        const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
+          name: leagueData.matches.competition_info.competition.name,
+          code: leagueData.matches.competition_info.competition.code,
+          emblem: leagueData.matches.competition_info.competition.emblem,
+          competition_info: {
+            area: {
+              name: leagueData.matches.competition_info.area.name,
+            },
+          },
+          matches: leagueData.matches.matches
+        }));
+  
+        // Update the leagues state with the fetched data
+        setLeagues(data);
+      } catch (error) {
+        // Log any errors that occur during fetching
+        console.error('Error fetching data:', error);
+      } finally {
+        // Set loading state to false after data is fetched or in case of error
+        setLeaguesLoading(false);
+      }
+    };
+  
+    // Call the fetchLeaguesData function when the selectedDate changes
+    fetchLeaguesData();
+  }, [selectedDate]);
+  
+
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
@@ -97,7 +175,7 @@ const ECommerce: React.FC = () => {
         case 'soccer':
           return < FootballLeagues leagues={leagues} />;
         default:
-          return < FootballLeagues leagues={leagues} />; 
+          return <MLBLeagues />;
       }
     };
 
@@ -109,213 +187,139 @@ const ECommerce: React.FC = () => {
         case 'soccer':
           return < FootballMatches leagues={leagues} />;
         default:
-          return < FootballMatches leagues={leagues} />; 
+          return <MLBGames games={games} />;
       }
     };
+    
 
-    useEffect(() => {
-      const formatDate = (date: Date) => {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-  
-      const fetchLeaguesData = async () => {
-        try {
-          const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDateValue)}&date_to=${formatDate(selectedDateValue)}`);
-          // Fetch football data based on selected date
-          // Modify the API endpoint to include date_from and date_to parameters with the selected date
-          // Here, I'm using selectedDate as both date_from and date_to, you can adjust it as needed
-          const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
-            name: leagueData.matches.competition_info.competition.name,
-            code: leagueData.matches.competition_info.competition.code,
-            emblem: leagueData.matches.competition_info.competition.emblem,
-            competition_info: {
-              area: {
-                name: leagueData.matches.competition_info.area.name,
-              },
-            },
-            matches: leagueData.matches.matches,
-          }));
-          setLeagues(data);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-  
-      fetchLeaguesData();
-    }, [selectedDate]);
-    
-  
-    useEffect(() => {
-      const fetchMLBData = async () => {
-        try {
-          const formatDate = (date: Date) => {
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${year}-${month}-${day}`;
-          };
-          
-          const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDateValue)}&end_date=${formatDate(selectedDateValue)}`);
-          // Fetch MLB data based on selected date range
-          // Modify the API endpoint to include start_date and end_date parameters with the selected date
-          // Here, I'm using selectedDate as both start_date and end_date, you can adjust it as needed
-          setGames(response.data);
-        } catch (error) {
-          console.error('Error fetching MLB data:', error);
-        }
-      };
-  
-      fetchMLBData();
-      const intervalId = setInterval(fetchMLBData, 7000); // Fetch data every 7 seconds
-  
-      return () => {
-        clearInterval(intervalId); // Clean up interval on unmount
-      };
-    }, [selectedDate]);
-    
-  
-const LeaguesSkeletonLoader: React.FC = () => (
-  <div className="p-2">
-  {/* Placeholder for league items */}
-  <div className="h-18 bg-gray-200 rounded-md mb-2 flex items-center animate-pulse">
-    {/* Placeholder for league icon */}
-    <div className="w-14 h-14 bg-gray-300 rounded-full mr-4"></div>
-    {/* Placeholder for league details */}
-    <div>
-      {/* Placeholder for league name */}
-      <div className="w-48 h-6 bg-gray-300 rounded-md mb-2"></div>
-      {/* Placeholder for league country */}
-      <div className="w-24 h-4 bg-gray-300 rounded-md"></div>
-    </div>
-  </div>
-</div>
-);
 
 const MatchesSkeletonLoader: React.FC = () => (
   <div className="p-2">
     {/* Placeholder for match items */}
-    <div className="h-19 rounded-md bg-gray-200 mb-4 p-6 flex items-center justify-between animate-pulse">
+    <div className="h-19 rounded-md bg-black mb-4 p-6 flex items-center justify-between animate-pulse">
       {/* Placeholder for time section */}
-      <div style={{ width: '8%' }} className="h-6 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '8%' }} className="h-6 bg-black rounded-md"></div>
 
       {/* Placeholder for status section */}
-      <div style={{ width: '12%' }} className="h-6 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '12%' }} className="h-6 bg-black rounded-md"></div>
 
       {/* Placeholder for home team section */}
-      <div style={{ width: '20%' }} className="h-6 bg-gray-300 rounded-md flex items-center">
-        <div className="w-14 h-14 bg-gray-300 rounded-full mr-4"></div>
-        <div className="w-16 h-4 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '20%' }} className="h-6 bg-black rounded-md flex items-center">
+        <div className="w-14 h-14 bg-black rounded-full mr-4"></div>
+        <div className="w-16 h-4 bg-black rounded-md"></div>
       </div>
 
       {/* Placeholder for score section */}
-      <div style={{ width: '5%' }} className="h-6 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '5%' }} className="h-6 bg-black rounded-md"></div>
 
       {/* Placeholder for away team section */}
-      <div style={{ width: '20%' }} className="h-6 bg-gray-300 rounded-md flex items-center">
-        <div className="w-14 h-14 bg-gray-300 rounded-full mr-4"></div>
-        <div className="w-16 h-4 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '20%' }} className="h-6 bg-black rounded-md flex items-center">
+        <div className="w-14 h-14 bg-black rounded-full mr-4"></div>
+        <div className="w-16 h-4 bg-black rounded-md"></div>
       </div>
 
       {/* Placeholder for predicted win section */}
-      <div style={{ width: '10%' }} className="h-6 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '10%' }} className="h-6 bg-black rounded-md"></div>
       
       {/* Placeholder for probability section */}
-      <div style={{ width: '10%' }} className="h-6 bg-gray-300 rounded-md"></div>
+      <div style={{ width: '10%' }} className="h-6 bg-black rounded-md"></div>
     </div>
   </div>
 );
 
-  useEffect(() => {
-    const generatedDatesWithIndex = generateDatesWithIndex();
-    setDatesWithIndex(generatedDatesWithIndex);
-    const currentDateIndex = generatedDatesWithIndex[currentYear]?.findIndex(
-      (d) => d.date === format(selectedDateValue, 'yyyy-MM-dd')
-    );
-    setSelectedItem(currentDateIndex); // Update selected item when the selected date changes
-  }, [currentYear, selectedDate]);
+useEffect(() => {
+  const generatedDatesWithIndex = generateDatesWithIndex();
+  setDatesWithIndex(generatedDatesWithIndex);
+  const currentDateIndex = generatedDatesWithIndex[currentYear]?.findIndex(
+    (d) => d.date === format(selectedDate, 'yyyy-MM-dd')
+  );
+  setSelectedItem(currentDateIndex); // Update selected item when the selected date changes
+}, [currentYear, selectedDate]);
 
-  const generateDatesWithIndex = (): DatesWithIndex => {
-    const startDate = new Date(2002, 8, 1); // August 1, 2002
-    const endDate = new Date(2025, 11, 31); // December 31, 2025
-    const datesWithIndex: DatesWithIndex = {};
+const generateDatesWithIndex = (): DatesWithIndex => {
+  const startDate = new Date(2002, 8, 1); // August 1, 2002
+  const endDate = new Date(2025, 11, 31); // December 31, 2025
+  const datesWithIndex: DatesWithIndex = {};
 
-    let date = startDate;
-    while (isBefore(date, endDate) || date.getTime() === endDate.getTime()) {
-      const year = getYear(date);
-      if (!datesWithIndex[year]) {
-        datesWithIndex[year] = [];
-      }
-      datesWithIndex[year].push({
-        date: format(date, 'yyyy-MM-dd'),
-        day: format(date, 'EEEE'),
-      });
-      date = addDays(date, 1);
+  let date = startDate;
+  while (isBefore(date, endDate) || date.getTime() === endDate.getTime()) {
+    const year = getYear(date);
+    if (!datesWithIndex[year]) {
+      datesWithIndex[year] = [];
     }
-    return datesWithIndex;
-  };
+    datesWithIndex[year].push({
+      date: format(date, 'yyyy-MM-dd'),
+      day: format(date, 'EEEE'),
+    });
+    date = addDays(date, 1);
+  }
+  return datesWithIndex;
+};
 
-  // Function to handle day click
-  const handleDayClick = (value: Date) => {
-    dispatch(setSelectedDate(value)); // Dispatch action to update selectedDate
-    setCurrentYear(getYear(value));
+// Function to handle day click
+const handleDayClick = (value: Date) => {
+  setSelectedDate(value); // Dispatch action to update selectedDate
+  setCurrentYear(getYear(value));
 
-    // Find the index of the clicked date in the current year's datesWithIndex array
-    const clickedDateIndex = datesWithIndex[getYear(value)]?.findIndex(
-      (d) => d.date === format(value, 'yyyy-MM-dd')
-    );
+  // Find the index of the clicked date in the current year's datesWithIndex array
+  const clickedDateIndex = datesWithIndex[getYear(value)]?.findIndex(
+    (d) => d.date === format(value, 'yyyy-MM-dd')
+  );
 
-    if (clickedDateIndex !== undefined && selectedItem !== null) {
-      // Scroll to the new index by updating selectedItem
-      setSelectedItem(clickedDateIndex);
+  if (clickedDateIndex !== undefined && selectedItem !== null) {
+    // Scroll to the new index by updating selectedItem
+    setSelectedItem(clickedDateIndex);
 
-      // Hide the calendar after a date is clicked
-      setShowCalendar(false);
+    // Hide the calendar after a date is clicked
+    setShowCalendar(false);
+  }
+};
+
+useEffect(() => {
+  console.log('Selected Date:', selectedDate);
+}, [selectedDate]);
+
+
+const renderCarouselItems = useMemo(() => {
+  const itemsToRender = datesWithIndex[currentYear] || [];
+  return itemsToRender.map((date: DateWithIndex, index: number) => (
+    <div key={index} style={{ width: '100%', cursor: 'pointer' }} onClick={() => handleDayClick(new Date(date.date))}>
+      <p className="text-sm font-medium text-white">{date.date}</p>
+      <p className="text-lg font-medium text-white">{date.day}</p>
+    </div>
+  ));
+}, [datesWithIndex, currentYear]);
+
+// Function to handle carousel change
+const handleCarouselChange = (index: number) => {
+  setSelectedItem(index);
+  const itemsToRender = datesWithIndex[currentYear] || [];
+  const selectedDate = new Date(itemsToRender[index].date);
+  setSelectedDate(selectedDate); 
+};
+
+const [centerSlidePercentage, setCenterSlidePercentage] = useState(20);
+
+useEffect(() => {
+  const updateCenterSlidePercentage = () => {
+    const screenWidth = window.innerWidth;
+    if (screenWidth < 1200) {
+      setCenterSlidePercentage(35);
+    } else {
+      setCenterSlidePercentage(20);
     }
   };
 
-  const renderCarouselItems = useMemo(() => {
-    const itemsToRender = datesWithIndex[currentYear] || [];
-    return itemsToRender.map((date: DateWithIndex, index: number) => (
-      <div key={index} style={{ width: '100%', cursor: 'pointer' }} onClick={() => handleDayClick(new Date(date.date))}>
-        <p className="text-sm font-medium text-white">{date.date}</p>
-        <p className="text-lg font-medium text-white">{date.day}</p>
-      </div>
-    ));
-  }, [datesWithIndex, currentYear]);
+  // Call the function initially and on window resize
+  updateCenterSlidePercentage();
+  window.addEventListener('resize', updateCenterSlidePercentage);
 
-  // Function to handle carousel change
-  const handleCarouselChange = (index: number) => {
-    setSelectedItem(index);
-    const itemsToRender = datesWithIndex[currentYear] || [];
-    const selectedDate = new Date(itemsToRender[index].date);
-    dispatch(setSelectedDate(selectedDate)); // Dispatch action to update selected date in Redux store
+  // Remove the event listener on component unmount
+  return () => {
+    window.removeEventListener('resize', updateCenterSlidePercentage);
   };
+}, []);  
 
-  const [centerSlidePercentage, setCenterSlidePercentage] = useState(20);
-
-  useEffect(() => {
-    const updateCenterSlidePercentage = () => {
-      const screenWidth = window.innerWidth;
-      if (screenWidth < 1200) {
-        setCenterSlidePercentage(35);
-      } else {
-        setCenterSlidePercentage(20);
-      }
-    };
-
-    // Call the function initially and on window resize
-    updateCenterSlidePercentage();
-    window.addEventListener('resize', updateCenterSlidePercentage);
-
-    // Remove the event listener on component unmount
-    return () => {
-      window.removeEventListener('resize', updateCenterSlidePercentage);
-    };
-  }, []);  
-  
 
   return (
     <DefaultLayout>
@@ -347,10 +351,8 @@ const MatchesSkeletonLoader: React.FC = () => (
           <div className="flex-1 bg-black rounded-md h-[76vh] overflow-y-scroll scrollbar-thin scrollbar-thumb-body scrollbar-track-transparent scrollbar-thumb-rounded-full">
             <div className="p-2">
               {/* Conditionally render football or MLB leagues based on selectedSport */}
-              <Suspense fallback={<LeaguesSkeletonLoader />}>
                 {/* Render the appropriate sport component */}
                 {renderLeagueComponent()}
-              </Suspense>
             </div>
           </div>
         </div>
@@ -398,10 +400,7 @@ const MatchesSkeletonLoader: React.FC = () => (
                 </div>
               </div>
               <div className="flex-1 w-full">
-              <Suspense fallback={<MatchesSkeletonLoader />}>
-                {/* Render the appropriate sport component */}
-                {renderMatchComponent()}
-              </Suspense>
+              {matchesLoading ? <MatchesSkeletonLoader /> : renderMatchComponent()}
               </div>
             </div>
           </div>
