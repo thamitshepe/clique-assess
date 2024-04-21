@@ -68,18 +68,17 @@ class Competition(BaseModel):
     emblem: str
 
 class Area(BaseModel):
-    id: Optional[int]
-    name: str
-    code: Optional[str]
-    flag: Optional[str]
+    id: Optional[int] = None
+    name: str = "England"
+    code: Optional[str] = None
+    flag: Optional[str] = None
 
 class CompetitionInfo(BaseModel):
-    area: Area
+    area: Area = Field(default_factory=Area)
     competition: Competition
 
 class FootballData(BaseModel):
-    competition_info: CompetitionInfo
-    matches: list[Match]
+    PL: dict
 
 # Function to fetch football data with Redis caching
 async def fetch_football_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> FootballData:
@@ -113,12 +112,6 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
 
         # Extract competition data from the response
         competition_info = CompetitionInfo(
-            area=Area(
-                id=data["matches"][0]["area"]["id"],
-                name=data["matches"][0]["area"]["name"],
-                code=data["matches"][0]["area"]["code"],
-                flag=data["matches"][0]["area"]["flag"]
-            ),
             competition=Competition(
                 id=data["competition"]["id"],
                 name=data["competition"]["name"],
@@ -152,7 +145,7 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
             processed_matches_data.append(processed_match)
 
         # Create a FootballData instance with the processed data
-        football_data = FootballData(competition_info=competition_info, matches=processed_matches_data)
+        football_data = FootballData(PL={"name": "PremierLeague", "competition_info": competition_info.dict(), "matches": processed_matches_data})
 
         # Cache the data
         redis.setex(cache_key, RATE_LIMIT_PERIOD, football_data.json())
@@ -169,7 +162,6 @@ async def get_football_data_api(date_from: Optional[str] = None, date_to: Option
     competition_code = "PL"  # Hardcoded to Premier League
     return await fetch_football_data(competition_code, date_from, date_to)
 
-    
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
