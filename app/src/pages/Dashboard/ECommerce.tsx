@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, lazy } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
 import BG from '../../images/icons/BG.svg';
 import { Carousel } from 'react-responsive-carousel';
@@ -81,6 +81,7 @@ const FootballLeagues = lazy(() => import('../../components/Cards/football').the
 const FootballMatches = lazy(() => import('../../components/Cards/football').then(module => ({ default: module.FootballMatches })));
 const MLBLeagues = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBLeagues })));
 const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBGames })));
+
 
 
 const ECommerce: React.FC = () => {
@@ -191,7 +192,22 @@ const ECommerce: React.FC = () => {
       }
     };
     
-
+    const LeaguesSkeletonLoader: React.FC = () => (
+      <div className="p-2">
+      {/* Placeholder for league items */}
+      <div className="h-18 bg-gray-200 rounded-md mb-2 flex items-center animate-pulse">
+        {/* Placeholder for league icon */}
+        <div className="w-14 h-14 bg-gray-300 rounded-full mr-4"></div>
+        {/* Placeholder for league details */}
+        <div>
+          {/* Placeholder for league name */}
+          <div className="w-48 h-6 bg-gray-300 rounded-md mb-2"></div>
+          {/* Placeholder for league country */}
+          <div className="w-24 h-4 bg-gray-300 rounded-md"></div>
+        </div>
+      </div>
+    </div>
+    );
 
 const MatchesSkeletonLoader: React.FC = () => (
   <div className="p-2">
@@ -352,7 +368,9 @@ useEffect(() => {
             <div className="p-2">
               {/* Conditionally render football or MLB leagues based on selectedSport */}
                 {/* Render the appropriate sport component */}
+                <Suspense fallback={<LeaguesSkeletonLoader />}>
                 {renderLeagueComponent()}
+                </Suspense>
             </div>
           </div>
         </div>
@@ -400,7 +418,9 @@ useEffect(() => {
                 </div>
               </div>
               <div className="flex-1 w-full">
+              <Suspense fallback={<MatchesSkeletonLoader />}>
               {matchesLoading ? <MatchesSkeletonLoader /> : renderMatchComponent()}
+              </Suspense>
               </div>
             </div>
           </div>

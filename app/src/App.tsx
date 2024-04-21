@@ -9,6 +9,8 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
+import { Provider } from 'react-redux'; // Import Provider
+import store from './store/store'; // Import your Redux store
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -25,74 +27,75 @@ function App() {
   return loading ? (
     <Loader />
   ) : (
-    <>
-      <Routes>
-        <Route
-          index
-          element={
-            <>
-              <PageTitle title="BetVision AI" />
-              <ECommerce />
-            </>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <>
-              <PageTitle title="Profile | BetVision AI" />
-              <Profile />
-            </>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <>
-              <PageTitle title="Settings | BetVision AI" />
-              <Settings />
-            </>
-          }
-        />
-        <Route
-          path="/ui/alerts"
-          element={
-            <>
-              <PageTitle title="Alerts | BetVision AI" />
-              <Alerts />
-            </>
-          }
-        />
-        <Route
-          path="/ui/buttons"
-          element={
-            <>
-              <PageTitle title="Buttons | BetVision AI" />
-              <Buttons />
-            </>
-          }
-        />
-        <Route
-          path="/auth/signin"
-          element={
-            <>
-              <PageTitle title="Signin | BetVision AI" />
-              <SignIn />
-            </>
-          }
-        />
-        <Route
-          path="/auth/signup"
-          element={
-            <>
-              <PageTitle title="Signup | BetVision AI" />
-              <SignUp />
-            </>
-          }
-        />
-      </Routes>
-    </>
-  
+    <Provider store={store}>
+      <>
+        <Routes>
+          <Route
+            index
+            element={
+              <>
+                <PageTitle title="BetVision AI" />
+                <ECommerce />
+              </>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <>
+                <PageTitle title="Profile | BetVision AI" />
+                <Profile />
+              </>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <>
+                <PageTitle title="Settings | BetVision AI" />
+                <Settings />
+              </>
+            }
+          />
+          <Route
+            path="/ui/alerts"
+            element={
+              <>
+                <PageTitle title="Alerts | BetVision AI" />
+                <Alerts />
+              </>
+            }
+          />
+          <Route
+            path="/ui/buttons"
+            element={
+              <>
+                <PageTitle title="Buttons | BetVision AI" />
+                <Buttons />
+              </>
+            }
+          />
+          <Route
+            path="/auth/signin"
+            element={
+              <>
+                <PageTitle title="Signin | BetVision AI" />
+                <SignIn />
+              </>
+            }
+          />
+          <Route
+            path="/auth/signup"
+            element={
+              <>
+                <PageTitle title="Signup | BetVision AI" />
+                <SignUp />
+              </>
+            }
+          />
+        </Routes>
+      </>
+    </Provider>
   );
 }
 

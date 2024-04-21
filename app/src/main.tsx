@@ -6,16 +6,12 @@ import './css/style.css';
 import './css/satoshi.css';
 import 'jsvectormap/dist/css/jsvectormap.css';
 import 'flatpickr/dist/flatpickr.min.css';
-import { Provider } from 'react-redux';
-import store from './store/store';
+
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <Router>
-      {/* Wrap the App component with SportProvider */}
-      <Provider store={store}>
-        <App />
-        </Provider>,
+      <App />
     </Router>
   </React.StrictMode>,
 );
