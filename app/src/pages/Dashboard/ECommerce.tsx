@@ -106,7 +106,7 @@ const ECommerce: React.FC = () => {
     const fetchMLBData = async () => {
       setMatchesLoading(true); // Set loading state to true before fetching data
       try {
-        const response = await axios.get(`http://127.0.0.1:8056/api/mlbdata?startDate=${formatDate(selectedDate)}&endDate=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?startDate=${formatDate(selectedDate)}&endDate=${formatDate(selectedDate)}`);
         setGames(response.data);
       } catch (error) {
         console.error('Error fetching MLB data:', error);
@@ -136,7 +136,7 @@ const ECommerce: React.FC = () => {
         setLeaguesLoading(true);
   
         // Fetch data from the API
-        const response = await axios.get(`http://127.0.0.1:8056/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
   
         // Extract the data from the response and map it to the Competition type
         const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
