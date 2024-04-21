@@ -106,7 +106,7 @@ const ECommerce: React.FC = () => {
     const fetchMLBData = async () => {
       setMatchesLoading(true); // Set loading state to true before fetching data
       try {
-        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?startDate=${formatDate(selectedDate)}&endDate=${formatDate(selectedDate)}`);
+        const response = await axios.get(`http://127.0.0.1:8056/api/mlbdata?startDate=${formatDate(selectedDate)}&endDate=${formatDate(selectedDate)}`);
         setGames(response.data);
       } catch (error) {
         console.error('Error fetching MLB data:', error);
@@ -165,6 +165,8 @@ const ECommerce: React.FC = () => {
     // Call the fetchLeaguesData function when the selectedDate changes
     fetchLeaguesData();
   }, [selectedDate]);
+  
+
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
