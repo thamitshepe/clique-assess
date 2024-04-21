@@ -51,8 +51,8 @@ class Team(BaseModel):
 class Score(BaseModel):
     winner: Optional[str]
     duration: str
-    fullTime: Dict[str, int]
-    halfTime: Dict[str, int]
+    fullTime: dict
+    halfTime: dict
 
 class Match(BaseModel):
     utcDate: str
@@ -79,7 +79,7 @@ class CompetitionInfo(BaseModel):
 
 class FootballData(BaseModel):
     competition_info: CompetitionInfo
-    matches: List[Match]
+    matches: list[Match]
 
 # Function to fetch football data with Redis caching
 async def fetch_football_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> FootballData:
@@ -169,6 +169,7 @@ async def get_football_data_api(date_from: Optional[str] = None, date_to: Option
     competition_code = "PL"  # Hardcoded to Premier League
     return await fetch_football_data(competition_code, date_from, date_to)
 
+    
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
