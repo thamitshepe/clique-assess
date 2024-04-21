@@ -44,6 +44,22 @@ async def throttle_requests():
     async with lock:
         await asyncio.sleep(0.1)  # Add a small delay for fairness
 
+class Area(BaseModel):
+    id: Optional[int] = None
+    name: str = "England"
+    code: Optional[str] = None
+    flag: Optional[str] = None
+
+class Competition(BaseModel):
+    id: Optional[int] = None
+    name: str = "Premier League"
+    code: Optional[str] = "PL"
+    emblem: Optional[str] = None
+
+class CompetitionInfo(BaseModel):
+    area: Area = Field(default_factory=Area)
+    competition: Competition = Field(default_factory=Competition)
+
 class Team(BaseModel):
     shortName: str
     crest: str
@@ -61,27 +77,15 @@ class Match(BaseModel):
     awayTeam: Team
     score: Score
 
-class Competition(BaseModel):
-    id: int
-    name: str
-    code: str
-    emblem: str
+class FootballData(BaseModel):
+    competition_info: CompetitionInfo
+    matches: Optional[list] = None
 
-class Area(BaseModel):
-    id: Optional[int] = None
-    name: str = "England"
-    code: Optional[str] = None
-    flag: Optional[str] = None
-
-class CompetitionInfo(BaseModel):
-    area: Area = Field(default_factory=Area)
-    competition: Competition
-
-class FootballDataResponse(BaseModel):
+class FootballData(BaseModel):
     PL: dict
 
 # Function to fetch football data with Redis caching
-async def fetch_football_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> FootballDataResponse:
+async def fetch_football_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> FootballData:
     try:
         # Throttle requests
         await throttle_requests()
@@ -92,9 +96,9 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
         cache_key = f"football:{competition_code}:{date_from}-{date_to}"
         cached_data = redis.get(cache_key)
         if cached_data:
-            # Load cached JSON data and create FootballDataResponse object directly
+            # Load cached JSON data and create FootballData object directly
             cached_data_dict = json.loads(cached_data)
-            return FootballDataResponse(**cached_data_dict)
+            return FootballData(**cached_data_dict)
 
         base_url = os.getenv("FOOTBALL_DATA_API_URL")
         headers = {'X-Auth-Token': os.getenv("FOOTBALL_DATA_API_KEY")}
@@ -112,6 +116,12 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
 
         # Extract competition data from the response
         competition_info = CompetitionInfo(
+            area=Area(
+                id=data.get("matches", [{"area": {"id": None}}])[0]["area"].get("id"),
+                name=data.get("matches", [{"area": {"name": "England"}}])[0]["area"].get("name"),
+                code=data.get("matches", [{"area": {"code": None}}])[0]["area"].get("code"),
+                flag=data.get("matches", [{"area": {"flag": None}}])[0]["area"].get("flag")
+            ),
             competition=Competition(
                 id=data["competition"]["id"],
                 name=data["competition"]["name"],
@@ -144,25 +154,42 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
             )
             processed_matches_data.append(processed_match)
 
-        # Create a FootballDataResponse instance with the processed data
-        football_data_response = FootballDataResponse(PL={"name": "PremierLeague", "competition_info": competition_info.dict(), "matches": processed_matches_data})
+        # Create a FootballData instance with the processed data
+        football_data = FootballData(
+            PL={
+                "name": "PremierLeague",
+                "matches": {
+                    "competition_info": competition_info.dict(),
+                    "matches": processed_matches_data
+                }
+            }
+        )
 
         # Cache the data
-        redis.setex(cache_key, RATE_LIMIT_PERIOD, football_data_response.json())
-        return football_data_response
+        redis.setex(cache_key, RATE_LIMIT_PERIOD, football_data.json())
+        return football_data
 
     except Exception as e:
         # Log the exception for debugging
         logging.error("Error fetching football data: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Error fetching football data: {str(e)}")
+        # In case of an error, return a default response with default area data and empty matches
+        competition_info = CompetitionInfo()
+        football_data = FootballData(
+            PL={
+                "name": "PremierLeague",
+                "matches": {
+                    "competition_info": competition_info.dict(),
+                    "matches": []
+                }
+            }
+        )
+        return football_data
 
-
-@app.get('/api/footballdata', response_model=FootballDataResponse)
+@app.get('/api/footballdata', response_model=FootballData)
 async def get_football_data_api(date_from: Optional[str] = None, date_to: Optional[str] = None):
     competition_code = "PL"  # Hardcoded to Premier League
     return await fetch_football_data(competition_code, date_from, date_to)
 
-    
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
