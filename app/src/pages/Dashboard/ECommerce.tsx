@@ -112,7 +112,9 @@ const ECommerce: React.FC = () => {
         console.error('Error fetching MLB data:', error);
       } finally {
         // Set loading state to false whether the data is fetched successfully or not
-        setMatchesLoading(false);
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 2000); // Minimum delay of 1 second
       }
     };
     
@@ -158,7 +160,9 @@ const ECommerce: React.FC = () => {
         console.error('Error fetching data:', error);
       } finally {
         // Set loading state to false after data is fetched or in case of error
-        setLeaguesLoading(false);
+        setTimeout(() => {
+          setLeaguesLoading(false);
+        }, 2000); // Minimum delay of 1 second
       }
     };
   
