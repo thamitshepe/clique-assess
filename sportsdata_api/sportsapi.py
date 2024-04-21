@@ -5,7 +5,7 @@ import os
 import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from redis import Redis
 from dotenv import load_dotenv
 import logging
