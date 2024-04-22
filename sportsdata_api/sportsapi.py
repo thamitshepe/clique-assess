@@ -161,8 +161,12 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
             }
         )
 
-        # Cache the data
-        redis.setex(cache_key, 86400, football_data.json())  # 1 day expiration
+        # Cache the data with a different expiration for the current day's data
+        if date_from == datetime.now(timezone.utc).strftime('%Y-%m-%d'):
+            redis.setex(cache_key, 10, football_data.json())  # 10 seconds expiration for current day's data
+        else:
+            redis.setex(cache_key, 43200, football_data.json())  # Half a day expiration for other data
+        
         return football_data
 
     except Exception as e:
@@ -186,12 +190,20 @@ async def get_football_data_api(date_from: Optional[str] = None, date_to: Option
     competition_code = "PL"  # Hardcoded to Premier League
     return await fetch_football_data(competition_code, date_from, date_to)
 
-    
+
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
         # Throttle requests
         await throttle_requests()
+
+        # Check if requested dates are in the cache
+        cache_key = f"mlb_data:{start_date}:{end_date}"
+        cached_data = redis.get(cache_key)
+
+        if cached_data:
+            # Return cached data if exists
+            return json.loads(cached_data)
 
         mlb_base_url = os.getenv("MLB_API_URL")
         mlb_date_url = f'{mlb_base_url}&startDate={start_date}&endDate={end_date}' if start_date and end_date else mlb_base_url
@@ -218,6 +230,12 @@ async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[st
                 }
                 extracted_data.append(extracted_game)
 
+        # Determine expiration time based on current date or other dates
+        expiration = 10 if start_date == datetime.now().strftime('%Y-%m-%d') else 60 * 60 * 12  # 10 seconds for current date, half a day for others
+
+        # Cache the data in Redis with the appropriate expiration time
+        redis.setex(cache_key, expiration, json.dumps(extracted_data))
+
         return extracted_data
 
     except Exception as e:
@@ -226,6 +244,8 @@ async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[st
 @app.get('/api/mlbdata')
 async def get_mlb_data_api(start_date: Optional[str] = None, end_date: Optional[str] = None):
     return await fetch_mlb_data(start_date, end_date)
+
+
 
 redis_instance = Redis.from_url(redis_url)
 
