@@ -27,7 +27,7 @@ const MLB: React.FC = () => {
     const fetchMLBData = async () => {
       setMatchesLoading(true); // Set loading state to true before fetching data
       try {
-        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?startDate=${formatDate(selectedDate)}&endDate=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
         setGames(response.data);
       } catch (error) {
         console.error('Error fetching MLB data:', error);
