@@ -2,15 +2,31 @@ from fastapi import FastAPI, BackgroundTasks
 import requests
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 import joblib
 import datetime
 import pytz
 import time
 import threading
+import os
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-API_KEY = "Your_API_Key"
+# Load environment variables
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change this to restrict access to specific origins if needed
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
 MODEL_PATH = "./trained_model.h5"
 
 predictions_loaded = False
