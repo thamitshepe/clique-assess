@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 import joblib
 import datetime
+from dotenv import load_dotenv
 import pytz
 import time
 import threading
@@ -13,10 +14,6 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-
-# Load environment variables
-load_dotenv()
-API_KEY = os.getenv('API_KEY')
 
 # Enable CORS
 app.add_middleware(
@@ -26,6 +23,10 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
+# Load environment variables
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 MODEL_PATH = "./trained_model.h5"
 
