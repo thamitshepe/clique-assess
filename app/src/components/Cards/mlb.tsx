@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
 import { isSameDay } from 'date-fns';
-import useLocalStorage from '../../hooks/useLocalStorage'; 
 import * as mlbIcons from '../../images/mlb';
-import { toZonedTime, format } from 'date-fns-tz';
+import { format } from 'date-fns-tz';
 
 interface Game {
   gameDate: string;
@@ -18,86 +16,43 @@ interface Game {
   };
 }
 
-const MLB: React.FC = () => {
-  const [games, setGames] = useState<Game[]>([]);
-  const selectedDate = localStorage.getItem('selectedDate') || '';
-  const [matchesLoading, setMatchesLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchMLBData = async () => {
-      setMatchesLoading(true); // Set loading state to true before fetching data
-      try {
-        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
-        setGames(response.data);
-      } catch (error) {
-        console.error('Error fetching MLB data:', error);
-      } finally {
-        // Set loading state to false whether the data is fetched successfully or not
-        setMatchesLoading(false);
-      }
-    };
-    
-    fetchMLBData();
-  }, [selectedDate]);
-
-  const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
-    // Convert the input date to the required timezone
-    const date = new Date(dateInput);
-    const zonedDate = toZonedTime(date, timeZone);
-    
-    // Format the date as YYYY-MM-DD in the specified time zone
-    return format(zonedDate, 'yyyy-MM-dd', { timeZone });
-  };
+const MLB: React.FC<{ selectedDate: Date; predictions: any[] }> = ({ selectedDate, predictions }) => {
+  const [games] = useState<Game[]>([]);
   
-
   return (
     <div className="custom-scrollbar-container">
-      <MLBGames games={games} />
+      <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />
     </div>
   );
 };
 
 export default MLB;
 
-export const MLBGames: React.FC<{ games: Game[] }> = ({ games }) => {
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [selectedDate] = useLocalStorage('selectedDate', new Date());
-
+export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions?: any[] }> = ({ games, selectedDate, predictions }) => {
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
-    return isSameDay(selectedDate, currentDate); // Check if selectedDate is the same as the current date
+    return isSameDay(selectedDate, currentDate);
   }, [selectedDate]);
 
-  // Fetch predictions data once when the component mounts
   useEffect(() => {
-    const fetchPredictions = async () => {
-      try {
-        const response = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
-        setPredictions(response.data);
-      } catch (error) {
-        console.error('Error fetching predictions:', error);
-      }
-    };
+    console.log("isCurrentDate:", isCurrentDate); // Debugging: Check if matches state is received correctly
+  }, [isCurrentDate]);
 
-    fetchPredictions();
-  }, []);
 
   useEffect(() => {
     console.log("Games:", games); // Debugging: Check if matches state is received correctly
   }, [games]);
 
-  // Function to modify team names
+
   const modifyTeamName = (name: string): string => {
     return name.replace(/\s/g, '_').replace(/\./g, '');
   };
 
-  // Type assertion to inform TypeScript about the type of mlbIcons
   const mlbIconsTyped: Record<string, any> = mlbIcons;
 
   const items = useMemo(() => {
     return games.map((game, index) => {
-      // Find a matching or closely matching prediction based on home and away team names
-      const matchedPrediction = predictions.find((prediction) => {
+      const matchedPrediction = predictions && predictions.find((prediction) => { // Check if predictions exist
         const homeTeamMatch = prediction['Home Team'].toLowerCase().includes(game.homeTeam.name.toLowerCase());
         const awayTeamMatch = prediction['Away Team'].toLowerCase().includes(game.awayTeam.name.toLowerCase());
         return homeTeamMatch && awayTeamMatch;

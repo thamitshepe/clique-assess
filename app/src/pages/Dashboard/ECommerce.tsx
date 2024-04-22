@@ -91,6 +91,7 @@ const ECommerce: React.FC = () => {
   const [datesWithIndex, setDatesWithIndex] = useState<DatesWithIndex>({});
   const [leagues, setLeagues] = useState<Competition[]>([]);
   const [games, setGames] = useState<Game[]>([]);
+  const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
   const [leaguesLoading, setLeaguesLoading] = useState(true);
   const [matchesLoading, setMatchesLoading] = useState(true);
@@ -106,20 +107,28 @@ const ECommerce: React.FC = () => {
       try {
         const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
         setGames(response.data);
+
+        // Convert selectedDate string to Date object
+        const selectedDateObj = new Date(selectedDate);
+
+        // Fetch predictions only if the date is the current date
+        if (isCurrentDate(selectedDateObj)) {
+          const predictionsResponse = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
+          console.log('Predictions:', predictionsResponse.data);
+          setPredictions(predictionsResponse.data);
+        }
       } catch (error) {
         console.error('Error fetching MLB data:', error);
       } finally {
         // Set loading state to false whether the data is fetched successfully or not
-        setTimeout(() => {
-          setMatchesLoading(false);
-        }, 2000); // Minimum delay of 1 second
+        setMatchesLoading(false);
       }
     };
     
     fetchMLBData();
   }, [selectedDate]);
-  
-  
+
+
   const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
     // Convert the input date to the required timezone
     const date = new Date(dateInput);
@@ -128,6 +137,14 @@ const ECommerce: React.FC = () => {
     // Format the date as YYYY-MM-DD in the specified time zone
     return format(zonedDate, 'yyyy-MM-dd', { timeZone });
   };
+
+  const isCurrentDate = (date: Date) => {
+    const currentDate = new Date();
+    const formattedCurrentDate = formatDate(currentDate);
+    const formattedDate = formatDate(date);
+    return formattedDate === formattedCurrentDate;
+  };
+
   
   useEffect(() => {
     const fetchLeaguesData = async () => {
@@ -186,13 +203,14 @@ const ECommerce: React.FC = () => {
     const renderMatchComponent = () => {
       switch (selectedSport) {
         case 'mlb':
-          return <MLBGames games={games} />;
+          return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />;
         case 'soccer':
-          return < FootballMatches leagues={leagues} />;
+          return <FootballMatches leagues={leagues} />;
         default:
-          return <MLBGames games={games} />;
+          return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />;
       }
     };
+
     
     const LeaguesSkeletonLoader: React.FC = () => (
       <div className="p-2">
