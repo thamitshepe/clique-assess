@@ -12,6 +12,7 @@ import time
 import threading
 import os
 from fastapi.middleware.cors import CORSMiddleware
+import schedule
 
 app = FastAPI()
 
@@ -103,36 +104,39 @@ def load_predictions(api_key):
             predictions_loaded = True
             initial_load_completed = True
 
-def update_predictions():
-    while True:
-        now = datetime.datetime.now(pytz.timezone('US/Eastern'))
-        if now.hour == 3 and now.minute == 0:
-            load_predictions(API_KEY)
-            print("Predictions updated at 3:00 AM EST")
-        time.sleep(60)  # Check every minute
+# Schedule task to load predictions data every day at 6 AM US Eastern Time
+schedule.every().day.at("06:00").do(load_predictions, API_KEY)
 
+# Main function to run scheduler
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+# Run scheduler in a separate thread
+import threading
+scheduler_thread = threading.Thread(target=run_scheduler)
+scheduler_thread.start()
+
+# Background task to keep instance alive
 def keep_instance_alive():
     while True:
-        time.sleep(1500)  # Wait for 25 minutes
-        requests.get("https://betvision-ai.onrender.com/mlbpredictions")  # FastAPI instance URL
+        time.sleep(1500)  # 25 minutes
+        requests.get("https://betvision-ai.onrender.com/mlbpredictions")  # Replace with your FastAPI instance URL
 
-# Start a thread for updating predictions
-update_thread = threading.Thread(target=update_predictions)
-update_thread.daemon = True
-update_thread.start()
 
-# Start a thread for keeping instance alive
-instance_thread = threading.Thread(target=keep_instance_alive)
-instance_thread.daemon = True
-instance_thread.start()
 
-@app.get("/")
-def read_root():
-    load_predictions(API_KEY)  # Load or update predictions data
-    return {"message": "Predictions loaded successfully."}
+# Run background tasks
+background_tasks = BackgroundTasks()
+background_tasks.add_task(keep_instance_alive)
 
+# Main endpoint to get predictions
 @app.get("/mlbpredictions")
-def get_predictions():
+async def get_predictions():
+    global predictions_loaded, predictions_data, initial_load_completed
+    
+    # Load or update predictions data if not loaded yet
     if not initial_load_completed:
-        load_predictions(API_KEY)  # Load or update predictions data if not already done
+        load_predictions(API_KEY)
+    
     return predictions_data

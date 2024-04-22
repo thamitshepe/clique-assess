@@ -116,7 +116,7 @@ scheduler_thread.start()
 def keep_instance_alive():
     while True:
         time.sleep(1500)  # 25 minutes
-        requests.get("https://betvision-ai.onrender.com/mlbpredictions")  # Replace with your FastAPI instance URL
+        requests.get("https://betvision-ai.onrender.com/soccerpredictions")  # Replace with your FastAPI instance URL
 
 
 
