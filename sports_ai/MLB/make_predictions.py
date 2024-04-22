@@ -111,7 +111,7 @@ def read_root():
     load_predictions(API_KEY)  # Load or update predictions data
     return {"message": "Predictions loaded successfully."}
 
-@app.get("/predictions")
+@app.get("/mlbpredictions")
 def get_predictions():
     if not initial_load_completed:
         load_predictions(API_KEY)  # Load or update predictions data if not already done
