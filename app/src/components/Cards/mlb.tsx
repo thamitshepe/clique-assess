@@ -41,6 +41,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
     fetchPredictions();
   }, [isCurrentDate, gamesLoaded]);
 
+
   const modifyTeamName = (name: string): string => {
     return name.replace(/\s/g, '_').replace(/\./g, '');
   };

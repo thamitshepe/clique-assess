@@ -6,12 +6,10 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import CalendarIcon from '../../images/icons/calender.png';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { addDays, getYear, isBefore, isSameDay } from 'date-fns';
+import { addDays, getYear, isBefore } from 'date-fns';
 import { toZonedTime, format } from 'date-fns-tz';
 import axios from 'axios';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
-
-
 
 
 interface DateWithIndex {
@@ -95,24 +93,24 @@ const ECommerce: React.FC = () => {
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [gamesLoaded, setGamesLoaded] = useState(false); // Track whether games have been loaded
+  const [predictionsLoading, setPredictionsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
   }, [selectedSport]);
   
-  
-
   useEffect(() => {
     setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
     setGamesLoaded(false); // Reset gamesLoaded state when selectedDate changes
+    setPredictionsLoading(false)
   }, [selectedDate]);
-  
+
   useEffect(() => {
     // Reset state variables for MLB data
     setGames([]);
     setPredictions([]);
     setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
-  
+    
     const fetchMLBData = async () => {
       try {
         const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
@@ -121,18 +119,19 @@ const ECommerce: React.FC = () => {
       } finally {
         // Set gamesLoaded to true after games are fetched and set
         setGamesLoaded(true);
+        if (predictionsLoading) {
+          setMatchesLoading(true);
+        }
         // Wait for 2 seconds before setting loading to false
         setTimeout(() => {
           setMatchesLoading(false);
         }, 3000);
       }
     };
-    
-  
+
     fetchMLBData();
   }, [selectedDate]);
 
-  
 
   const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
     // Convert the input date to the required timezone
@@ -172,14 +171,6 @@ const ECommerce: React.FC = () => {
   
         setLeagues(footballData);
         setGamesLoaded(true);
-  
-        // Fetch predictions only if the selected date is the current date
-        if (isSameDay(selectedDate, new Date())) {
-          const predictionsResponse = await axios.get('https://betvision.onrender.com/soccerpredictions');
-          setPredictions(predictionsResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
       } finally {
         // Wait for 2 seconds before setting loading to false
         setTimeout(() => {

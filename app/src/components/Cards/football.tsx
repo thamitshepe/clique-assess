@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
 import * as leagueIcons from '../../images/football/leagues'; // Import league SVGs
+import axios from 'axios';
 
 
 interface Match {
@@ -40,16 +41,29 @@ interface Competition {
 }
 
 
-export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, predictions, selectedDate, gamesLoaded }) => {
+export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, selectedDate, gamesLoaded }) => {
+  const [predictions, setPredictions] = useState<any[]>([]);
+
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
-    return isSameDay(selectedDate, currentDate); // Check if selectedDate is the same as the current date
+    return isSameDay(selectedDate, currentDate);
   }, [selectedDate]);
 
-
   useEffect(() => {
-    console.log("Games:", leagues); // Debugging: Check if matches state is received correctly
-  }, [leagues]);
+    const fetchPredictions = async () => {
+      try {
+        if (isCurrentDate && gamesLoaded) {
+          const response = await axios.get('https://betvision-ai.onrender.com/soccerpredictions');
+          console.log('Predictions:', response.data);
+          setPredictions(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching predictions:', error);
+      }
+    };
+
+    fetchPredictions();
+  }, [isCurrentDate, gamesLoaded]);
 
   const items = useMemo(() => {
     return leagues.flatMap((competition) =>
