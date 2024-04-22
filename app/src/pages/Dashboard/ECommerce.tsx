@@ -5,7 +5,6 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import CalendarIcon from '../../images/icons/calender.png';
 import Calendar from 'react-calendar';
-import useLocalStorage from '../../hooks/useLocalStorage';
 import 'react-calendar/dist/Calendar.css';
 import { addDays, getYear, isBefore } from 'date-fns';
 import { toZonedTime, format } from 'date-fns-tz';
@@ -87,12 +86,11 @@ const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => 
 const ECommerce: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useLocalStorage('selectedDate', new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Directly set to today's date
   const [currentYear, setCurrentYear] = useState<number>(getYear(new Date()));
   const [datesWithIndex, setDatesWithIndex] = useState<DatesWithIndex>({});
   const [leagues, setLeagues] = useState<Competition[]>([]);
   const [games, setGames] = useState<Game[]>([]);
-  // Access the selectedSport value from the Redux store
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
   const [leaguesLoading, setLeaguesLoading] = useState(true);
   const [matchesLoading, setMatchesLoading] = useState(true);

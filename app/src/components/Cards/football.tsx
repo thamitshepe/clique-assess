@@ -164,7 +164,7 @@ export const FootballMatches: React.FC<{ leagues: Competition[] }> = ({ leagues 
             {/* Home team section */}
             <div style={{ width: '20%' }} className="flex items-center">
               {/* SVG for home team */}
-              <img src={match.homeTeam.crest} alt={match.homeTeam.shortName} className="w-8 h-8" />
+              <img src={match.homeTeam.crest} alt={match.homeTeam.shortName} className="w-8 h-8 mr-6" />
               <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
                 {match.homeTeam.shortName}
               </p>
@@ -182,7 +182,7 @@ export const FootballMatches: React.FC<{ leagues: Competition[] }> = ({ leagues 
             {/* Away team section */}
             <div style={{ width: '20%' }} className="flex items-center">
               {/* SVG for away team */}
-              <img src={match.awayTeam.crest} alt={match.awayTeam.shortName} className="w-8 h-8" />
+              <img src={match.awayTeam.crest} alt={match.awayTeam.shortName} className="w-8 h-8 mr-6" />
               <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
                 {match.awayTeam.shortName}
               </p>

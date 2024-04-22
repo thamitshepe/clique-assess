@@ -128,7 +128,7 @@ export const MLBGames: React.FC<{ games: Game[] }> = ({ games }) => {
             <img
               src={mlbIconsTyped[modifyTeamName(game.homeTeam.name).replace(/\s/g, "_")]}
               alt={game.awayTeam.name}
-              className="w-8 h-8"
+              className="w-8 h-8 mr-6"
             />
             <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
               {game.homeTeam.name}
@@ -148,7 +148,7 @@ export const MLBGames: React.FC<{ games: Game[] }> = ({ games }) => {
             <img
               src={mlbIconsTyped[modifyTeamName(game.awayTeam.name).replace(/\s/g, "_")]}
               alt={game.awayTeam.name}
-              className="w-8 h-8"
+              className="w-8 h-8 mr-6"
             />
             <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
               {game.awayTeam.name}

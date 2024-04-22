@@ -78,10 +78,6 @@ class Match(BaseModel):
     score: Score
 
 class FootballData(BaseModel):
-    competition_info: CompetitionInfo
-    matches: Optional[list] = None
-
-class FootballData(BaseModel):
     PL: dict
 
 # Function to fetch football data with Redis caching
@@ -166,7 +162,7 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
         )
 
         # Cache the data
-        redis.setex(cache_key, RATE_LIMIT_PERIOD, football_data.json())
+        redis.setex(cache_key, 86400, football_data.json())  # 1 day expiration
         return football_data
 
     except Exception as e:
@@ -190,6 +186,7 @@ async def get_football_data_api(date_from: Optional[str] = None, date_to: Option
     competition_code = "PL"  # Hardcoded to Premier League
     return await fetch_football_data(competition_code, date_from, date_to)
 
+    
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
