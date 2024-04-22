@@ -74,26 +74,29 @@ def load_predictions(api_key):
     global predictions_loaded, predictions_data, initial_load_completed
     
     if not predictions_loaded and not initial_load_completed:
-        # Load the trained model
-        model = load_model()
 
         # Fetch upcoming match data
         upcoming_data = fetch_upcoming_matches(api_key)
 
-        # Preprocess upcoming match data
-        upcoming_df = preprocess_upcoming_matches(upcoming_data)
+        # Ensure upcoming_data is not empty and in the correct format
+        if upcoming_data:
+            # Preprocess upcoming match data
+            upcoming_df = preprocess_upcoming_matches(upcoming_data)
 
-        # Make predictions
-        predictions, probabilities = make_predictions(model, upcoming_df)
-        
-        # Add predicted winner and probability to predictions data
-        upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
-        upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
-        
-        # Store predictions data
-        predictions_data = upcoming_df.to_dict(orient='records')
-        predictions_loaded = True
-        initial_load_completed = True
+            # Load the trained model
+            model = load_model()
+
+            # Make predictions
+            predictions, probabilities = make_predictions(model, upcoming_df)
+            
+            # Add predicted winner and probability to predictions data
+            upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
+            upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+            
+            # Store predictions data
+            predictions_data = upcoming_df.to_dict(orient='records')
+            predictions_loaded = True
+            initial_load_completed = True
 
 # Schedule task to load predictions data every day at 6 AM US Eastern Time
 schedule.every().day.at("06:00").do(load_predictions, API_KEY)

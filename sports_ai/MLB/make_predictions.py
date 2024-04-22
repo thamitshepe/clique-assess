@@ -55,33 +55,36 @@ def load_predictions(api_key):
     global predictions_loaded, predictions_data, initial_load_completed
     
     if not predictions_loaded:
-        # Load the trained model
-        model = load_model()
 
         # Fetch upcoming match data
         upcoming_data = fetch_upcoming_matches(api_key)
 
-        # Preprocess upcoming match data
-        upcoming_df = preprocess_upcoming_matches(upcoming_data)
+       # Ensure upcoming_data is not empty and in the correct format
+        if upcoming_data:
+            # Preprocess upcoming match data
+            upcoming_df = preprocess_upcoming_matches(upcoming_data)
 
-        # Make predictions
-        predictions, probabilities = make_predictions(model, upcoming_df)
-        
-        # Add predicted winner and probability to predictions data
-        upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
-        upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
-        
-        # Apply formatting to the predictions data
-        mask = upcoming_df['Probability (%)'] < 65
-        upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
-        
-        # Drop the third feature column
-        upcoming_df.drop(columns=['Third Feature'], inplace=True)
-        
-        # Store predictions data globally
-        predictions_data = upcoming_df.to_dict(orient='records')
-        predictions_loaded = True
-        initial_load_completed = True
+            # Load the trained model
+            model = load_model()
+                
+            # Make predictions
+            predictions, probabilities = make_predictions(model, upcoming_df)
+            
+            # Add predicted winner and probability to predictions data
+            upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
+            upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+            
+            # Apply formatting to the predictions data
+            mask = upcoming_df['Probability (%)'] < 65
+            upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
+            
+            # Drop the third feature column
+            upcoming_df.drop(columns=['Third Feature'], inplace=True)
+            
+            # Store predictions data globally
+            predictions_data = upcoming_df.to_dict(orient='records')
+            predictions_loaded = True
+            initial_load_completed = True
 
 def update_predictions():
     while True:
