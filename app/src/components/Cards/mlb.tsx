@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { isSameDay } from 'date-fns';
 import * as mlbIcons from '../../images/mlb';
 import { format } from 'date-fns-tz';
+import axios from 'axios';
 
 interface Game {
   gameDate: string;
@@ -16,33 +17,29 @@ interface Game {
   };
 }
 
-const MLB: React.FC<{ selectedDate: Date; predictions: any[] }> = ({ selectedDate, predictions }) => {
-  const [games] = useState<Game[]>([]);
-  
-  return (
-    <div className="custom-scrollbar-container">
-      <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />
-    </div>
-  );
-};
+export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded  }) => {
+  const [predictions, setPredictions] = useState<any[]>([]);
 
-export default MLB;
-
-export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions?: any[] }> = ({ games, selectedDate, predictions }) => {
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
     return isSameDay(selectedDate, currentDate);
   }, [selectedDate]);
 
   useEffect(() => {
-    console.log("isCurrentDate:", isCurrentDate); // Debugging: Check if matches state is received correctly
-  }, [isCurrentDate]);
+    const fetchPredictions = async () => {
+      try {
+        if (isCurrentDate && gamesLoaded) {
+          const response = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
+          console.log('Predictions:', response.data);
+          setPredictions(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching predictions:', error);
+      }
+    };
 
-
-  useEffect(() => {
-    console.log("Games:", games); // Debugging: Check if matches state is received correctly
-  }, [games]);
-
+    fetchPredictions();
+  }, [isCurrentDate, gamesLoaded]);
 
   const modifyTeamName = (name: string): string => {
     return name.replace(/\s/g, '_').replace(/\./g, '');
@@ -64,11 +61,11 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions
           className="h-15 rounded-md bg-black mb-4 p-6 px-10 flex items-center justify-between"
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
+          {/* Render game details */}
           {/* Time section */}
           <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
             {format(new Date(game.gameDate), 'HH:mm')}
           </p>
-
           {/* Status section */}
           <p
             style={{ width: '10%' }}
@@ -76,7 +73,6 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions
           >
             {game.status}
           </p>
-
           {/* Home team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for home team */}
@@ -89,14 +85,12 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions
               {game.homeTeam.name}
             </p>
           </div>
-
           {/* Score section */}
           <p style={{ width: '9%' }} className="text-center align-center text-white text-sm font-medium">
             {game.homeTeam.score !== null && game.awayTeam.score !== null
               ? `${game.homeTeam.score} - ${game.awayTeam.score}`
               : '0 - 0'}
           </p>
-
           {/* Away team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for away team */}
@@ -109,15 +103,13 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions
               {game.awayTeam.name}
             </p>
           </div>
-          
           {/* Render the "Predicted Win" and "Probability" sections based on matched prediction */}
-          {matchedPrediction && isCurrentDate && (
+          {matchedPrediction && isCurrentDate && gamesLoaded && (
             <>
               {/* Predicted win section */}
               <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
                 <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Predicted Winner']}</p>
               </div>
-
               {/* Probability section */}
               <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
                 <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
@@ -127,7 +119,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions
         </div>
       );
     });
-  }, [games, predictions, isCurrentDate]);
+  }, [games, isCurrentDate, predictions, gamesLoaded]);
 
   return (
     <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent scrollbar-thumb-rounded-full" style={{ height: '59vh' }}>
@@ -135,7 +127,6 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date; predictions
     </div>
   );
 };
-
 
 export const MLBLeagues: React.FC = () => (
   <div className="p-2">

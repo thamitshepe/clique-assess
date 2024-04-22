@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
 import * as leagueIcons from '../../images/football/leagues'; // Import league SVGs
@@ -39,21 +39,8 @@ interface Competition {
   matches: Match[];
 }
 
-const Football: React.FC<{ leagues: Competition[], predictions: any[], selectedDate: Date }> = ({ predictions, selectedDate }) => {
-  const [leagues] = useState<Competition[]>([]);
-  
 
-  return (
-    <div className="custom-scrollbar-container">
-      <FootballLeagues leagues={leagues} />
-      <FootballMatches leagues={leagues} predictions={predictions} selectedDate={selectedDate}/>
-    </div>
-  );
-};
-
-export default Football;
-
-export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[] }> = ({ leagues, predictions, selectedDate }) => {
+export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, predictions, selectedDate, gamesLoaded }) => {
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
     return isSameDay(selectedDate, currentDate); // Check if selectedDate is the same as the current date
@@ -121,7 +108,7 @@ export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: D
             </div>
             
             {/* Render the "Predicted Win" and "Probability" sections based on matched prediction */}
-            {matchedPrediction && isCurrentDate && (
+            {matchedPrediction && isCurrentDate &&  gamesLoaded && (
               <>
                 {/* Predicted win section */}
                 <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
@@ -148,18 +135,19 @@ export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: D
 };
 
 
-export const FootballLeagues: React.FC<{ leagues: Competition[] }> = ({ leagues }) => (
+export const FootballLeagues: React.FC = () => (
   <div className="p-2">
-    {leagues.map((competition) => (
-      <div key={competition.code} className="h-18 rounded-md mb-2 flex items-center">
-        {leagueIcons[competition.code as keyof typeof leagueIcons] && (
-          <img className='h-14 w-14 mr-4' src={leagueIcons[competition.code as keyof typeof leagueIcons]} alt={competition.name} />
+      <div className="h-18 rounded-md mb-2 flex items-center">
+        {leagueIcons['PL'] && (
+          <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="MLB Emblem" />
         )}
         <div>
-          <p className="text-md font-medium text-white">{competition.name}</p>
-          <p className="text-sm font-medium text-gray-2">{competition.competition_info.area.name}</p>
+          <p className="text-md font-medium text-white">Premier League</p>
+          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+            England
+          </p>
         </div>
       </div>
-    ))}
+    )
   </div>
 );

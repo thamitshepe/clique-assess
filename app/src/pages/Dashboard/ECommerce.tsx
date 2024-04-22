@@ -93,46 +93,45 @@ const ECommerce: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
-  const [leaguesLoading, setLeaguesLoading] = useState(true);
   const [matchesLoading, setMatchesLoading] = useState(true);
+  const [gamesLoaded, setGamesLoaded] = useState(false); // Track whether games have been loaded
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
   }, [selectedSport]);
   
+  
 
   useEffect(() => {
     setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+    setGamesLoaded(false); // Reset gamesLoaded state when selectedDate changes
   }, [selectedDate]);
   
   useEffect(() => {
+    // Reset state variables for MLB data
+    setGames([]);
+    setPredictions([]);
+    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+  
     const fetchMLBData = async () => {
       try {
-        // Introduce a delay of 5 seconds before fetching the data (for testing purposes)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-  
         const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
         setGames(response.data);
-  
-        // Convert selectedDate string to Date object
-        const selectedDateObj = new Date(selectedDate);
-  
-        // Fetch predictions only if the date is the current date
-        if (isCurrentDate(selectedDateObj)) {
-          const predictionsResponse = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
-          console.log('Predictions:', predictionsResponse.data);
-          setPredictions(predictionsResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching MLB data:', error);
+
       } finally {
-        // Set loading state to false after the data is fetched or in case of error
-        setMatchesLoading(false);
+        // Set gamesLoaded to true after games are fetched and set
+        setGamesLoaded(true);
+        // Wait for 2 seconds before setting loading to false
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 3000);
       }
     };
     
+  
     fetchMLBData();
   }, [selectedDate]);
+
   
 
   const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
@@ -144,15 +143,17 @@ const ECommerce: React.FC = () => {
     return format(zonedDate, 'yyyy-MM-dd', { timeZone });
   };
 
-  const isCurrentDate = (date: Date) => {
-    const currentDate = new Date();
-    const formattedCurrentDate = formatDate(currentDate);
-    const formattedDate = formatDate(date);
-    return formattedDate === formattedCurrentDate;
-  };
-
-  
   useEffect(() => {
+    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+    setGamesLoaded(false); // Reset gamesLoaded state when selectedDate changes
+  }, [selectedDate]);
+  
+
+  useEffect(() => {
+    // Reset state variables for football data
+    setLeagues([]);
+    setPredictions([]);
+    
     const fetchFootballData = async () => {
       try {
         // Fetch football data
@@ -168,9 +169,10 @@ const ECommerce: React.FC = () => {
           },
           matches: leagueData.matches.matches
         }));
-
+  
         setLeagues(footballData);
-
+        setGamesLoaded(true);
+  
         // Fetch predictions only if the selected date is the current date
         if (isSameDay(selectedDate, new Date())) {
           const predictionsResponse = await axios.get('https://betvision.onrender.com/soccerpredictions');
@@ -179,12 +181,15 @@ const ECommerce: React.FC = () => {
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        setLeaguesLoading(false);
+        // Wait for 2 seconds before setting loading to false
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 3000);
       }
     };
-
+  
     fetchFootballData();
-  }, [selectedDate]);
+  }, [selectedDate, gamesLoaded]);
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
@@ -192,7 +197,7 @@ const ECommerce: React.FC = () => {
         case 'mlb':
           return <MLBLeagues />;
         case 'soccer':
-          return < FootballLeagues leagues={leagues} />;
+          return < FootballLeagues/>;
         default:
           return <MLBLeagues />;
       }
@@ -202,11 +207,11 @@ const ECommerce: React.FC = () => {
     const renderMatchComponent = () => {
       switch (selectedSport) {
         case 'mlb':
-          return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />;
+          return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'soccer':
-          return <FootballMatches leagues={leagues} predictions={predictions} selectedDate={selectedDate}/>;
+          return <FootballMatches leagues={leagues} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         default:
-          return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />;
+          return <MLBGames games={games} predictions={predictions}  selectedDate={selectedDate} gamesLoaded={gamesLoaded} />;
       }
     };
 
@@ -214,15 +219,15 @@ const ECommerce: React.FC = () => {
     const LeaguesSkeletonLoader: React.FC = () => (
       <div className="p-2">
       {/* Placeholder for league items */}
-      <div className="h-18 bg-gray-200 rounded-md mb-2 flex items-center animate-pulse">
+      <div className="h-18 bg-black rounded-md mb-2 flex items-center animate-pulse">
         {/* Placeholder for league icon */}
-        <div className="w-14 h-14 bg-gray-300 rounded-full mr-4"></div>
+        <div className="w-14 h-14 bg-black rounded-full mr-4"></div>
         {/* Placeholder for league details */}
         <div>
           {/* Placeholder for league name */}
-          <div className="w-48 h-6 bg-gray-300 rounded-md mb-2"></div>
+          <div className="w-48 h-6 bg-black rounded-md mb-2"></div>
           {/* Placeholder for league country */}
-          <div className="w-24 h-4 bg-gray-300 rounded-md"></div>
+          <div className="w-24 h-4 bg-black rounded-md"></div>
         </div>
       </div>
     </div>
