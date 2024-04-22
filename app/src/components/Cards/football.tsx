@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
 import { isSameDay } from 'date-fns';
-import useLocalStorage from '../../hooks/useLocalStorage'; 
-import { format, toZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns-tz';
 import * as leagueIcons from '../../images/football/leagues'; // Import league SVGs
 
 
@@ -41,92 +39,26 @@ interface Competition {
   matches: Match[];
 }
 
-const Football: React.FC = () => {
-  const [leagues, setLeagues] = useState<Competition[]>([]);
-  const selectedDate = localStorage.getItem('selectedDate') || '';
-  const [leaguesLoading, setLeaguesLoading] = useState(true);
-
-
-
-  const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
-    // Convert the input date to the required timezone
-    const date = new Date(dateInput);
-    const zonedDate = toZonedTime(date, timeZone);
-    
-    // Format the date as YYYY-MM-DD in the specified time zone
-    return format(zonedDate, 'yyyy-MM-dd', { timeZone });
-  };
-  
-  useEffect(() => {
-    const fetchLeaguesData = async () => {
-      try {
-        // Set loading state to true before fetching data
-        setLeaguesLoading(true);
-  
-        // Fetch data from the API
-        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
-  
-        // Extract the data from the response and map it to the Competition type
-        const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
-          name: leagueData.matches.competition_info.competition.name,
-          code: leagueData.matches.competition_info.competition.code,
-          emblem: leagueData.matches.competition_info.competition.emblem,
-          competition_info: {
-            area: {
-              name: leagueData.matches.competition_info.area.name,
-            },
-          },
-          matches: leagueData.matches.matches
-        }));
-  
-        // Update the leagues state with the fetched data
-        setLeagues(data);
-      } catch (error) {
-        // Log any errors that occur during fetching
-        console.error('Error fetching data:', error);
-      } finally {
-        // Set loading state to false after data is fetched or in case of error
-        setLeaguesLoading(false);
-      }
-    };
-  
-    // Call the fetchLeaguesData function when the selectedDate changes
-    fetchLeaguesData();
-  }, [selectedDate]);
+const Football: React.FC<{ leagues: Competition[], predictions: any[], selectedDate: Date }> = ({ predictions, selectedDate }) => {
+  const [leagues] = useState<Competition[]>([]);
   
 
   return (
     <div className="custom-scrollbar-container">
       <FootballLeagues leagues={leagues} />
-      <FootballMatches leagues={leagues} />
+      <FootballMatches leagues={leagues} predictions={predictions} selectedDate={selectedDate}/>
     </div>
   );
 };
 
 export default Football;
 
-export const FootballMatches: React.FC<{ leagues: Competition[] }> = ({ leagues }) => {
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [selectedDate] = useLocalStorage('selectedDate', new Date());
-
+export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[] }> = ({ leagues, predictions, selectedDate }) => {
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
     return isSameDay(selectedDate, currentDate); // Check if selectedDate is the same as the current date
   }, [selectedDate]);
 
-  // Fetch soccer predictions data once when the component mounts
-  useEffect(() => {
-    const fetchSoccerPredictions = async () => {
-      try {
-        const response = await axios.get('https://betvision.onrender.com/soccerpredictions');
-        setPredictions(response.data);
-      } catch (error) {
-        console.error('Error fetching soccer predictions:', error);
-      }
-    };
-
-    fetchSoccerPredictions();
-  }, []);
 
   useEffect(() => {
     console.log("Games:", leagues); // Debugging: Check if matches state is received correctly
@@ -136,7 +68,7 @@ export const FootballMatches: React.FC<{ leagues: Competition[] }> = ({ leagues 
     return leagues.flatMap((competition) =>
       competition.matches.map((match: Match, index: number) => {
         // Find a matching or closely matching prediction based on home and away team names
-        const matchedPrediction = predictions.find((prediction) => {
+        const matchedPrediction = predictions && predictions.find((prediction) => { // Check if predictions exist
           const homeTeamMatch = prediction['Home Team'].toLowerCase().includes(match.homeTeam.shortName.toLowerCase());
           const awayTeamMatch = prediction['Away Team'].toLowerCase().includes(match.awayTeam.shortName.toLowerCase());
           return homeTeamMatch && awayTeamMatch;

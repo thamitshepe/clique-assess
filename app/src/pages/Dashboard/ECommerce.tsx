@@ -6,7 +6,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import CalendarIcon from '../../images/icons/calender.png';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { addDays, getYear, isBefore } from 'date-fns';
+import { addDays, getYear, isBefore, isSameDay } from 'date-fns';
 import { toZonedTime, format } from 'date-fns-tz';
 import axios from 'axios';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
@@ -102,15 +102,21 @@ const ECommerce: React.FC = () => {
   
 
   useEffect(() => {
+    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+  }, [selectedDate]);
+  
+  useEffect(() => {
     const fetchMLBData = async () => {
-      setMatchesLoading(true); // Set loading state to true before fetching data
       try {
+        // Introduce a delay of 5 seconds before fetching the data (for testing purposes)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+  
         const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
         setGames(response.data);
-
+  
         // Convert selectedDate string to Date object
         const selectedDateObj = new Date(selectedDate);
-
+  
         // Fetch predictions only if the date is the current date
         if (isCurrentDate(selectedDateObj)) {
           const predictionsResponse = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
@@ -120,14 +126,14 @@ const ECommerce: React.FC = () => {
       } catch (error) {
         console.error('Error fetching MLB data:', error);
       } finally {
-        // Set loading state to false whether the data is fetched successfully or not
+        // Set loading state to false after the data is fetched or in case of error
         setMatchesLoading(false);
       }
     };
     
     fetchMLBData();
   }, [selectedDate]);
-
+  
 
   const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
     // Convert the input date to the required timezone
@@ -147,16 +153,11 @@ const ECommerce: React.FC = () => {
 
   
   useEffect(() => {
-    const fetchLeaguesData = async () => {
+    const fetchFootballData = async () => {
       try {
-        // Set loading state to true before fetching data
-        setLeaguesLoading(true);
-  
-        // Fetch data from the API
-        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
-  
-        // Extract the data from the response and map it to the Competition type
-        const data: Competition[] = Object.values(response.data).map((leagueData: any) => ({
+        // Fetch football data
+        const footballResponse = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+        const footballData: Competition[] = Object.values(footballResponse.data).map((leagueData: any) => ({
           name: leagueData.matches.competition_info.competition.name,
           code: leagueData.matches.competition_info.competition.code,
           emblem: leagueData.matches.competition_info.competition.emblem,
@@ -167,25 +168,23 @@ const ECommerce: React.FC = () => {
           },
           matches: leagueData.matches.matches
         }));
-  
-        // Update the leagues state with the fetched data
-        setLeagues(data);
+
+        setLeagues(footballData);
+
+        // Fetch predictions only if the selected date is the current date
+        if (isSameDay(selectedDate, new Date())) {
+          const predictionsResponse = await axios.get('https://betvision.onrender.com/soccerpredictions');
+          setPredictions(predictionsResponse.data);
+        }
       } catch (error) {
-        // Log any errors that occur during fetching
         console.error('Error fetching data:', error);
       } finally {
-        // Set loading state to false after data is fetched or in case of error
-        setTimeout(() => {
-          setLeaguesLoading(false);
-        }, 2000); // Minimum delay of 1 second
+        setLeaguesLoading(false);
       }
     };
-  
-    // Call the fetchLeaguesData function when the selectedDate changes
-    fetchLeaguesData();
-  }, [selectedDate]);
-  
 
+    fetchFootballData();
+  }, [selectedDate]);
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
@@ -205,7 +204,7 @@ const ECommerce: React.FC = () => {
         case 'mlb':
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />;
         case 'soccer':
-          return <FootballMatches leagues={leagues} />;
+          return <FootballMatches leagues={leagues} predictions={predictions} selectedDate={selectedDate}/>;
         default:
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} />;
       }

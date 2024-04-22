@@ -10,6 +10,7 @@ from redis import Redis
 from dotenv import load_dotenv
 import logging
 import json
+import time
 
 # Add logging setup if not already present
 logging.basicConfig(level=logging.INFO)
@@ -92,6 +93,8 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
         cache_key = f"football:{competition_code}:{date_from}-{date_to}"
         cached_data = redis.get(cache_key)
         if cached_data:
+            # Introduce a small delay of 1 second before returning the cached data
+            time.sleep(1)
             # Load cached JSON data and create FootballData object directly
             cached_data_dict = json.loads(cached_data)
             return FootballData(**cached_data_dict)
@@ -190,7 +193,6 @@ async def get_football_data_api(date_from: Optional[str] = None, date_to: Option
     competition_code = "PL"  # Hardcoded to Premier League
     return await fetch_football_data(competition_code, date_from, date_to)
 
-
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
@@ -202,6 +204,8 @@ async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[st
         cached_data = redis.get(cache_key)
 
         if cached_data:
+            # Introduce a small delay of 1 second before returning the cached data
+            time.sleep(1)
             # Return cached data if exists
             return json.loads(cached_data)
 
@@ -244,7 +248,6 @@ async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[st
 @app.get('/api/mlbdata')
 async def get_mlb_data_api(start_date: Optional[str] = None, end_date: Optional[str] = None):
     return await fetch_mlb_data(start_date, end_date)
-
 
 
 redis_instance = Redis.from_url(redis_url)
