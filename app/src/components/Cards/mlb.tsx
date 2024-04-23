@@ -29,7 +29,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded) {
-          const response = await axios.get('https://betvision-ai.onrender.com/mlbpredictions');
+          const response = await axios.get('https://betvision.onrender.com/mlbpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }

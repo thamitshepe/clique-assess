@@ -113,7 +113,7 @@ const ECommerce: React.FC = () => {
     
     const fetchMLBData = async () => {
       try {
-        const response = await axios.get(`https://betvision-hz2w.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://sportsvision.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
         setGames(response.data);
 
       } finally {
@@ -156,7 +156,7 @@ const ECommerce: React.FC = () => {
     const fetchFootballData = async () => {
       try {
         // Fetch football data
-        const footballResponse = await axios.get(`https://betvision-hz2w.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+        const footballResponse = await axios.get(`https://sportsvision.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
         const footballData: Competition[] = Object.values(footballResponse.data).map((leagueData: any) => ({
           name: leagueData.matches.competition_info.competition.name,
           code: leagueData.matches.competition_info.competition.code,
