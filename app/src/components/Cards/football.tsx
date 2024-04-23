@@ -53,7 +53,7 @@ export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: D
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded) {
-          const response = await axios.get('https://betvision.onrender.com/soccerpredictions');
+          const response = await axios.get('https://soccervision.onrender.com/soccerpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }
