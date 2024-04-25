@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import DropdownNotification from '../Header/DropdownNotification';
-import DropdownUser from '../Header/DropdownUser';
+import { UserButton } from '@clerk/clerk-react';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -24,7 +24,7 @@ const SidebarRight: React.FC<SidebarProps> = ({ sidebarOpen }) => {
     <aside className="static right-0 top-0 z-9999 flex h-screen flex-col overflow-y-hidden bg-black duration-150 ease-linear lg:static lg:translate-x-0 w-90">
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex justify-between items-center p-6">
-        <DropdownUser />
+        <UserButton />
         <DropdownNotification />
       </div>
       {/* <!-- END SIDEBAR HEADER --> */}
