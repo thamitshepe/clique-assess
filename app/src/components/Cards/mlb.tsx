@@ -59,7 +59,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
       return (
         <div
           key={index}
-          className="h-15 rounded-md bg-black mb-4 p-6 px-10 flex items-center justify-between"
+          className="h-18 rounded-md bg-black mb-4 p-6 px-10 flex items-center justify-between"
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
           {/* Render game details */}
