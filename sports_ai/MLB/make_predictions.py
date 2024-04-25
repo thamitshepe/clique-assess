@@ -118,6 +118,17 @@ import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
+# Background task to keep instance alive
+def keep_instance_alive():
+    while True:
+        time.sleep(1500)  # 25 minutes
+        requests.get("https://betvision-ai.onrender.com/mlbpredictions")  # Replace with your FastAPI instance URL
+
+
+
+# Run background tasks
+background_tasks = BackgroundTasks()
+background_tasks.add_task(keep_instance_alive)
 
 # Main endpoint to get predictions
 @app.get("/mlbpredictions")

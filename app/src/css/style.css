@@ -28,13 +28,27 @@ body {
   border-radius: 9999px; /* Set a high border-radius for rounded corners */
 }
 
+.cl-modalBackdrop {
+  width: 100% !important;
+}
 
+.cl-modalContent {
+  width: auto;
+}
+
+.cl-rootBox {
+  width: 100% !important;
+}
+
+.cl-cardBox {
+  width: 100% !important;
+}
 
 
 
 @layer base {
   body {
-    @apply font-satoshi font-normal text-base text-body bg-whiten relative z-1;
+    @apply font-montserrat font-normal text-base text-body bg-whiten relative z-1;
   }
 }
 

@@ -7,7 +7,7 @@ module.exports = {
   darkMode: 'class',
   theme: {
     fontFamily: {
-      satoshi: ['Satoshi', 'sans-serif'],
+      montserrat: ['Montserrat', 'sans-serif'],
     },
     borderRadius: {
       DEFAULT: '0.5rem',
