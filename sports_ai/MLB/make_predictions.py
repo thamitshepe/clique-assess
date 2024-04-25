@@ -94,7 +94,7 @@ def load_predictions(api_key):
             
             # Apply formatting to the predictions data
             mask = upcoming_df['Probability (%)'] < 65
-            upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
+            upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'])
             
             # Drop the third feature column
             upcoming_df.drop(columns=['Third Feature'], inplace=True)
@@ -118,17 +118,6 @@ import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
-# Background task to keep instance alive
-def keep_instance_alive():
-    while True:
-        time.sleep(1500)  # 25 minutes
-        requests.get("https://betvision-ai.onrender.com/mlbpredictions")  # Replace with your FastAPI instance URL
-
-
-
-# Run background tasks
-background_tasks = BackgroundTasks()
-background_tasks.add_task(keep_instance_alive)
 
 # Main endpoint to get predictions
 @app.get("/mlbpredictions")
