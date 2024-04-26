@@ -306,7 +306,9 @@ async def get_nhl_data_api(game_date: str):
 
 
 @app.get("/nbadata/")
-async def get_nba_data(date: str):
+async def get_nba_data(
+    date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
+):
     try:
         # Call the NBA API endpoint to fetch data
         nba_data = scoreboardv2.ScoreboardV2(
