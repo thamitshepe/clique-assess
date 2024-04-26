@@ -1,18 +1,15 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 import joblib
-import datetime
 from dotenv import load_dotenv
-import pytz
-import time
-import threading
 import os
-from fastapi.middleware.cors import CORSMiddleware
 import schedule
+import time
 
 app = FastAPI()
 
@@ -29,18 +26,19 @@ app.add_middleware(
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
 
-MODEL_PATH = "./trained_model.h5"
-
+# Initialize global variables to store predictions data and track if predictions have been loaded
 predictions_loaded = False
 predictions_data = None
 initial_load_completed = False
 
+# Function to fetch data for upcoming matches from The Odds API
 def fetch_upcoming_matches(api_key):
     url = f'https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey={api_key}&regions=us&markets=h2h'
     response = requests.get(url)
     data = response.json()
     return data
 
+# Function to preprocess upcoming match data
 def preprocess_upcoming_matches(data):
     upcoming_matches = []
     for match in data:
@@ -59,6 +57,7 @@ def preprocess_upcoming_matches(data):
         upcoming_matches.append({'Home Team': home_team, 'Away Team': away_team, 'Home Odds': home_odds, 'Away Odds': away_odds, 'Third Feature': third_feature})
     return pd.DataFrame(upcoming_matches)
 
+# Function to make predictions using the trained model
 def make_predictions(model, upcoming_df):
     X = upcoming_df[['Home Odds', 'Away Odds']]  # Extract features
     probabilities = model.predict_proba(X)  # Predict probabilities
@@ -66,43 +65,35 @@ def make_predictions(model, upcoming_df):
     predictions = np.argmax(probabilities, axis=1)  # Predict the winner
     return predictions, probabilities
 
+# Function to load the trained model
 def load_model():
-    return joblib.load(MODEL_PATH)
+    return joblib.load('./trained_model.h5')
 
+# Function to load or update predictions data
 def load_predictions(api_key):
     global predictions_loaded, predictions_data, initial_load_completed
     
     if not predictions_loaded:
+        # Load the trained model
+        model = load_model()
 
         # Fetch upcoming match data
         upcoming_data = fetch_upcoming_matches(api_key)
 
-       # Ensure upcoming_data is not empty and in the correct format
-        if upcoming_data:
-            # Preprocess upcoming match data
-            upcoming_df = preprocess_upcoming_matches(upcoming_data)
+        # Preprocess upcoming match data
+        upcoming_df = preprocess_upcoming_matches(upcoming_data)
 
-            # Load the trained model
-            model = load_model()
-                
-            # Make predictions
-            predictions, probabilities = make_predictions(model, upcoming_df)
-            
-            # Add predicted winner and probability to predictions data
-            upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
-            upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
-            
-            # Apply formatting to the predictions data
-            mask = upcoming_df['Probability (%)'] < 65
-            upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'])
-            
-            # Drop the third feature column
-            upcoming_df.drop(columns=['Third Feature'], inplace=True)
-            
-            # Store predictions data globally
-            predictions_data = upcoming_df.to_dict(orient='records')
-            predictions_loaded = True
-            initial_load_completed = True
+        # Make predictions
+        predictions, probabilities = make_predictions(model, upcoming_df)
+        
+        # Add predicted winner and probability to predictions data
+        upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
+        upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+        
+        # Store predictions data globally
+        predictions_data = upcoming_df.to_dict(orient='records')
+        predictions_loaded = True
+        initial_load_completed = True
 
 # Schedule task to load predictions data every day at 6 AM US Eastern Time
 schedule.every().day.at("06:00").do(load_predictions, API_KEY)
@@ -118,22 +109,10 @@ import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
-# Background task to keep instance alive
-def keep_instance_alive():
-    while True:
-        time.sleep(1500)  # 25 minutes
-        requests.get("https://betvision-ai.onrender.com/mlbpredictions")  # Replace with your FastAPI instance URL
-
-
-
-# Run background tasks
-background_tasks = BackgroundTasks()
-background_tasks.add_task(keep_instance_alive)
-
 # Main endpoint to get predictions
 @app.get("/mlbpredictions")
 async def get_predictions():
-    global predictions_loaded, predictions_data, initial_load_completed
+    global predictions_loaded, predictions_data
     
     # Load or update predictions data if not loaded yet
     if not initial_load_completed:
