@@ -46,7 +46,7 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
   }, [isCurrentDate, gamesLoaded]);
 
   const modifyTeamName = (name: string): string => {
-    return name.replace(/\s/g, '_').replace(/\./g, '');
+    return name.replace(/\s/g, '-');
   };
 
   const nbaIconsTyped: Record<string, any> = nbaIcons;
