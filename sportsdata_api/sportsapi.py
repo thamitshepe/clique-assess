@@ -305,7 +305,7 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
-@app.get("/api/nbadata/")
+@app.get("/nbadata/")
 async def get_nba_data(date: str):
     try:
         # Call the NBA API endpoint to fetch data
