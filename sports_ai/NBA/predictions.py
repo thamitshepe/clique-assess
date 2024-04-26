@@ -9,6 +9,8 @@ import joblib
 import schedule
 import time
 import threading
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
 
@@ -20,6 +22,10 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
+# Load environment variables
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 # Initialize global variables
 predictions_loaded = False
