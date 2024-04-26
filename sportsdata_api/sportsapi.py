@@ -305,7 +305,7 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
-@app.get('/api/nbadata')
+@app.get("/api/nbadata/")
 async def get_nba_data(date: str):
     try:
         # Call the NBA API endpoint to fetch data
@@ -350,6 +350,11 @@ async def get_nba_data(date: str):
                     }
                     extracted_data.append(extracted_game)
 
+        # Determine expiration time based on current date or other dates
+        expiration = 10 if start_date == datetime.now().strftime('%Y-%m-%d') else 60 * 60 * 12  # 10 seconds for current date, half a day for others
+
+        # Cache the data in Redis with the appropriate expiration time
+        redis.setex(cache_key, expiration, json.dumps(extracted_data))
         return extracted_data
 
     except Exception as e:
