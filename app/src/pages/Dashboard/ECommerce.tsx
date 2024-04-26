@@ -61,11 +61,15 @@ interface Game {
   status: string;
   homeTeam: {
     name: string;
+    abbreviation?: string;
     score: number | null;
+    logo?: string; 
   };
   awayTeam: {
     name: string;
+    abbreviation?: string;
     score: number | null;
+    logo?: string; 
   };
 }
 
@@ -78,8 +82,10 @@ const FootballLeagues = lazy(() => import('../../components/Cards/football').the
 const FootballMatches = lazy(() => import('../../components/Cards/football').then(module => ({ default: module.FootballMatches })));
 const MLBLeagues = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBLeagues })));
 const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBGames })));
-
-
+const NHLLeagues = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLLeagues })));
+const NHLGames = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLGames })));
+const NBALeagues = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBALeagues })));
+const NBAGames = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBAGames })));
 
 const ECommerce: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
@@ -104,6 +110,15 @@ const ECommerce: React.FC = () => {
     setGamesLoaded(false); // Reset gamesLoaded state when selectedDate changes
     setPredictionsLoading(false)
   }, [selectedDate]);
+
+  const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
+    // Convert the input date to the required timezone
+    const date = new Date(dateInput);
+    const zonedDate = toZonedTime(date, timeZone);
+    
+    // Format the date as YYYY-MM-DD in the specified time zone
+    return format(zonedDate, 'yyyy-MM-dd', { timeZone });
+  };
 
   useEffect(() => {
     // Reset state variables for MLB data
@@ -132,21 +147,60 @@ const ECommerce: React.FC = () => {
     fetchMLBData();
   }, [selectedDate]);
 
-
-  const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
-    // Convert the input date to the required timezone
-    const date = new Date(dateInput);
-    const zonedDate = toZonedTime(date, timeZone);
+  useEffect(() => {
+    // Reset state variables for NBA data
+    setGames([]);
+    setPredictions([]);
+    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
     
-    // Format the date as YYYY-MM-DD in the specified time zone
-    return format(zonedDate, 'yyyy-MM-dd', { timeZone });
-  };
+    const fetchNBAData = async () => {
+      try {
+        const response = await axios.get(`https://sportsvision.onrender.com/api/nbadata?game_date=${formatDate(selectedDate)}`);
+        setGames(response.data);
+
+      } finally {
+        // Set gamesLoaded to true after games are fetched and set
+        setGamesLoaded(true);
+        if (predictionsLoading) {
+          setMatchesLoading(true);
+        }
+        // Wait for 2 seconds before setting loading to false
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 3000);
+      }
+    };
+
+    fetchNBAData();
+  }, [selectedDate]);
+
 
   useEffect(() => {
+    // Reset state variables for NHL data
+    setGames([]);
+    setPredictions([]);
     setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
-    setGamesLoaded(false); // Reset gamesLoaded state when selectedDate changes
+    
+    const fetchNHLData = async () => {
+      try {
+        const response = await axios.get(`https://sportsvision.onrender.com/api/nhldata?game_date=${formatDate(selectedDate)}`);
+        setGames(response.data);
+
+      } finally {
+        // Set gamesLoaded to true after games are fetched and set
+        setGamesLoaded(true);
+        if (predictionsLoading) {
+          setMatchesLoading(true);
+        }
+        // Wait for 2 seconds before setting loading to false
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 3000);
+      }
+    };
+
+    fetchNHLData();
   }, [selectedDate]);
-  
 
   useEffect(() => {
     // Reset state variables for football data
@@ -180,7 +234,7 @@ const ECommerce: React.FC = () => {
     };
   
     fetchFootballData();
-  }, [selectedDate, gamesLoaded]);
+  }, [selectedDate]);
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
@@ -189,6 +243,10 @@ const ECommerce: React.FC = () => {
           return <MLBLeagues />;
         case 'soccer':
           return < FootballLeagues/>;
+        case 'hockey':
+          return < NHLLeagues/>;
+          case 'basketball':
+            return < NBALeagues/>;
         default:
           return <MLBLeagues />;
       }
@@ -201,8 +259,12 @@ const ECommerce: React.FC = () => {
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'soccer':
           return <FootballMatches leagues={leagues} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
+        case 'hockey':
+          return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
+        case 'basketball':
+          return <NBAGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         default:
-          return <MLBGames games={games} predictions={predictions}  selectedDate={selectedDate} gamesLoaded={gamesLoaded} />;
+        return <MLBGames games={games} predictions={predictions}  selectedDate={selectedDate} gamesLoaded={gamesLoaded} />;
       }
     };
 
