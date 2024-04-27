@@ -65,7 +65,7 @@ class Match(BaseModel):
     score: Score
 
 class SoccerData(BaseModel):
-    matches: Optional[list] = None
+    matches: Dict[str, List[Match]] = {}
 
 # Function to fetch soccer data with Redis caching
 async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> list:
@@ -138,7 +138,7 @@ async def get_soccer_data_api(competition_code: str, date_from: Optional[str] = 
         raise HTTPException(status_code=400, detail="Invalid competition code")
     
     matches = await fetch_soccer_data(competition_code, date_from, date_to)
-    return SoccerData(matches=matches)
+    return SoccerData(matches={competition_code: matches})
 
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
