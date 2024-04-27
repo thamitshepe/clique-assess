@@ -330,6 +330,8 @@ async def get_nba_data(
         extracted_data = []
         if game_headers and line_scores:
             for i in range(0, len(line_scores), 2):
+                if i+1 >= len(line_scores):  # Safety check for bounds
+                    continue
                 home_line_score = line_scores[i]
                 away_line_score = line_scores[i+1]
                 game_id = home_line_score[2]
@@ -356,7 +358,6 @@ async def get_nba_data(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
-
 
 redis_instance = Redis.from_url(redis_url)
 
