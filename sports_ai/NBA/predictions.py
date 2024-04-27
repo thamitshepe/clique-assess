@@ -94,15 +94,17 @@ def load_predictions(api_key):
             predictions_loaded = True
             initial_load_completed = True
 
-# Scheduler to update predictions data every day at a specified time
-schedule.every().day.at("06:00").do(load_predictions, api_key='YOUR_API_KEY')
+# Schedule task to load predictions data every day at 6 AM US Eastern Time
+schedule.every().day.at("06:00").do(load_predictions, API_KEY)
 
+# Main function to run scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
-# Start the scheduler in a background thread
+# Run scheduler in a separate thread
+import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
