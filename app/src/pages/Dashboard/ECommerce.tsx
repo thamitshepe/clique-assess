@@ -21,39 +21,28 @@ interface DatesWithIndex {
   [year: number]: DateWithIndex[];
 }
 
-interface Match {
-  utcDate: string;
-  status: string;
-  homeTeam: {
-    shortName: string; // Change 'name' to 'shortName'
-    crest: string;
+interface Team {
+  shortName: string;
+  crest: string;
+}
+
+interface Score {
+  fullTime: {
+    home: number | null;
+    away: number | null;
   };
-  awayTeam: {
-    shortName: string; // Change 'name' to 'shortName'
-    crest: string;
-  };
-  score: {
-    fullTime: {
-      home: number | null; // Change 'homeTeam' to 'home'
-      away: number | null; // Change 'awayTeam' to 'away'
-    };
-    halfTime: {
-      home: number | null; // Change 'homeTeam' to 'home'
-      away: number | null; // Change 'awayTeam' to 'away'
-    };
+  halfTime: {
+    home: number | null;
+    away: number | null;
   };
 }
 
-interface Competition {
-  name: string;
-  code: string;
-  emblem: string;
-  competition_info: {
-    area: {
-      name: string;
-    };
-  };
-  matches: Match[];
+interface Match {
+  utcDate: string;
+  status: string;
+  homeTeam: Team;
+  awayTeam: Team;
+  score: Score;
 }
 
 interface Game {
@@ -93,7 +82,7 @@ const ECommerce: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(new Date()); // Directly set to today's date
   const [currentYear, setCurrentYear] = useState<number>(getYear(new Date()));
   const [datesWithIndex, setDatesWithIndex] = useState<DatesWithIndex>({});
-  const [leagues, setLeagues] = useState<Competition[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
@@ -204,7 +193,7 @@ const ECommerce: React.FC = () => {
 
   useEffect(() => {
     // Reset state variables for soccer data
-    setLeagues([]);
+    setMatches([]);
     setPredictions([]);
     
     const fetchSoccerData = async (competitionCode: string) => {
@@ -214,7 +203,7 @@ const ECommerce: React.FC = () => {
             const soccerData = soccerResponse.data.matches;
   
             // Update the state with the fetched soccer data
-            setLeagues([soccerData]);
+            setMatches([soccerData]);
             setGamesLoaded(true);
         } finally {
             // Wait for 3 seconds before setting loading to false
@@ -251,9 +240,9 @@ const ECommerce: React.FC = () => {
           return <MLBLeagues />;
         case 'soccer':
           return < SoccerLeagues/>;
-        case 'hockey':
+        case 'nhl':
           return < NHLLeagues/>;
-          case 'basketball':
+          case 'nba':
             return < NBALeagues/>;
         default:
           return <MLBLeagues />;
@@ -266,10 +255,10 @@ const ECommerce: React.FC = () => {
         case 'mlb':
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'soccer':
-          return <SoccerMatches leagues={leagues} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
-        case 'hockey':
+          return <SoccerMatches matches={matches} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
+        case 'NHL':
           return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
-        case 'basketball':
+        case 'nba':
           return <NBAGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         default:
         return <MLBGames games={games} predictions={predictions}  selectedDate={selectedDate} gamesLoaded={gamesLoaded} />;
