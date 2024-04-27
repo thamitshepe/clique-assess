@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
-import * as leagueIcons from '../../images/football/leagues'; // Import league SVGs
+import * as leagueIcons from '../../images/soccer'; // Import league SVGs
 import axios from 'axios';
 
 
@@ -41,7 +41,7 @@ interface Competition {
 }
 
 
-export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, selectedDate, gamesLoaded }) => {
+export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
 
   const isCurrentDate = useMemo(() => {
@@ -149,11 +149,19 @@ export const FootballMatches: React.FC<{ leagues: Competition[]; selectedDate: D
 };
 
 
-export const FootballLeagues: React.FC = () => (
-  <div className="p-2">
-      <div className="h-18 rounded-md mb-2 flex items-center">
+export const SoccerLeagues: React.FC = () => {
+  // Function to handle league selection
+  const selectLeague = (leagueName: string) => {
+    // Set the selected league name in local storage
+    localStorage.setItem('selectedLeague', leagueName);
+  };
+
+  return (
+    <div className="p-2">
+      {/* Premier League */}
+      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('Premier League')}>
         {leagueIcons['PL'] && (
-          <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="MLB Emblem" />
+          <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="Premier League Emblem" />
         )}
         <div>
           <p className="text-md font-medium text-white">Premier League</p>
@@ -162,6 +170,32 @@ export const FootballLeagues: React.FC = () => (
           </p>
         </div>
       </div>
-    )
-  </div>
-);
+      
+      {/* Primeira Liga */}
+      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('Primeira Liga')}>
+        {leagueIcons['PPT'] && (
+          <img className='h-14 w-14 mr-4' src={leagueIcons['PPT']} alt="Primeira Liga Emblem" />
+        )}
+        <div>
+          <p className="text-md font-medium text-white">Primeira Liga</p>
+          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+            Portugal
+          </p>
+        </div>
+      </div>
+      
+      {/* Bundesliga */}
+      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('Bundesliga')}>
+        {leagueIcons['BL1'] && (
+          <img className='h-14 w-14 mr-4' src={leagueIcons['BL1']} alt="Bundesliga Emblem" />
+        )}
+        <div>
+          <p className="text-md font-medium text-white">Bundesliga</p>
+          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+            Germany
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};

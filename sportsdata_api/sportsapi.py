@@ -46,28 +46,13 @@ async def throttle_requests():
     async with lock:
         await asyncio.sleep(0.1)  # Add a small delay for fairness
 
-class Area(BaseModel):
-    id: Optional[int] = None
-    name: str = "England"
-    code: Optional[str] = None
-    flag: Optional[str] = None
-
-class Competition(BaseModel):
-    id: Optional[int] = None
-    name: str = "Premier League"
-    code: Optional[str] = "PL"
-    emblem: Optional[str] = None
-
-class CompetitionInfo(BaseModel):
-    area: Area = Field(default_factory=Area)
-    competition: Competition = Field(default_factory=Competition)
-
+# Define Pydantic models for soccer data
 class Team(BaseModel):
     shortName: str
     crest: str
 
 class Score(BaseModel):
-    winner: Optional[str]
+    winner: str
     duration: str
     fullTime: dict
     halfTime: dict
@@ -79,11 +64,11 @@ class Match(BaseModel):
     awayTeam: Team
     score: Score
 
-class FootballData(BaseModel):
-    PL: dict
+class SoccerData(BaseModel):
+    matches: Optional[list] = None
 
-# Function to fetch football data with Redis caching
-async def fetch_football_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> FootballData:
+# Function to fetch soccer data with Redis caching
+async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> list:
     try:
         # Throttle requests
         await throttle_requests()
@@ -91,14 +76,14 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
         date_from = date_from or datetime.now(timezone.utc).strftime('%Y-%m-%d')
         date_to = date_to or date_from
 
-        cache_key = f"football:{competition_code}:{date_from}-{date_to}"
+        cache_key = f"soccer:{competition_code}:{date_from}-{date_to}"
         cached_data = redis.get(cache_key)
         if cached_data:
             # Introduce a small delay of 1 second before returning the cached data
             time.sleep(1)
-            # Load cached JSON data and create FootballData object directly
+            # Load cached JSON data and create SoccerData object directly
             cached_data_dict = json.loads(cached_data)
-            return FootballData(**cached_data_dict)
+            return cached_data_dict['matches']
 
         base_url = os.getenv("FOOTBALL_DATA_API_URL")
         headers = {'X-Auth-Token': os.getenv("FOOTBALL_DATA_API_KEY")}
@@ -108,27 +93,8 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
             response = await client.get(url, headers=headers)
             response.raise_for_status()  # Raise exception for non-200 status codes
             
-            # Log the response for debugging
-            logging.info("Response from football data API: %s", response.text)
-            
             # Extract the data from the response JSON
             data = response.json()
-
-        # Extract competition data from the response
-        competition_info = CompetitionInfo(
-            area=Area(
-                id=data.get("matches", [{"area": {"id": None}}])[0]["area"].get("id"),
-                name=data.get("matches", [{"area": {"name": "England"}}])[0]["area"].get("name"),
-                code=data.get("matches", [{"area": {"code": None}}])[0]["area"].get("code"),
-                flag=data.get("matches", [{"area": {"flag": None}}])[0]["area"].get("flag")
-            ),
-            competition=Competition(
-                id=data["competition"]["id"],
-                name=data["competition"]["name"],
-                code=data["competition"]["code"],
-                emblem=data["competition"]["emblem"]
-            )
-        )
 
         # Process matches data from the response if matches exist
         matches_data = data.get("matches", [])
@@ -153,46 +119,26 @@ async def fetch_football_data(competition_code: str, date_from: Optional[str] = 
                 )
             )
             processed_matches_data.append(processed_match)
-
-        # Create a FootballData instance with the processed data
-        football_data = FootballData(
-            PL={
-                "name": "PremierLeague",
-                "matches": {
-                    "competition_info": competition_info.dict(),
-                    "matches": processed_matches_data
-                }
-            }
-        )
-
+        
         # Cache the data with a different expiration for the current day's data
         if date_from == datetime.now(timezone.utc).strftime('%Y-%m-%d'):
-            redis.setex(cache_key, 10, football_data.json())  # 10 seconds expiration for current day's data
+            redis.setex(cache_key, 10, json.dumps({'matches': processed_matches_data}))  # 10 seconds expiration for current day's data
         else:
-            redis.setex(cache_key, 43200, football_data.json())  # Half a day expiration for other data
+            redis.setex(cache_key, 43200, json.dumps({'matches': processed_matches_data}))  # Half a day expiration for other data
         
-        return football_data
+        return processed_matches_data
 
     except Exception as e:
-        # Log the exception for debugging
-        logging.error("Error fetching football data: %s", str(e))
-        # In case of an error, return a default response with default area data and empty matches
-        competition_info = CompetitionInfo()
-        football_data = FootballData(
-            PL={
-                "name": "PremierLeague",
-                "matches": {
-                    "competition_info": competition_info.dict(),
-                    "matches": []
-                }
-            }
-        )
-        return football_data
+        # In case of an error, return an empty list
+        return []
 
-@app.get('/api/footballdata', response_model=FootballData)
-async def get_football_data_api(date_from: Optional[str] = None, date_to: Optional[str] = None):
-    competition_code = "PL"  # Hardcoded to Premier League
-    return await fetch_football_data(competition_code, date_from, date_to)
+@app.get('/api/soccerdata', response_model=SoccerData)
+async def get_soccer_data_api(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None):
+    if competition_code not in ["PL", "PPL", "BL1"]:
+        raise HTTPException(status_code=400, detail="Invalid competition code")
+    
+    matches = await fetch_soccer_data(competition_code, date_from, date_to)
+    return SoccerData(matches=matches)
 
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:

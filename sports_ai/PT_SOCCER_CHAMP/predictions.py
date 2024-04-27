@@ -33,7 +33,7 @@ initial_load_completed = False
 
 # Function to fetch data for upcoming matches from The Odds API
 def fetch_upcoming_matches(api_key):
-    url = f'https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={api_key}&regions=uk&eu&markets=h2h'
+    url = f'https://api.the-odds-api.com/v4/sports/soccer_portugal_primeira_liga/odds/?apiKey={api_key}&regions=uk&eu&markets=h2h'
     response = requests.get(url)
     data = response.json()
     return data
@@ -134,7 +134,7 @@ scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
 # Main endpoint to get predictions
-@app.get("/plpredictions")
+@app.get("/ptpredictions")
 async def get_predictions_endpoint():
     global predictions_data
     if predictions_data:

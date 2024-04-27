@@ -78,8 +78,8 @@ export interface SportState {
 }
 
 // Lazy-loaded components for football and MLB
-const FootballLeagues = lazy(() => import('../../components/Cards/football').then(module => ({ default: module.FootballLeagues })));
-const FootballMatches = lazy(() => import('../../components/Cards/football').then(module => ({ default: module.FootballMatches })));
+const SoccerLeagues = lazy(() => import('../../components/Cards/soccer').then(module => ({ default: module.SoccerLeagues })));
+const SoccerMatches = lazy(() => import('../../components/Cards/soccer').then(module => ({ default: module.SoccerMatches })));
 const MLBLeagues = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBLeagues })));
 const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBGames })));
 const NHLLeagues = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLLeagues })));
@@ -207,34 +207,28 @@ const ECommerce: React.FC = () => {
     setLeagues([]);
     setPredictions([]);
     
-    const fetchFootballData = async () => {
-      try {
-        // Fetch football data
-        const footballResponse = await axios.get(`https://sportsvision.onrender.com/api/footballdata?date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
-        const footballData: Competition[] = Object.values(footballResponse.data).map((leagueData: any) => ({
-          name: leagueData.matches.competition_info.competition.name,
-          code: leagueData.matches.competition_info.competition.code,
-          emblem: leagueData.matches.competition_info.competition.emblem,
-          competition_info: {
-            area: {
-              name: leagueData.matches.competition_info.area.name,
-            },
-          },
-          matches: leagueData.matches.matches
-        }));
-  
-        setLeagues(footballData);
-        setGamesLoaded(true);
-      } finally {
-        // Wait for 2 seconds before setting loading to false
-        setTimeout(() => {
-          setMatchesLoading(false);
-        }, 3000);
-      }
+    const fetchSoccerData = async (competitionCode: string) => {
+        try {
+            // Fetch football data for the selected league code
+            const footballResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${competitionCode}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+            const footballData = footballResponse.data.matches;
+
+            // Update the state with the fetched football data
+            setLeagues([footballData]);
+            setGamesLoaded(true);
+        } finally {
+            // Wait for 3 seconds before setting loading to false
+            setTimeout(() => {
+                setMatchesLoading(false);
+            }, 3000);
+        }
     };
-  
-    fetchFootballData();
-  }, [selectedDate]);
+
+    // Default to PL if no league code is selected
+    const selectedLeagueCode = localStorage.getItem('selectedLeague') || 'PL';
+
+    fetchSoccerData(selectedLeagueCode);
+}, [selectedDate]);
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
@@ -242,7 +236,7 @@ const ECommerce: React.FC = () => {
         case 'mlb':
           return <MLBLeagues />;
         case 'soccer':
-          return < FootballLeagues/>;
+          return < SoccerLeagues/>;
         case 'hockey':
           return < NHLLeagues/>;
           case 'basketball':
@@ -258,7 +252,7 @@ const ECommerce: React.FC = () => {
         case 'mlb':
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'soccer':
-          return <FootballMatches leagues={leagues} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
+          return <SoccerMatches leagues={leagues} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'hockey':
           return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'basketball':
