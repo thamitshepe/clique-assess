@@ -117,7 +117,7 @@ const ECommerce: React.FC = () => {
     
     const fetchMLBData = async () => {
       try {
-        const response = await axios.get(`https://sportsvision:8005/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://sportsvision.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
         setGames(response.data);
 
       } finally {
@@ -144,7 +144,7 @@ const ECommerce: React.FC = () => {
     
     const fetchNBAData = async () => {
       try {
-        const response = await axios.get(`https://sportsvision:8005/nbadata?game_date=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://sportsvision.onrender.com/nbadata?game_date=${formatDate(selectedDate)}`);
         setGames(response.data);
 
       } finally {
@@ -172,7 +172,7 @@ const ECommerce: React.FC = () => {
     
     const fetchNHLData = async () => {
       try {
-        const response = await axios.get(`http://sportsvision:8005/api/nhldata?game_date=${formatDate(selectedDate)}`);
+        const response = await axios.get(`https://sportsvision.onrender.com/api/nhldata?game_date=${formatDate(selectedDate)}`);
         setGames(response.data);
 
       } finally {
@@ -199,7 +199,7 @@ const ECommerce: React.FC = () => {
     const fetchSoccerData = async (competitionCode: string) => {
         try {
             // Fetch soccer data for the selected league code
-            const soccerResponse = await axios.get(`https://sportsvision:8005/api/soccerdata?competition_code=${competitionCode}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+            const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${competitionCode}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
             const soccerData = soccerResponse.data.matches;
   
             // Update the state with the fetched soccer data

@@ -31,7 +31,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded) {
-          const response = await axios.get('http://nhlvision:8001/nhlpredictions'); // Change the API endpoint for NHL predictions
+          const response = await axios.get('https://nhlvision.onrender.com/nhlpredictions'); // Change the API endpoint for NHL predictions
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }

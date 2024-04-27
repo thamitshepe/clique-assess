@@ -29,7 +29,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded) {
-          const response = await axios.get('http://mlbvision:8006/mlbpredictions');
+          const response = await axios.get('https://mlbvision.onrender.com/mlbpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }
@@ -66,13 +66,6 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
           {/* Time section */}
           <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
             {format(new Date(game.gameDate), 'HH:mm')}
-          </p>
-          {/* Status section */}
-          <p
-            style={{ width: '10%' }}
-            className={`text-center align-center text-white text-sm font-medium ${game.status === 'Live' ? 'text-red2' : ''}`}
-          >
-            {game.status}
           </p>
           {/* Home team section */}
           <div style={{ width: '20%' }} className="flex items-center">
