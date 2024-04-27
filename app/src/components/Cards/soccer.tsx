@@ -154,7 +154,12 @@ export const SoccerLeagues: React.FC = () => {
   const selectLeague = (leagueName: string) => {
     // Set the selected league name in local storage
     localStorage.setItem('selectedLeague', leagueName);
+
+    // Trigger a custom event to notify other components about the change
+    const event = new Event('leagueChanged');
+    window.dispatchEvent(event);
   };
+
 
   return (
     <div className="p-2">

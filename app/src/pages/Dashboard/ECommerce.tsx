@@ -77,7 +77,7 @@ export interface SportState {
   selectedSport: string;
 }
 
-// Lazy-loaded components for football and MLB
+// Lazy-loaded components for soccer and MLB
 const SoccerLeagues = lazy(() => import('../../components/Cards/soccer').then(module => ({ default: module.SoccerLeagues })));
 const SoccerMatches = lazy(() => import('../../components/Cards/soccer').then(module => ({ default: module.SoccerMatches })));
 const MLBLeagues = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBLeagues })));
@@ -203,18 +203,18 @@ const ECommerce: React.FC = () => {
   }, [selectedDate]);
 
   useEffect(() => {
-    // Reset state variables for football data
+    // Reset state variables for soccer data
     setLeagues([]);
     setPredictions([]);
     
     const fetchSoccerData = async (competitionCode: string) => {
         try {
-            // Fetch football data for the selected league code
-            const footballResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${competitionCode}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
-            const footballData = footballResponse.data.matches;
-
-            // Update the state with the fetched football data
-            setLeagues([footballData]);
+            // Fetch soccer data for the selected league code
+            const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${competitionCode}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+            const soccerData = soccerResponse.data.matches;
+  
+            // Update the state with the fetched soccer data
+            setLeagues([soccerData]);
             setGamesLoaded(true);
         } finally {
             // Wait for 3 seconds before setting loading to false
@@ -223,12 +223,26 @@ const ECommerce: React.FC = () => {
             }, 3000);
         }
     };
-
+  
     // Default to PL if no league code is selected
     const selectedLeagueCode = localStorage.getItem('selectedLeague') || 'PL';
-
+  
+    // Fetch soccer data based on the selected league code
     fetchSoccerData(selectedLeagueCode);
-}, [selectedDate]);
+  
+    // Listen for changes in the league code set by Soccer.tsx
+    const handleLeagueChange = () => {
+      const updatedLeagueCode = localStorage.getItem('selectedLeague') || 'PL'; // Default to PL if no league code is found
+      fetchSoccerData(updatedLeagueCode);
+    };
+    window.addEventListener('leagueChanged', handleLeagueChange);
+  
+    // Cleanup
+    return () => {
+      window.removeEventListener('leagueChanged', handleLeagueChange);
+    };
+  }, [selectedDate]);
+  
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
@@ -437,7 +451,7 @@ useEffect(() => {
           <h2 className="text-white text-lg font-medium mb-6">Leagues</h2>
           <div className="flex-1 bg-black rounded-md h-[76vh] overflow-y-scroll scrollbar-thin scrollbar-thumb-body scrollbar-track-transparent scrollbar-thumb-rounded-full">
             <div className="p-2">
-              {/* Conditionally render football or MLB leagues based on selectedSport */}
+              {/* Conditionally render soccer or MLB leagues based on selectedSport */}
                 {/* Render the appropriate sport component */}
                 <Suspense fallback={<LeaguesSkeletonLoader />}>
                 {renderLeagueComponent()}
