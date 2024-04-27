@@ -115,7 +115,7 @@ async def get_predictions():
     
     # Load or update predictions data if not loaded yet
     if not initial_load_completed:
-        load_predictions('API_KEY')
+        load_predictions(API_KEY)
     
     return predictions_data
 

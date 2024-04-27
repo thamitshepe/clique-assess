@@ -133,11 +133,13 @@ import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
-# Main endpoint to get predictions
+# Main endpoint to get soccer predictions
 @app.get("/soccerpredictions")
-async def get_predictions_endpoint():
-    global predictions_data
-    if predictions_data:
-        return predictions_data
-    else:
-        raise HTTPException(status_code=404, detail="Predictions not available yet")
+async def get_predictions():
+    global predictions_loaded, predictions_data, initial_load_completed
+    
+    # Load or update predictions data if not loaded yet
+    if not initial_load_completed:
+        load_predictions(API_KEY)
+    
+    return predictions_data
