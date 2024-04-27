@@ -1,4 +1,4 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import pandas as pd
@@ -59,27 +59,38 @@ def preprocess_upcoming_matches(data):
     return pd.DataFrame(upcoming_matches)
 
 # Function to make predictions using the trained model
-def make_predictions(model, df):
-    X = df[['Home Odds', 'Away Odds', 'Third Feature']].values
-    predictions = model.predict(X)
+def make_predictions(model, upcoming_df):
+    # Extract features
+    X = upcoming_df[['Home Odds', 'Away Odds', 'Third Feature']]
+
+    # Predict probabilities
     probabilities = model.predict_proba(X)
+
+    # Adjust probabilities
+    probabilities[:, 1] *= 1.1
+
+    # Normalize probabilities
+    probabilities_sum = np.sum(probabilities, axis=1)
+    probabilities /= probabilities_sum[:, np.newaxis]
+
+    # Predict the winner based on adjusted probabilities
+    predictions = np.argmax(probabilities, axis=1)
+
     return predictions, probabilities
 
 # Function to load the trained model
 def load_model():
-    return joblib.load('./trained_model.h5')
+    return joblib.load('./PremierLeague/trained_model.h5')
 
 # Function to load or update predictions data
 def load_predictions(api_key):
     global predictions_loaded, predictions_data, initial_load_completed
     
     if not predictions_loaded and not initial_load_completed:
+        try:
+            # Fetch upcoming match data
+            upcoming_data = fetch_upcoming_matches(api_key)
 
-        # Fetch upcoming match data
-        upcoming_data = fetch_upcoming_matches(api_key)
-
-        # Ensure upcoming_data is not empty and in the correct format
-        if upcoming_data:
             # Preprocess upcoming match data
             upcoming_df = preprocess_upcoming_matches(upcoming_data)
 
@@ -88,15 +99,25 @@ def load_predictions(api_key):
 
             # Make predictions
             predictions, probabilities = make_predictions(model, upcoming_df)
-            
-            # Add predicted winner and probability to predictions data
+
+            # Map predicted winner codes to actual team names
             upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
             upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
-            
-            # Store predictions data
+
+            mask = upcoming_df['Probability (%)'] < 65
+            upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' or Tie', upcoming_df['Predicted Winner'])
+
+            # Drop the third feature column
+            upcoming_df.drop(columns=['Third Feature'], inplace=True)
+
+            # Convert DataFrame to JSON and store in predictions_data
             predictions_data = upcoming_df.to_dict(orient='records')
+
             predictions_loaded = True
             initial_load_completed = True
+
+        except Exception as e:
+            print(f"Error loading predictions: {str(e)}")
 
 # Schedule task to load predictions data every day at 6 AM US Eastern Time
 schedule.every().day.at("06:00").do(load_predictions, API_KEY)
@@ -112,14 +133,11 @@ import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
-
 # Main endpoint to get predictions
 @app.get("/soccerpredictions")
-async def get_predictions():
-    global predictions_loaded, predictions_data, initial_load_completed
-    
-    # Load or update predictions data if not loaded yet
-    if not initial_load_completed:
-        load_predictions(API_KEY)
-    
-    return predictions_data
+async def get_predictions_endpoint():
+    global predictions_data
+    if predictions_data:
+        return predictions_data
+    else:
+        raise HTTPException(status_code=404, detail="Predictions not available yet")
