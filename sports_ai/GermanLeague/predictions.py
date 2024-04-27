@@ -134,7 +134,7 @@ scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
 # Main endpoint to get predictions
-@app.get("/glpredictions")
+@app.get("/soccerpredictions")
 async def get_predictions_endpoint():
     global predictions_data
     if predictions_data:

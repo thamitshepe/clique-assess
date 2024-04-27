@@ -53,17 +53,32 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded) {
-          const response = await axios.get('https://soccervision.onrender.com/soccerpredictions');
-          console.log('Predictions:', response.data);
-          setPredictions(response.data);
+          let predictionURL = '';
+          const selectedLeague = localStorage.getItem('selectedLeague');
+  
+          // Determine the prediction URL based on the selected league
+          if (selectedLeague === 'PL') {
+            predictionURL = 'https://plvision.onrender.com/soccerpredictions';
+          } else if (selectedLeague === 'PPL') {
+            predictionURL = 'https://pplvision.onrender.com/soccerpredictions';
+          } else if (selectedLeague === 'BL1') {
+            predictionURL = 'https://bl1vision.onrender.com/soccerpredictions';
+          }
+  
+          if (predictionURL) {
+            const response = await axios.get(predictionURL);
+            console.log('Predictions:', response.data);
+            setPredictions(response.data);
+          }
         }
       } catch (error) {
         console.error('Error fetching predictions:', error);
       }
     };
-
+  
     fetchPredictions();
   }, [isCurrentDate, gamesLoaded]);
+  
 
   const items = useMemo(() => {
     return leagues.flatMap((competition) =>
@@ -164,7 +179,7 @@ export const SoccerLeagues: React.FC = () => {
   return (
     <div className="p-2">
       {/* Premier League */}
-      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('Premier League')}>
+      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('PL')}>
         {leagueIcons['PL'] && (
           <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="Premier League Emblem" />
         )}
@@ -177,9 +192,9 @@ export const SoccerLeagues: React.FC = () => {
       </div>
       
       {/* Primeira Liga */}
-      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('Primeira Liga')}>
-        {leagueIcons['PPT'] && (
-          <img className='h-14 w-14 mr-4' src={leagueIcons['PPT']} alt="Primeira Liga Emblem" />
+      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('PPL')}>
+        {leagueIcons['PPL'] && (
+          <img className='h-14 w-14 mr-4' src={leagueIcons['PPL']} alt="Primeira Liga Emblem" />
         )}
         <div>
           <p className="text-md font-medium text-white">Primeira Liga</p>
@@ -190,7 +205,7 @@ export const SoccerLeagues: React.FC = () => {
       </div>
       
       {/* Bundesliga */}
-      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('Bundesliga')}>
+      <div className="h-18 rounded-md mb-2 flex items-center" onClick={() => selectLeague('BL1')}>
         {leagueIcons['BL1'] && (
           <img className='h-14 w-14 mr-4' src={leagueIcons['BL1']} alt="Bundesliga Emblem" />
         )}
