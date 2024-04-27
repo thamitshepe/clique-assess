@@ -33,7 +33,7 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded) {
-          const response = await axios.get('https://nbavision.onrender.com/nbapredictions');
+          const response = await axios.get('http://nbavision:8002/nbapredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }

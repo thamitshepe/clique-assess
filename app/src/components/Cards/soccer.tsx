@@ -46,11 +46,11 @@ export const SoccerMatches: React.FC<{ matches: Match[]; selectedDate: Date; pre
   
           // Determine the prediction URL based on the selected league
           if (selectedLeague === 'PL') {
-            predictionURL = 'https://plvision.onrender.com/soccerpredictions';
+            predictionURL = 'http://plvision:8100/soccerpredictions';
           } else if (selectedLeague === 'PPL') {
-            predictionURL = 'https://pplvision.onrender.com/soccerpredictions';
+            predictionURL = 'http://pplvision:8002/soccerpredictions';
           } else if (selectedLeague === 'BL1') {
-            predictionURL = 'https://bl1vision.onrender.com/soccerpredictions';
+            predictionURL = 'http://bl1vision:8003/soccerpredictions';
           }
   
           if (predictionURL) {
