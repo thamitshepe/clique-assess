@@ -279,14 +279,6 @@ async def fetch_nba_data(game_date: str) -> list:
         # Throttle requests
         await throttle_requests()
 
-        # Check if requested game date is in the cache
-        cache_key = f"nba_data:{game_date}"
-        cached_data = redis.get(cache_key)
-
-        if cached_data:
-            time.sleep(1)  # Introduce a delay before returning cached data
-            return json.loads(cached_data)
-
         # Call the NBA API endpoint to fetch data
         nba_data = scoreboardv2.ScoreboardV2(
             day_offset=0,
@@ -329,9 +321,6 @@ async def fetch_nba_data(game_date: str) -> list:
                         }
                     }
                     extracted_data.append(extracted_game)
-
-        # Cache the data in Redis with a 12-hour expiration
-        redis.setex(cache_key, 60 * 60 * 12, json.dumps(extracted_data))
 
         return extracted_data
 
