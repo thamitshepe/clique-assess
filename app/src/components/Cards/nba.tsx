@@ -11,13 +11,13 @@ interface Game {
       name: string;
       abbreviation: string;
       score: number | null;
-      logo?: string; 
+      logo: string; 
     };
     awayTeam: {
       name: string;
       abbreviation: string;
       score: number | null;
-      logo?: string; 
+      logo: string; 
     };
   }
 
