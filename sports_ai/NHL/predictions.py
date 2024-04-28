@@ -17,7 +17,7 @@ app = FastAPI()
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://betvision-app.onrender.com"],  # Change this to restrict access to specific origins if needed
+    allow_origins=["https://dashboard.betvisionai.com"],  # Change this to restrict access to specific origins if needed
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],

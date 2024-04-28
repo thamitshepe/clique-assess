@@ -25,7 +25,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://betvision-app.onrender.com"
+        "https://dashboard.betvisionai.com"
     ],  # Update with your allowed origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
