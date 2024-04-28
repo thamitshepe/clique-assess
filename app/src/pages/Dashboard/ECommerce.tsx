@@ -12,7 +12,6 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
-import { setSelectedLeague } from '../../store/selectedLeagueSlice'; // Import the action creator
 
 interface DateWithIndex {
   date: string;
@@ -108,7 +107,6 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     dispatch(setSelectedSport("mlb"));
   }, [dispatch]);
-
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);

@@ -8,6 +8,7 @@ import { setSelectedLeague } from '../../store/selectedLeagueSlice'; // Import t
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
 
+
 interface Match {
   utcDate: string;
   status: string;
@@ -42,6 +43,12 @@ interface Competition {
 export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
     const selectedLeague = useAppSelector((state) => state.selectedLeague.selectedLeague);
+    const dispatch = useDispatch()
+
+  // Set selectedLeague to "PL" when the page loads
+  useEffect(() => {
+    dispatch(setSelectedLeague("PL"));
+  }, [dispatch]);
 
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
