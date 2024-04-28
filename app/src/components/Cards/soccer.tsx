@@ -39,12 +39,7 @@ interface Competition {
 export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
     const selectedLeague = useAppSelector((state) => state.selectedLeague.selectedLeague);
-    const dispatch = useDispatch()
 
-  // Set selectedLeague to "PL" when the page loads
-  useEffect(() => {
-    dispatch(setSelectedLeague("PL"));
-  }, [dispatch]);
 
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
@@ -100,15 +95,6 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
             <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
               {format(new Date(match.utcDate), 'HH:mm')}
             </p>
-
-            {/* Status section */}
-            <p
-              style={{ width: '10%' }}
-              className={`text-center align-center text-white text-sm font-medium ${match.status === 'Live' ? 'text-red2' : ''}`}
-            >
-              {match.status}
-            </p>
-
             {/* Home team section */}
             <div style={{ width: '20%' }} className="flex items-center">
               {/* SVG for home team */}

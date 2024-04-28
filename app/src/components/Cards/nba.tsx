@@ -66,18 +66,10 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
           {/* Render game details */}
-          {/* Time and Status section */}
-          <div style={{ width: '16%' }} className="flex items-center">
-          <p className="text-center align-center text-white text-md font-medium" style={{ width: '50%' }}>
-              {isNaN(Date.parse(game.gameDate)) ? game.gameDate : format(new Date(game.gameDate), 'HH:mm')}
+          {/* Time section */}
+          <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
+            {format(new Date(game.gameDate), 'HH:mm')}
           </p>
-          <p
-              style={{ width: '50%' }}
-              className={`text-center align-center text-white text-sm font-medium ${game.status === 'Live' ? 'text-red2' : ''}`}
-          >
-              {game.status}
-          </p>
-          </div>
           {/* Home team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for home team */}

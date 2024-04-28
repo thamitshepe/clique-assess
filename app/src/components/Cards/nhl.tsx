@@ -63,13 +63,6 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
             {format(new Date(game.gameDate), 'HH:mm')}
           </p>
-          {/* Status section */}
-          <p
-            style={{ width: '10%' }}
-            className={`text-center align-center text-white text-sm font-medium ${game.status === 'Live' ? 'text-red2' : ''}`}
-          >
-            {game.status}
-          </p>
           {/* Home team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for home team */}

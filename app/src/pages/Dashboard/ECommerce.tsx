@@ -12,6 +12,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
+import { setSelectedLeague } from '../../store/selectedLeagueSlice';
 
 interface DateWithIndex {
   date: string;
@@ -95,10 +96,16 @@ const ECommerce: React.FC = () => {
   const [gamesLoaded, setGamesLoaded] = useState(false); // Track whether games have been loaded
   const [predictionsLoading, setPredictionsLoading] = useState<boolean>(true);
   const dispatch = useDispatch();
+
   // Set selectedSport to "mlb" when the page loads
   useEffect(() => {
     dispatch(setSelectedSport("mlb"));
   }, [dispatch]);
+
+    // Set selectedSport to "mlb" when the page loads
+    useEffect(() => {
+      dispatch(setSelectedLeague("PL"));
+    }, [dispatch]);
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
@@ -210,7 +217,7 @@ const ECommerce: React.FC = () => {
     }
   }, [selectedDate, selectedSport]);
   
-  
+
   useEffect(() => {
     if (selectedSport === 'soccer') {
       // Reset state variables for soccer data
