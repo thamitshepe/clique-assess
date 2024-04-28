@@ -46,14 +46,6 @@ interface Match {
 }
 
 interface Competition {
-  name: string;
-  code: string;
-  emblem: string;
-  competition_info: {
-    area: {
-      name: string;
-    };
-  };
   matches: Match[];
 }
 
@@ -233,14 +225,6 @@ const ECommerce: React.FC = () => {
   
           // Process the soccer data response
           const soccerData: Competition[] = Object.values(soccerResponse.data).map((leagueData: any) => ({
-            name: leagueData.matches.competition_info.competition.name,
-            code: leagueData.matches.competition_info.competition.code,
-            emblem: leagueData.matches.competition_info.competition.emblem,
-            competition_info: {
-              area: {
-                name: leagueData.matches.competition_info.area.name,
-              },
-            },
             matches: leagueData.matches.matches
           }));
   

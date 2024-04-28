@@ -33,9 +33,6 @@ interface Match {
 }
 
 interface Competition {
-  name: string;
-  code: string;
-  emblem: string;
   matches: Match[];
 }
 
