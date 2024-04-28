@@ -108,10 +108,7 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     dispatch(setSelectedSport("mlb"));
   }, [dispatch]);
-  // Set selectedLeague to "PL" when the page loads
-  useEffect(() => {
-    dispatch(setSelectedLeague("PL"));
-  }, [dispatch]);
+
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
