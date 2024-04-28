@@ -339,7 +339,7 @@ async def fetch_nba_data(game_date: str) -> list:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
 
-@app.get("/api/nbadata/")
+@app.get('/api/nbadata')
 async def get_nba_data(
         date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
 ):
