@@ -9,8 +9,10 @@ import 'react-calendar/dist/Calendar.css';
 import { addDays, getYear, isBefore } from 'date-fns';
 import { toZonedTime, format } from 'date-fns-tz';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
-
+import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
+import { setSelectedLeague } from '../../store/selectedLeagueSlice'; // Import the action creator
 
 interface DateWithIndex {
   date: string;
@@ -101,6 +103,11 @@ const ECommerce: React.FC = () => {
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [gamesLoaded, setGamesLoaded] = useState(false); // Track whether games have been loaded
   const [predictionsLoading, setPredictionsLoading] = useState<boolean>(true);
+  const dispatch = useDispatch();
+  // Set selectedSport to "mlb" when the page loads
+  useEffect(() => {
+    dispatch(setSelectedSport("mlb"));
+  }, [dispatch]);
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
@@ -127,7 +134,7 @@ const ECommerce: React.FC = () => {
   
   useEffect(() => {
     // Reset state variables for MLB data
-    if (selectedSport === 'MLB') {
+    if (selectedSport === 'mlb') {
       setGames([]);
       setPredictions([]);
       setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
@@ -156,7 +163,7 @@ const ECommerce: React.FC = () => {
   
   useEffect(() => {
     // Reset state variables for NBA data
-    if (selectedSport === 'NBA') {
+    if (selectedSport === 'nba') {
       setGames([]);
       setPredictions([]);
       setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
@@ -185,7 +192,7 @@ const ECommerce: React.FC = () => {
   
   useEffect(() => {
     // Reset state variables for NHL data
-    if (selectedSport === 'NHL') {
+    if (selectedSport === 'nhl') {
       setGames([]);
       setPredictions([]);
       setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
@@ -214,7 +221,12 @@ const ECommerce: React.FC = () => {
   
   useEffect(() => {
     // Reset state variables for soccer data
-    if (selectedSport === 'Soccer') {
+    if (selectedSport === 'soccer') {
+      // Set selectedLeague to "PL" when the page loads
+      useEffect(() => {
+        dispatch(setSelectedLeague("PL"));
+      }, [dispatch]);
+      
       setMatches([]);
       setPredictions([]);
       setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
