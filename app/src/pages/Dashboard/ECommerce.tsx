@@ -108,6 +108,10 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     dispatch(setSelectedSport("mlb"));
   }, [dispatch]);
+  // Set selectedLeague to "PL" when the page loads
+  useEffect(() => {
+    dispatch(setSelectedLeague("PL"));
+  }, [dispatch]);
 
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
@@ -222,11 +226,6 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     // Reset state variables for soccer data
     if (selectedSport === 'soccer') {
-      // Set selectedLeague to "PL" when the page loads
-      useEffect(() => {
-        dispatch(setSelectedLeague("PL"));
-      }, [dispatch]);
-      
       setMatches([]);
       setPredictions([]);
       setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
