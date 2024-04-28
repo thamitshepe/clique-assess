@@ -10,12 +10,12 @@ interface Game {
   homeTeam: {
     name: string;
     score: number | null;
-    logo?: string;
+    logo: string;
   };
   awayTeam: {
     name: string;
     score: number | null;
-    logo?: string;
+    logo: string;
   };
 }
 

@@ -9,13 +9,13 @@ interface Game {
     status: string;
     homeTeam: {
       name: string;
-      abbreviation?: string;
+      abbreviation: string;
       score: number | null;
       logo?: string; 
     };
     awayTeam: {
       name: string;
-      abbreviation?: string;
+      abbreviation: string;
       score: number | null;
       logo?: string; 
     };
