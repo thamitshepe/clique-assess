@@ -21,28 +21,39 @@ interface DatesWithIndex {
   [year: number]: DateWithIndex[];
 }
 
-interface Team {
-  shortName: string;
-  crest: string;
-}
-
-interface Score {
-  fullTime: {
-    home: number | null;
-    away: number | null;
-  };
-  halfTime: {
-    home: number | null;
-    away: number | null;
-  };
-}
-
 interface Match {
   utcDate: string;
   status: string;
-  homeTeam: Team;
-  awayTeam: Team;
-  score: Score;
+  homeTeam: {
+    shortName: string; // Change 'name' to 'shortName'
+    crest: string;
+  };
+  awayTeam: {
+    shortName: string; // Change 'name' to 'shortName'
+    crest: string;
+  };
+  score: {
+    fullTime: {
+      home: number | null; // Change 'homeTeam' to 'home'
+      away: number | null; // Change 'awayTeam' to 'away'
+    };
+    halfTime: {
+      home: number | null; // Change 'homeTeam' to 'home'
+      away: number | null; // Change 'awayTeam' to 'away'
+    };
+  };
+}
+
+interface Competition {
+  name: string;
+  code: string;
+  emblem: string;
+  competition_info: {
+    area: {
+      name: string;
+    };
+  };
+  matches: Match[];
 }
 
 interface Game {
@@ -80,9 +91,10 @@ const ECommerce: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date()); // Directly set to today's date
+  const selectedLeague = useAppSelector((state) => state.selectedLeague.selectedLeague);
   const [currentYear, setCurrentYear] = useState<number>(getYear(new Date()));
   const [datesWithIndex, setDatesWithIndex] = useState<DatesWithIndex>({});
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [matches, setMatches] = useState<Competition[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
@@ -93,6 +105,10 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
   }, [selectedSport]);
+
+  useEffect(() => {
+    console.log('Selected League:', selectedLeague);
+  }, [selectedLeague]);
   
   useEffect(() => {
     setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
@@ -195,42 +211,44 @@ const ECommerce: React.FC = () => {
     // Reset state variables for soccer data
     setMatches([]);
     setPredictions([]);
+    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
     
-    const fetchSoccerData = async (competitionCode: string) => {
-        try {
-            // Fetch soccer data for the selected league code
-            const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${competitionCode}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
-            const soccerData = soccerResponse.data.matches;
+    const fetchSoccerData = async () => {
+      try {
+
+        // Fetch soccer data with the competition code query parameter
+        const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${selectedLeague}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+        
+        // Process the soccer data response
+        const soccerData: Competition[] = Object.values(soccerResponse.data).map((leagueData: any) => ({
+          name: leagueData.matches.competition_info.competition.name,
+          code: leagueData.matches.competition_info.competition.code,
+          emblem: leagueData.matches.competition_info.competition.emblem,
+          competition_info: {
+            area: {
+              name: leagueData.matches.competition_info.area.name,
+            },
+          },
+          matches: leagueData.matches.matches
+        }));
   
-            // Update the state with the fetched soccer data
-            setMatches([soccerData]);
-            setGamesLoaded(true);
-        } finally {
-            // Wait for 3 seconds before setting loading to false
-            setTimeout(() => {
-                setMatchesLoading(false);
-            }, 3000);
+        // Set the leagues state with the fetched data
+        setMatches(soccerData);
+      } finally {
+        // Set gamesLoaded to true after games are fetched and set
+        setGamesLoaded(true);
+        if (predictionsLoading) {
+          setMatchesLoading(true);
         }
+        // Wait for 2 seconds before setting loading to false
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 3000);
+      }
     };
   
-    // Default to PL if no league code is selected
-    const selectedLeagueCode = localStorage.getItem('selectedLeague') || 'PL';
-  
-    // Fetch soccer data based on the selected league code
-    fetchSoccerData(selectedLeagueCode);
-  
-    // Listen for changes in the league code set by Soccer.tsx
-    const handleLeagueChange = () => {
-      const updatedLeagueCode = localStorage.getItem('selectedLeague') || 'PL'; // Default to PL if no league code is found
-      fetchSoccerData(updatedLeagueCode);
-    };
-    window.addEventListener('leagueChanged', handleLeagueChange);
-  
-    // Cleanup
-    return () => {
-      window.removeEventListener('leagueChanged', handleLeagueChange);
-    };
-  }, [selectedDate]);
+    fetchSoccerData();
+  }, [selectedDate, selectedLeague]);
   
 
     // Render the appropriate component based on selectedSport
@@ -255,7 +273,7 @@ const ECommerce: React.FC = () => {
         case 'mlb':
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'soccer':
-          return <SoccerMatches matches={matches} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
+          return <SoccerMatches leagues={matches} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'NHL':
           return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'nba':

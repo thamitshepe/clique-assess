@@ -6,7 +6,7 @@ interface SelectedSportState {
 }
 
 const initialState: SelectedSportState = {
-  selectedSport: 'football', // Default value
+  selectedSport: 'soccer', // Default value
 };
 
 const selectedSportSlice = createSlice({

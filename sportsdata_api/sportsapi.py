@@ -24,7 +24,9 @@ app = FastAPI()
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://betvision-app.onrender.com"],  # Update with your allowed origins
+    allow_origins=[
+        "https://betvision-app.onrender.com"
+    ],  # Update with your allowed origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
@@ -46,13 +48,18 @@ async def throttle_requests():
     async with lock:
         await asyncio.sleep(0.1)  # Add a small delay for fairness
 
-# Define Pydantic models for soccer data
+class Competition(BaseModel):
+    id: Optional[int] = None
+    name: str
+    code: Optional[str] = "PL"
+    emblem: Optional[str] = None
+
 class Team(BaseModel):
     shortName: str
     crest: str
 
 class Score(BaseModel):
-    winner: str
+    winner: Optional[str]
     duration: str
     fullTime: dict
     halfTime: dict
@@ -64,26 +71,27 @@ class Match(BaseModel):
     awayTeam: Team
     score: Score
 
-class SoccerData(BaseModel):
-    matches: Dict[str, List[Match]] = {}
+class FootballData(BaseModel):
+    competition: Competition
+    matches: List[Match]
 
-# Function to fetch soccer data with Redis caching
-async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> list:
+# Function to fetch football data with Redis caching
+async def fetch_football_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> FootballData:
     try:
         # Throttle requests
-        await throttle_requests()
+        # await throttle_requests()
 
         date_from = date_from or datetime.now(timezone.utc).strftime('%Y-%m-%d')
         date_to = date_to or date_from
 
-        cache_key = f"soccer:{competition_code}:{date_from}-{date_to}"
+        cache_key = f"football:{competition_code}:{date_from}-{date_to}"
         cached_data = redis.get(cache_key)
         if cached_data:
             # Introduce a small delay of 1 second before returning the cached data
-            time.sleep(1)
-            # Load cached JSON data and create SoccerData object directly
+            # time.sleep(1)
+            # Load cached JSON data and create FootballData object directly
             cached_data_dict = json.loads(cached_data)
-            return cached_data_dict['matches']
+            return FootballData(**cached_data_dict)
 
         base_url = os.getenv("FOOTBALL_DATA_API_URL")
         headers = {'X-Auth-Token': os.getenv("FOOTBALL_DATA_API_KEY")}
@@ -92,6 +100,9 @@ async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = No
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             response.raise_for_status()  # Raise exception for non-200 status codes
+            
+            # Log the response for debugging
+            logging.info("Response from football data API: %s", response.text)
             
             # Extract the data from the response JSON
             data = response.json()
@@ -119,26 +130,37 @@ async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = No
                 )
             )
             processed_matches_data.append(processed_match)
-        
+
+        # Determine the competition name based on the competition code
+        competition_name = "Premier League" if competition_code == "PL" else "Bundesliga" if competition_code == "BL1" else "Primeira Liga"
+
+        # Create a FootballData instance with the processed data
+        football_data = FootballData(
+            competition=Competition(name=competition_name, code=competition_code),
+            matches=processed_matches_data
+        )
+
         # Cache the data with a different expiration for the current day's data
         if date_from == datetime.now(timezone.utc).strftime('%Y-%m-%d'):
-            redis.setex(cache_key, 10, json.dumps({'matches': processed_matches_data}))  # 10 seconds expiration for current day's data
+            redis.setex(cache_key, 10, football_data.json())  # 10 seconds expiration for current day's data
         else:
-            redis.setex(cache_key, 43200, json.dumps({'matches': processed_matches_data}))  # Half a day expiration for other data
+            redis.setex(cache_key, 43200, football_data.json())  # Half a day expiration for other data
         
-        return processed_matches_data
+        return football_data
 
     except Exception as e:
-        # In case of an error, return an empty list
-        return []
+        # Log the exception for debugging
+        logging.error("Error fetching football data: %s", str(e))
+        # In case of an error, return a default response with empty matches
+        football_data = FootballData(
+            competition=Competition(name="", code=competition_code),
+            matches=[]
+        )
+        return football_data
 
-@app.get('/api/soccerdata', response_model=SoccerData)
-async def get_soccer_data_api(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None):
-    if competition_code not in ["PL", "PPL", "BL1"]:
-        raise HTTPException(status_code=400, detail="Invalid competition code")
-    
-    matches = await fetch_soccer_data(competition_code, date_from, date_to)
-    return SoccerData(matches={competition_code: matches})
+@app.get('/api/footballdata', response_model=FootballData)
+async def get_football_data_api(competition_code: str = Query(..., description="Competition code"), date_from: Optional[str] = None, date_to: Optional[str] = None):
+    return await fetch_football_data(competition_code, date_from, date_to)
 
 # Function to fetch MLB data with Redis caching
 async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
@@ -251,24 +273,27 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
-@app.get("/api/nbadata/")
-async def get_nba_data(
-    date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
-):
+# Function to fetch NBA data with Redis caching
+async def fetch_nba_data(game_date: str) -> list:
     try:
-        # Check if the requested data is in the cache
-        cache_key = f"nba_data:{date}"
+        # Throttle requests
+        await throttle_requests()
+
+        # Check if requested game date is in the cache
+        cache_key = f"nba_data:{game_date}"
         cached_data = redis.get(cache_key)
 
         if cached_data:
+            time.sleep(1)  # Introduce a delay before returning cached data
             return json.loads(cached_data)
 
         # Call the NBA API endpoint to fetch data
         nba_data = scoreboardv2.ScoreboardV2(
             day_offset=0,
-            game_date=date,
+            game_date=game_date,
             league_id="00"  # NBA league ID
         )
+
         # Extract relevant information from the response
         result_sets = nba_data.get_dict().get("resultSets", [])
         game_headers = None
@@ -278,13 +303,13 @@ async def get_nba_data(
                 game_headers = result_set.get("rowSet", [])
             elif result_set.get("name") == "LineScore":
                 line_scores = result_set.get("rowSet", [])
-        
+
         # Prepare the extracted data
         extracted_data = []
         if game_headers and line_scores:
             for i in range(0, len(line_scores), 2):
                 home_line_score = line_scores[i]
-                away_line_score = line_scores[i+1]
+                away_line_score = line_scores[i + 1]
                 game_id = home_line_score[2]
                 # Find the corresponding game header
                 game_header = next((gh for gh in game_headers if gh[2] == game_id), None)
@@ -305,7 +330,7 @@ async def get_nba_data(
                     }
                     extracted_data.append(extracted_game)
 
-        # Cache the extracted data in Redis with a 12-hour expiration
+        # Cache the data in Redis with a 12-hour expiration
         redis.setex(cache_key, 60 * 60 * 12, json.dumps(extracted_data))
 
         return extracted_data
@@ -313,6 +338,17 @@ async def get_nba_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
+
+@app.get("/api/nbadata/")
+async def get_nba_data(
+        date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
+):
+    try:
+        # Fetch NBA data with Redis caching
+        return await fetch_nba_data(date)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
 redis_instance = Redis.from_url(redis_url)
 
