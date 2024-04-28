@@ -210,32 +210,31 @@ const ECommerce: React.FC = () => {
     }
   }, [selectedDate, selectedSport]);
   
+  
   useEffect(() => {
-    // Reset state variables for soccer data
     if (selectedSport === 'soccer') {
+      // Reset state variables for soccer data
       setMatches([]);
       setPredictions([]);
       setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
   
       const fetchSoccerData = async () => {
         try {
-  
           // Fetch soccer data with the competition code query parameter
           const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${selectedLeague}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
   
           // Process the soccer data response
-          const soccerData: Competition[] = Object.values(soccerResponse.data).map((leagueData: any) => ({
-            matches: leagueData.matches.matches
-          }));
+          const soccerData: Competition = {
+            matches: soccerResponse.data.matches // Assuming the response directly contains matches array
+          };
   
-          // Set the leagues state with the fetched data
-          setMatches(soccerData);
+          // Set the matches state with the fetched data
+          setMatches([soccerData]); // Wrap soccerData in an array as it's of type Competition
+        } catch (error) {
+          console.error('Error fetching soccer data:', error);
         } finally {
           // Set gamesLoaded to true after games are fetched and set
           setGamesLoaded(true);
-          if (predictionsLoading) {
-            setMatchesLoading(true);
-          }
           // Wait for 2 seconds before setting loading to false
           setTimeout(() => {
             setMatchesLoading(false);
@@ -245,7 +244,8 @@ const ECommerce: React.FC = () => {
   
       fetchSoccerData();
     }
-  }, [selectedDate, selectedLeague, selectedSport]);
+  }, [selectedDate, selectedLeague, selectedSport]);  
+
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {

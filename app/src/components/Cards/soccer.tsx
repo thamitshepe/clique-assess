@@ -8,7 +8,6 @@ import { setSelectedLeague } from '../../store/selectedLeagueSlice'; // Import t
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
 
-
 interface Match {
   utcDate: string;
   status: string;
