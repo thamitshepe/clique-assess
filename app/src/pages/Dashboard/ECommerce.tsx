@@ -105,7 +105,7 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     console.log('Selected Sport:', selectedSport);
   }, [selectedSport]);
-
+  
   useEffect(() => {
     console.log('Selected League:', selectedLeague);
   }, [selectedLeague]);
@@ -115,141 +115,147 @@ const ECommerce: React.FC = () => {
     setGamesLoaded(false); // Reset gamesLoaded state when selectedDate changes
     setPredictionsLoading(false)
   }, [selectedDate]);
-
+  
   const formatDate = (dateInput: Date | string, timeZone: string = 'UTC') => {
     // Convert the input date to the required timezone
     const date = new Date(dateInput);
     const zonedDate = toZonedTime(date, timeZone);
-    
+  
     // Format the date as YYYY-MM-DD in the specified time zone
     return format(zonedDate, 'yyyy-MM-dd', { timeZone });
   };
-
+  
   useEffect(() => {
     // Reset state variables for MLB data
-    setGames([]);
-    setPredictions([]);
-    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
-    
-    const fetchMLBData = async () => {
-      try {
-        const response = await axios.get(`https://sportsvision.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
-        setGames(response.data);
-
-      } finally {
-        // Set gamesLoaded to true after games are fetched and set
-        setGamesLoaded(true);
-        if (predictionsLoading) {
-          setMatchesLoading(true);
+    if (selectedSport === 'MLB') {
+      setGames([]);
+      setPredictions([]);
+      setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+  
+      const fetchMLBData = async () => {
+        try {
+          const response = await axios.get(`https://sportsvision.onrender.com/api/mlbdata?start_date=${formatDate(selectedDate)}&end_date=${formatDate(selectedDate)}`);
+          setGames(response.data);
+  
+        } finally {
+          // Set gamesLoaded to true after games are fetched and set
+          setGamesLoaded(true);
+          if (predictionsLoading) {
+            setMatchesLoading(true);
+          }
+          // Wait for 2 seconds before setting loading to false
+          setTimeout(() => {
+            setMatchesLoading(false);
+          }, 3000);
         }
-        // Wait for 2 seconds before setting loading to false
-        setTimeout(() => {
-          setMatchesLoading(false);
-        }, 3000);
-      }
-    };
-
-    fetchMLBData();
-  }, [selectedDate]);
-
+      };
+  
+      fetchMLBData();
+    }
+  }, [selectedDate, selectedSport]);
+  
   useEffect(() => {
     // Reset state variables for NBA data
-    setGames([]);
-    setPredictions([]);
-    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
-    
-    const fetchNBAData = async () => {
-      try {
-        const response = await axios.get(`https://sportsvision.onrender.com/nbadata?game_date=${formatDate(selectedDate)}`);
-        setGames(response.data);
-
-      } finally {
-        // Set gamesLoaded to true after games are fetched and set
-        setGamesLoaded(true);
-        if (predictionsLoading) {
-          setMatchesLoading(true);
+    if (selectedSport === 'NBA') {
+      setGames([]);
+      setPredictions([]);
+      setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+  
+      const fetchNBAData = async () => {
+        try {
+          const response = await axios.get(`https://sportsvision.onrender.com/nbadata?game_date=${formatDate(selectedDate)}`);
+          setGames(response.data);
+  
+        } finally {
+          // Set gamesLoaded to true after games are fetched and set
+          setGamesLoaded(true);
+          if (predictionsLoading) {
+            setMatchesLoading(true);
+          }
+          // Wait for 2 seconds before setting loading to false
+          setTimeout(() => {
+            setMatchesLoading(false);
+          }, 3000);
         }
-        // Wait for 2 seconds before setting loading to false
-        setTimeout(() => {
-          setMatchesLoading(false);
-        }, 3000);
-      }
-    };
-
-    fetchNBAData();
-  }, [selectedDate]);
-
-
+      };
+  
+      fetchNBAData();
+    }
+  }, [selectedDate, selectedSport]);
+  
   useEffect(() => {
     // Reset state variables for NHL data
-    setGames([]);
-    setPredictions([]);
-    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
-    
-    const fetchNHLData = async () => {
-      try {
-        const response = await axios.get(`https://sportsvision.onrender.com/api/nhldata?game_date=${formatDate(selectedDate)}`);
-        setGames(response.data);
-
-      } finally {
-        // Set gamesLoaded to true after games are fetched and set
-        setGamesLoaded(true);
-        if (predictionsLoading) {
-          setMatchesLoading(true);
+    if (selectedSport === 'NHL') {
+      setGames([]);
+      setPredictions([]);
+      setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+  
+      const fetchNHLData = async () => {
+        try {
+          const response = await axios.get(`https://sportsvision.onrender.com/api/nhldata?game_date=${formatDate(selectedDate)}`);
+          setGames(response.data);
+  
+        } finally {
+          // Set gamesLoaded to true after games are fetched and set
+          setGamesLoaded(true);
+          if (predictionsLoading) {
+            setMatchesLoading(true);
+          }
+          // Wait for 2 seconds before setting loading to false
+          setTimeout(() => {
+            setMatchesLoading(false);
+          }, 3000);
         }
-        // Wait for 2 seconds before setting loading to false
-        setTimeout(() => {
-          setMatchesLoading(false);
-        }, 3000);
-      }
-    };
-
-    fetchNHLData();
-  }, [selectedDate]);
-
+      };
+  
+      fetchNHLData();
+    }
+  }, [selectedDate, selectedSport]);
+  
   useEffect(() => {
     // Reset state variables for soccer data
-    setMatches([]);
-    setPredictions([]);
-    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
-    
-    const fetchSoccerData = async () => {
-      try {
-
-        // Fetch soccer data with the competition code query parameter
-        const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${selectedLeague}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
-        
-        // Process the soccer data response
-        const soccerData: Competition[] = Object.values(soccerResponse.data).map((leagueData: any) => ({
-          name: leagueData.matches.competition_info.competition.name,
-          code: leagueData.matches.competition_info.competition.code,
-          emblem: leagueData.matches.competition_info.competition.emblem,
-          competition_info: {
-            area: {
-              name: leagueData.matches.competition_info.area.name,
+    if (selectedSport === 'Soccer') {
+      setMatches([]);
+      setPredictions([]);
+      setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+  
+      const fetchSoccerData = async () => {
+        try {
+  
+          // Fetch soccer data with the competition code query parameter
+          const soccerResponse = await axios.get(`https://sportsvision.onrender.com/api/soccerdata?competition_code=${selectedLeague}&date_from=${formatDate(selectedDate)}&date_to=${formatDate(selectedDate)}`);
+  
+          // Process the soccer data response
+          const soccerData: Competition[] = Object.values(soccerResponse.data).map((leagueData: any) => ({
+            name: leagueData.matches.competition_info.competition.name,
+            code: leagueData.matches.competition_info.competition.code,
+            emblem: leagueData.matches.competition_info.competition.emblem,
+            competition_info: {
+              area: {
+                name: leagueData.matches.competition_info.area.name,
+              },
             },
-          },
-          matches: leagueData.matches.matches
-        }));
+            matches: leagueData.matches.matches
+          }));
   
-        // Set the leagues state with the fetched data
-        setMatches(soccerData);
-      } finally {
-        // Set gamesLoaded to true after games are fetched and set
-        setGamesLoaded(true);
-        if (predictionsLoading) {
-          setMatchesLoading(true);
+          // Set the leagues state with the fetched data
+          setMatches(soccerData);
+        } finally {
+          // Set gamesLoaded to true after games are fetched and set
+          setGamesLoaded(true);
+          if (predictionsLoading) {
+            setMatchesLoading(true);
+          }
+          // Wait for 2 seconds before setting loading to false
+          setTimeout(() => {
+            setMatchesLoading(false);
+          }, 3000);
         }
-        // Wait for 2 seconds before setting loading to false
-        setTimeout(() => {
-          setMatchesLoading(false);
-        }, 3000);
-      }
-    };
+      };
   
-    fetchSoccerData();
-  }, [selectedDate, selectedLeague]);
-  
+      fetchSoccerData();
+    }
+  }, [selectedDate, selectedLeague, selectedSport]);
 
     // Render the appropriate component based on selectedSport
     const renderLeagueComponent = () => {
