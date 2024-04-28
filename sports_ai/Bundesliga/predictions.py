@@ -80,7 +80,7 @@ def make_predictions(model, upcoming_df):
 
 # Function to load the trained model
 def load_model():
-    return joblib.load('./PremierLeague/trained_model.h5')
+    return joblib.load('./trained_model.h5')
 
 # Function to load or update predictions data
 def load_predictions(api_key):
