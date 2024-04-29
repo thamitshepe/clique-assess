@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import stripe
 import os
 
@@ -16,6 +17,15 @@ WHITELIST = {
     "dedicated.professor65@gmail.com",
     "beach.austin15@gmail.com"
 }
+
+# Configure CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://dashboard.betvisionai.com"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 @app.post("/api/check-subscription")
 async def check_subscription(request: SubscriptionCheckRequest):
