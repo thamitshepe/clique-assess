@@ -8,7 +8,8 @@ app = FastAPI()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 class SubscriptionCheckRequest(BaseModel):
-    sessionId: str  # You'd validate this against Clerk's API, possibly needing a custom request
+    sessionId: str
+    email: str  # Add email field
 
 # Define the whitelist of email addresses
 WHITELIST = {
@@ -29,8 +30,8 @@ app.add_middleware(
 
 @app.post("/api/check-subscription")
 async def check_subscription(request: SubscriptionCheckRequest):
-    # Assume you validate sessionId and find the user email or ID associated with it
-    email = "user_email_from_clerk_session@domain.com"  # This needs actual implementation
+    session_id = request.sessionId
+    email = request.email  # Retrieve email from request
 
     try:
         # Check if the email is in the whitelist

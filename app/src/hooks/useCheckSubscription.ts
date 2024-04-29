@@ -10,13 +10,18 @@ export const useCheckSubscription = () => {
     if (session) {
       const checkSubscription = async () => {
         try {
+          const email = session.user.primaryEmailAddress?.emailAddress; // Optional chaining here
+          if (!email) {
+            throw new Error('User email is null or undefined');
+          }
+
           const response = await fetch('https://stripevision.onrender.com/api/check-subscription', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ sessionId: session.id }),  // Use session.id here
-        });
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sessionId: session.id, email }), // Use email here
+          });
 
           const data = await response.json();
           if (!data.subscribed) {
