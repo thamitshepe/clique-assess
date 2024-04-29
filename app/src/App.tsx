@@ -6,6 +6,7 @@ import ECommerce from './pages/Dashboard/ECommerce';
 import { Provider } from 'react-redux'; // Import Provider
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import store from './store/store'; // Import your Redux store
+import { useCheckSubscription } from './hooks/useCheckSubscription';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,6 +19,8 @@ function App() {
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
+
+  useCheckSubscription(); // Use the subscription check hook
 
   return loading ? (
     <Loader />

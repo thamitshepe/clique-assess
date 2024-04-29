@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import DropdownNotification from '../Header/DropdownNotification';
 import { UserButton } from '@clerk/clerk-react';
 
@@ -9,7 +8,6 @@ interface SidebarProps {
 }
 
 const SidebarRight: React.FC<SidebarProps> = ({ sidebarOpen }) => {
-  const { pathname } = useLocation();
 
   React.useEffect(() => {
     localStorage.setItem('sidebar-expanded', sidebarOpen.toString());
