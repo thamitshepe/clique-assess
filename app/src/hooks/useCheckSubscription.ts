@@ -10,7 +10,7 @@ export const useCheckSubscription = () => {
     if (session) {
       const checkSubscription = async () => {
         try {
-          const response = await fetch('https://stripevision.onrender.com/api/checksubscription', {
+          const response = await fetch('https://stripevision.onrender.com/api/check-subscription', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
