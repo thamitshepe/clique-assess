@@ -168,7 +168,7 @@ const ECommerce: React.FC = () => {
   
       const fetchNBAData = async () => {
         try {
-          const response = await axios.get(`https://sportsvision.onrender.com/api/nbadata/?date=${formatDate(selectedDate)}`);
+          const response = await axios.get(`https://sportsvision.onrender.com/api/nbadata?date=${formatDate(selectedDate)}`);
           setGames(response.data);
   
         } finally {
