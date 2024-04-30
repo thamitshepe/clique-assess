@@ -33,7 +33,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded && (selectedSport === 'nhl')) {
-          const response = await axios.get('https://nhlvision.onrender.com/nhlpredictions'); // Change the API endpoint for NHL predictions
+          const response = await axios.get('https://nhlvision.onrender.com/nhlpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }
@@ -68,7 +68,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           {/* Home team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for home team */}
-            {game.homeTeam.logo && <img src={game.homeTeam.logo} alt={game.homeTeam.name} className="w-8 h-8 mr-6" />}
+            <img src={game.homeTeam.logo} alt={game.homeTeam.name} className="w-8 h-8 mr-6" />
             <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
               {game.homeTeam.name}
             </p>
@@ -82,7 +82,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           {/* Away team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for away team */}
-            {game.awayTeam.logo && <img src={game.awayTeam.logo} alt={game.awayTeam.name} className="w-8 h-8 mr-6" />}
+            <img src={game.awayTeam.logo} alt={game.awayTeam.name} className="w-8 h-8 mr-6" />
             <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
               {game.awayTeam.name}
             </p>
