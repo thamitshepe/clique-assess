@@ -39,6 +39,7 @@ interface Competition {
 export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Date; predictions?: any[];  gamesLoaded: boolean; }> = ({ leagues, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
     const selectedLeague = useAppSelector((state) => state.selectedLeague.selectedLeague);
+    const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
 
 
   const isCurrentDate = useMemo(() => {
@@ -49,7 +50,7 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        if (isCurrentDate && gamesLoaded) {
+        if (isCurrentDate && gamesLoaded && (selectedSport === 'soccer')) {
           let predictionURL = '';
 
           // Determine the prediction URL based on the selected league
@@ -73,7 +74,7 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
     };
   
     fetchPredictions();
-  }, [isCurrentDate, gamesLoaded]);
+  }, [isCurrentDate, gamesLoaded, selectedSport]);
 
   const items = useMemo(() => {
     return leagues.flatMap((competition) =>

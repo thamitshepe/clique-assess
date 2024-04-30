@@ -3,6 +3,8 @@ import { isSameDay } from 'date-fns';
 import * as mlbIcons from '../../images/mlb';
 import { format } from 'date-fns-tz';
 import axios from 'axios';
+import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
+
 
 interface Game {
   gameDate: string;
@@ -19,6 +21,8 @@ interface Game {
 
 export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded  }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
+  const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
+
 
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
@@ -28,7 +32,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        if (isCurrentDate && gamesLoaded) {
+        if (isCurrentDate && gamesLoaded && (selectedSport === 'mlb')) {
           const response = await axios.get('https://mlbvision.onrender.com/mlbpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
@@ -39,7 +43,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
     };
 
     fetchPredictions();
-  }, [isCurrentDate, gamesLoaded]);
+  }, [isCurrentDate, gamesLoaded, selectedSport]);
 
 
   const modifyTeamName = (name: string): string => {

@@ -16,7 +16,7 @@ app = FastAPI()
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://dashboard.betvisionai.com"],  # Change this to restrict access to specific origins if needed
+    allow_origins=["*"],  # Change this to restrict access to specific origins if needed
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
@@ -36,7 +36,9 @@ def fetch_upcoming_matches(api_key):
     url = f'https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey={api_key}&regions=us&markets=h2h'
     response = requests.get(url)
     data = response.json()
+    print(data)  # Debug: Print data to check structure
     return data
+
 
 # Function to preprocess upcoming match data
 def preprocess_upcoming_matches(data):

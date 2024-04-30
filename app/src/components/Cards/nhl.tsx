@@ -3,6 +3,7 @@ import { isSameDay } from 'date-fns';
 import * as nhlIcons from '../../images/nhl'; // Import NHL icons
 import { format } from 'date-fns-tz';
 import axios from 'axios';
+import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
 interface Game {
   gameDate: string;
@@ -21,6 +22,7 @@ interface Game {
 
 export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
+  const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
 
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
@@ -30,7 +32,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        if (isCurrentDate && gamesLoaded) {
+        if (isCurrentDate && gamesLoaded && (selectedSport === 'nhl')) {
           const response = await axios.get('https://nhlvision.onrender.com/nhlpredictions'); // Change the API endpoint for NHL predictions
           console.log('Predictions:', response.data);
           setPredictions(response.data);
@@ -41,7 +43,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
     };
 
     fetchPredictions();
-  }, [isCurrentDate, gamesLoaded]);
+  }, [isCurrentDate, gamesLoaded, selectedSport]);
 
 
   const items = useMemo(() => {
