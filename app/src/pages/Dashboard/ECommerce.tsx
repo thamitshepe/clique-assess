@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
 import { setSelectedLeague } from '../../store/selectedLeagueSlice';
+import { NHLGames, NHLLeagues } from '../../components/Cards/nhl'
 
 interface DateWithIndex {
   date: string;
@@ -76,8 +77,6 @@ const SoccerLeagues = lazy(() => import('../../components/Cards/soccer').then(mo
 const SoccerMatches = lazy(() => import('../../components/Cards/soccer').then(module => ({ default: module.SoccerMatches })));
 const MLBLeagues = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBLeagues })));
 const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBGames })));
-const NHLLeagues = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLLeagues })));
-const NHLGames = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLGames })));
 const NBALeagues = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBALeagues })));
 const NBAGames = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBAGames })));
 
