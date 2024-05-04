@@ -3,7 +3,6 @@ import { isSameDay } from 'date-fns';
 import * as nhlIcons from '../../images/nhl'; // Import NHL icons
 import { format } from 'date-fns-tz';
 import axios from 'axios';
-import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
 interface Game {
   gameDate: string;
@@ -20,9 +19,8 @@ interface Game {
   };
 }
 
-export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded }) => {
+export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded: boolean; predictions?: any[]; selectedSport: string }> = ({ games, selectedDate, gamesLoaded, selectedSport }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
-  const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
 
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
