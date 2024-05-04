@@ -5,7 +5,6 @@ import { format } from 'date-fns-tz';
 import axios from 'axios';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
-
 interface Game {
   gameDate: string;
   status: string;
@@ -21,7 +20,7 @@ interface Game {
   };
 }
 
-export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded  }) => {
+export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
 
@@ -33,8 +32,8 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        if ((selectedSport === 'nhl')) {
-          const response = await axios.get('https://mlbvision.onrender.com/mlbpredictions');
+        if (isCurrentDate && gamesLoaded && (selectedSport === 'nhl')) {
+          const response = await axios.get('https://nhlvision.onrender.com/nhlpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }
@@ -44,8 +43,11 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
     };
 
     fetchPredictions();
-  }, [selectedSport]);
+  }, [isCurrentDate, gamesLoaded, selectedSport]);
 
+  useEffect(() => {
+    console.log('Selected Sport:', selectedSport);
+  }, [selectedSport]);
 
   const items = useMemo(() => {
     return games.map((game, index) => {

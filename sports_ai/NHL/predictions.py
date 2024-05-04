@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 import os
 import schedule
 import time
-import threading
 
 app = FastAPI()
 
@@ -97,7 +96,8 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Start the scheduler in a background thread
+# Run scheduler in a separate thread
+import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
