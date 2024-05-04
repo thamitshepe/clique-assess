@@ -33,7 +33,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        if (isCurrentDate && gamesLoaded && (selectedSport === 'NHL')) {
+        if ((selectedSport === 'nhl')) {
           const response = await axios.get('https://mlbvision.onrender.com/mlbpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
@@ -44,7 +44,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
     };
 
     fetchPredictions();
-  }, [isCurrentDate, gamesLoaded, selectedSport]);
+  }, [selectedSport]);
 
 
   const items = useMemo(() => {
