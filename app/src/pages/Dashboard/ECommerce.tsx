@@ -13,7 +13,6 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
 import { setSelectedLeague } from '../../store/selectedLeagueSlice';
-import { NHLGames, NHLLeagues } from '../../components/Cards/nhl'
 
 interface DateWithIndex {
   date: string;
@@ -79,6 +78,8 @@ const MLBLeagues = lazy(() => import('../../components/Cards/mlb').then(module =
 const MLBGames = lazy(() => import('../../components/Cards/mlb').then(module => ({ default: module.MLBGames })));
 const NBALeagues = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBALeagues })));
 const NBAGames = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBAGames })));
+const NHLGames = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLGames })));
+const NHLLeagues = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLLeagues })));
 
 const ECommerce: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
@@ -101,7 +102,7 @@ const ECommerce: React.FC = () => {
     dispatch(setSelectedSport("mlb"));
   }, [dispatch]);
 
-    // Set selectedSport to "mlb" when the page loads
+    // Set selectedLeague to "PL" when the page loads
     useEffect(() => {
       dispatch(setSelectedLeague("PL"));
     }, [dispatch]);
