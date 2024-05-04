@@ -25,7 +25,6 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
   const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
 
-
   const isCurrentDate = useMemo(() => {
     const currentDate = new Date();
     return isSameDay(selectedDate, currentDate);
