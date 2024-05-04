@@ -277,8 +277,8 @@ const ECommerce: React.FC = () => {
           return <MLBGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'soccer':
           return <SoccerMatches leagues={matches} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
-        case 'NHL':
-          return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} selectedSport={selectedSport} />;
+        case 'nhl':
+          return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'nba':
           return <NBAGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         default:
