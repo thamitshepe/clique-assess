@@ -33,7 +33,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded && (selectedSport === 'nhl')) {
-          const response = await axios.get('https://nhlvision.onrender.com/nhlpredictions');
+          const response = await axios.get('https://betvision-ai.onrender.com/nhlpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }

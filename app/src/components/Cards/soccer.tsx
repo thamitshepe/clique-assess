@@ -55,11 +55,11 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
 
           // Determine the prediction URL based on the selected league
           if (selectedLeague === 'PL') {
-            predictionURL = 'https://plvision.onrender.com/soccerpredictions';
+            predictionURL = 'https://betvision-ai.onrender.com/plpredictions';
           } else if (selectedLeague === 'PPL') {
-            predictionURL = 'https://pplvision.onrender.com/soccerpredictions';
+            predictionURL = 'https://betvision-ai.onrender.com/pplpredictions';
           } else if (selectedLeague === 'BL1') {
-            predictionURL = 'https://bl1vision.onrender.com/soccerpredictions';
+            predictionURL = 'https://betvision-ai.onrender.com/bl1predictions';
           }
   
           if (predictionURL) {

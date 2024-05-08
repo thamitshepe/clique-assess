@@ -1,1 +1,3 @@
 .sportsai/
+.env
+__pycache__
