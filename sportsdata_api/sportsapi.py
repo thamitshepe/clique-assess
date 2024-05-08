@@ -276,15 +276,11 @@ async def get_nhl_data_api(game_date: str):
 # Function to fetch NBA data with Redis caching
 async def fetch_nba_data(game_date: str) -> list:
     try:
-        # Throttle requests
-        await throttle_requests()
-
         # Check if requested game date is in the cache
         cache_key = f"nba_data:{game_date}"
         cached_data = redis.get(cache_key)
 
         if cached_data:
-            time.sleep(1)  # Introduce a delay before returning cached data
             return json.loads(cached_data)
 
         # Call the NBA API endpoint to fetch data
@@ -341,7 +337,7 @@ async def fetch_nba_data(game_date: str) -> list:
 
 @app.get("/api/nbadata/")
 async def get_nba_data(
-        date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
+    date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
 ):
     try:
         # Fetch NBA data with Redis caching
@@ -349,6 +345,7 @@ async def get_nba_data(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
+    
 
 redis_instance = Redis.from_url(redis_url)
 
