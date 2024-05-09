@@ -1,8 +1,6 @@
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.applications import Starlette
-from starlette.responses import JSONResponse
-from starlette.exceptions import HTTPException
+from flask_cors import CORS
+from flask import Flask, request, jsonify
+from asgiref.wsgi import WsgiToAsgi
 import httpx
 import os
 import asyncio
@@ -22,18 +20,11 @@ logging.basicConfig(level=logging.INFO)
 # Load environment variables from .env file
 load_dotenv()
 
-app = FastAPI()
+app = Flask(__name__)
+asgi_app = WsgiToAsgi(app)
+CORS(app)
 
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://dashboard.betvisionai.com"
-    ],  # Update with your allowed origins
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
-)
+CORS(app, resources={r"/api/*": {"origins": "https://dashboard.betvisionai.com"}})
 
 # Redis Configuration
 redis_url = os.getenv("REDIS_URL")
@@ -46,53 +37,46 @@ RATE_LIMIT_REQUESTS = 10  # 10 requests per period
 # Define a lock object
 lock = asyncio.Lock()
 
-# Define a function to throttle requests
-async def throttle_requests():
-    async with lock:
-        await asyncio.sleep(0.1)  # Add a small delay for fairness
 
-class Competition(BaseModel):
-    id: Optional[int] = None
-    name: str
-    code: Optional[str] = "PL"
-    emblem: Optional[str] = None
+class Competition:
+    def __init__(self, name: str, code: Optional[str] = "PL", emblem: Optional[str] = None):
+        self.name = name
+        self.code = code
+        self.emblem = emblem
 
-class Team(BaseModel):
-    shortName: str
-    crest: str
+class Team:
+    def __init__(self, shortName: str, crest: str):
+        self.shortName = shortName
+        self.crest = crest
 
-class Score(BaseModel):
-    winner: Optional[str]
-    duration: str
-    fullTime: dict
-    halfTime: dict
+class Score:
+    def __init__(self, winner: Optional[str], duration: str, fullTime: dict, halfTime: dict):
+        self.winner = winner
+        self.duration = duration
+        self.fullTime = fullTime
+        self.halfTime = halfTime
 
-class Match(BaseModel):
-    utcDate: str
-    status: str
-    homeTeam: Team
-    awayTeam: Team
-    score: Score
+class Match:
+    def __init__(self, utcDate: str, status: str, homeTeam: Team, awayTeam: Team, score: Score):
+        self.utcDate = utcDate
+        self.status = status
+        self.homeTeam = homeTeam
+        self.awayTeam = awayTeam
+        self.score = score
 
-class SoccerData(BaseModel):
-    competition: Competition
-    matches: List[Match]
+class SoccerData:
+    def __init__(self, competition: Competition, matches: List[Match]):
+        self.competition = competition
+        self.matches = matches
 
-# Function to fetch soccer data with Redis caching
-async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> SoccerData:
+def fetch_soccer_data(competition_code: str, date_from: Optional[str] = None, date_to: Optional[str] = None) -> SoccerData:
     try:
-        # Throttle requests
-        # await throttle_requests()
-
         date_from = date_from or datetime.now(timezone.utc).strftime('%Y-%m-%d')
         date_to = date_to or date_from
 
         cache_key = f"soccer:{competition_code}:{date_from}-{date_to}"
         cached_data = redis.get(cache_key)
         if cached_data:
-            # Introduce a small delay of 1 second before returning the cached data
-            # time.sleep(1)
-            # Load cached JSON data and create SoccerData object directly
             cached_data_dict = json.loads(cached_data)
             return SoccerData(**cached_data_dict)
 
@@ -100,17 +84,11 @@ async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = No
         headers = {'X-Auth-Token': os.getenv("FOOTBALL_DATA_API_KEY")}
         url = f"{base_url}competitions/{competition_code}/matches?dateFrom={date_from}&dateTo={date_to}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
-            response.raise_for_status()  # Raise exception for non-200 status codes
-            
-            # Log the response for debugging
-            logging.info("Response from soccer data API: %s", response.text)
-            
-            # Extract the data from the response JSON
+        with httpx.Client() as client:
+            response = client.get(url, headers=headers)
+            response.raise_for_status()
             data = response.json()
 
-        # Process matches data from the response if matches exist
         matches_data = data.get("matches", [])
         processed_matches_data = []
         for match in matches_data:
@@ -134,42 +112,44 @@ async def fetch_soccer_data(competition_code: str, date_from: Optional[str] = No
             )
             processed_matches_data.append(processed_match)
 
-        # Determine the competition name based on the competition code
         competition_name = "Premier League" if competition_code == "PL" else "Bundesliga" if competition_code == "BL1" else "Primeira Liga"
 
-        # Create a SoccerData instance with the processed data
         soccer_data = SoccerData(
             competition=Competition(name=competition_name, code=competition_code),
             matches=processed_matches_data
         )
 
-        # Cache the data with a different expiration for the current day's data
         if date_from == datetime.now(timezone.utc).strftime('%Y-%m-%d'):
-            redis.setex(cache_key, 10, soccer_data.json())  # 10 seconds expiration for current day's data
+            redis.setex(cache_key, 10, json.dumps(soccer_data.__dict__))
         else:
-            redis.setex(cache_key, 43200, soccer_data.json())  # Half a day expiration for other data
+            redis.setex(cache_key, 43200, json.dumps(soccer_data.__dict__))
         
         return soccer_data
 
     except Exception as e:
-        # Log the exception for debugging
         logging.error("Error fetching soccer data: %s", str(e))
-        # In case of an error, return a default response with empty matches
         soccer_data = SoccerData(
             competition=Competition(name="", code=competition_code),
             matches=[]
         )
         return soccer_data
 
-@app.get('/api/soccerdata', response_model=SoccerData)
-async def get_soccer_data_api(competition_code: str = Query(..., description="Competition code"), date_from: Optional[str] = None, date_to: Optional[str] = None):
-    return await fetch_soccer_data(competition_code, date_from, date_to)
+@app.route('/api/soccerdata')
+def get_soccer_data_api():
+    try:
+        competition_code = request.args.get('competition_code')
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+        return jsonify(fetch_soccer_data(competition_code, date_from, date_to).__dict__)
+
+    except Exception as e:
+        return jsonify({"error": f"Error fetching soccer data: {str(e)}"}), 500
+    
+
 
 # Function to fetch MLB data with Redis caching
-async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
+def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> list:
     try:
-        # Throttle requests
-        await throttle_requests()
 
         # Check if requested dates are in the cache
         cache_key = f"mlb_data:{start_date}:{end_date}"
@@ -184,8 +164,8 @@ async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[st
         mlb_base_url = os.getenv("MLB_API_URL")
         mlb_date_url = f'{mlb_base_url}&startDate={start_date}&endDate={end_date}' if start_date and end_date else mlb_base_url
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(mlb_date_url)
+        with httpx.Client() as client:
+            response = client.get(mlb_date_url)
             response.raise_for_status()  # Raise exception for non-200 status codes
 
         mlb_data = response.json()
@@ -215,18 +195,23 @@ async def fetch_mlb_data(start_date: Optional[str] = None, end_date: Optional[st
         return extracted_data
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching MLB data: {str(e)}")
+        return {"error": f"Error fetching MLB data: {str(e)}"}
 
-@app.get('/api/mlbdata')
-async def get_mlb_data_api(start_date: Optional[str] = None, end_date: Optional[str] = None):
-    return await fetch_mlb_data(start_date, end_date)
+@app.route('/api/mlbdata')
+def get_mlb_data_api():
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        # Fetch MLB data with Redis caching
+        return jsonify(fetch_mlb_data(start_date, end_date))
+
+    except Exception as e:
+        return jsonify({"error": f"Error fetching MLB data: {str(e)}"}), 500
 
 
 # Function to fetch NHL data with Redis caching
-async def fetch_nhl_data(game_date: str) -> list:
+def fetch_nhl_data(game_date: str) -> list:
     try:
-        # Throttle requests
-        await throttle_requests()
 
         # Check if requested game date is in the cache
         cache_key = f"nhl_data:{game_date}"
@@ -239,8 +224,8 @@ async def fetch_nhl_data(game_date: str) -> list:
         nhl_base_url = os.getenv("NHL_API_URL")
         nhl_date_url = f"{nhl_base_url}/{game_date}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(nhl_date_url)
+        with httpx.Client() as client:
+            response = client.get(nhl_date_url)
             response.raise_for_status()
 
         nhl_data = response.json()
@@ -269,17 +254,24 @@ async def fetch_nhl_data(game_date: str) -> list:
         return extracted_data
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching NHL data: {str(e)}")
+        return {"error": f"Error fetching NHL data: {str(e)}"}
 
-@app.get('/api/nhldata')
-async def get_nhl_data_api(game_date: str):
-    return await fetch_nhl_data(game_date)
+@app.route('/api/nhldata')
+def get_nhl_data_api():
+    try:
+        game_date = request.args.get('game_date')
+        if not game_date:
+            return jsonify({"error": "Date parameter is missing"}), 400
+        # Fetch NHL data with Redis caching
+        return jsonify(fetch_nhl_data(game_date))
+
+    except Exception as e:
+        return jsonify({"error": f"Error fetching NHL data: {str(e)}"}), 500
 
 
-app = Starlette()
 
 # Function to fetch NBA data with Redis caching
-async def fetch_nba_data(game_date: str) -> list:
+def fetch_nba_data(game_date: str) -> list:
     try:
         # Check if requested game date is in the cache
         cache_key = f"nba_data:{game_date}"
@@ -337,35 +329,16 @@ async def fetch_nba_data(game_date: str) -> list:
         return extracted_data
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
+        return {"error": f"Error fetching NBA data: {str(e)}"}
 
-@app.route("/api/nbadata/", methods=["GET", "POST"])
-async def get_nba_data(request):
-    if request.method == "POST":
-        try:
-            data = await request.json()
-            date = data.get('date')
-            if not date:
-                raise HTTPException(status_code=400, detail="Date parameter is missing")
-        except Exception as e:
-            raise HTTPException(status_code=400, detail="Invalid JSON payload")
-    else:
-        date = request.query_params.get('date')
-        if not date:
-            raise HTTPException(status_code=400, detail="Date parameter is missing")
-    
+@app.route("/api/nbadata/")
+def get_nba_data():
     try:
+        date = request.args.get('date')
+        if not date:
+            return jsonify({"error": "Date parameter is missing"}), 400
         # Fetch NBA data with Redis caching
-        return JSONResponse(await fetch_nba_data(date))
+        return jsonify(fetch_nba_data(date))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
-
-# Optional: Define error handlers
-@app.exception_handler(400)
-async def bad_request(request, exc):
-    return JSONResponse({"error": str(exc)}, status_code=400)
-
-@app.exception_handler(500)
-async def internal_server_error(request, exc):
-    return JSONResponse({"error": "Internal Server Error"}, status_code=500)
+        return jsonify({"error": f"Error fetching NBA data: {str(e)}"}), 500
