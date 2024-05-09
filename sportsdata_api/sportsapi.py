@@ -369,12 +369,3 @@ async def bad_request(request, exc):
 @app.exception_handler(500)
 async def internal_server_error(request, exc):
     return JSONResponse({"error": "Internal Server Error"}, status_code=500)
-    
-
-redis_instance = Redis.from_url(redis_url)
-
-
-@app.post("/clear_cache")
-async def clear_cache():
-    redis_instance.flushdb()
-    return {"message": "Cache cleared successfully"}
