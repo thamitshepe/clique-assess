@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
+from sklearn.impute import SimpleImputer
 import joblib
 import schedule
 import time
@@ -147,7 +148,7 @@ async def bl1_get_predictions():
 
 
 
-# Initialize global variables to store predictions data
+# Initialize global variables to store predictions data for Premier League
 pl_predictions_loaded = False
 pl_predictions_data = None
 pl_initial_load_completed = False
@@ -267,9 +268,7 @@ async def pl_get_predictions():
 
 
 
-
-
-# Initialize global variables to store predictions data
+# Initialize global variables to store predictions data for PPL
 ppl_predictions_loaded = False
 ppl_predictions_data = None
 ppl_initial_load_completed = False
@@ -389,9 +388,7 @@ async def ppl_get_predictions():
 
 
 
-
-
-# Initialize global variables to store predictions data and track if predictions have been loaded
+# Initialize global variables to store MLBpredictions data and track if predictions have been loaded
 mlb_predictions_loaded = False
 mlb_predictions_data = None
 mlb_initial_load_completed = False
@@ -487,9 +484,7 @@ async def mlb_get_predictions():
 
 
 
-
-
-# Initialize global variables
+# Initialize global variables to load NBA Predictions
 nba_predictions_loaded = False
 nba_predictions_data = None
 nba_initial_load_completed = False
@@ -583,10 +578,7 @@ async def nba_get_predictions():
 
 
 
-
-
-
-# Initialize global variables
+# Initialize global variables for NHL Predictions
 nhl_predictions_loaded = False
 nhl_predictions_data = None
 nhl_initial_load_completed = False
@@ -671,3 +663,99 @@ async def nhl_get_predictions():
     
     return nhl_predictions_data
 
+
+# Initialize global variables to store MMA predictions data
+mma_predictions_loaded = False
+mma_predictions_data = None
+mma_initial_load_completed = False
+
+# Function to fetch data for upcoming matches from The Odds API
+def mma_fetch_upcoming_matches(api_key):
+    url = f'https://api.the-odds-api.com/v4/sports/mma_mixed_martial_arts/odds/?apiKey={api_key}&regions=us&markets=h2h'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+# Function to preprocess upcoming match data
+def mma_preprocess_upcoming_matches(data):
+    upcoming_matches = []
+    for match in data:
+        home_team = match.get('home_team', None)
+        away_team = match.get('away_team', None)
+        home_odds = None
+        away_odds = None
+        for bookmaker in match.get('bookmakers', []):
+            h2h_market = next((market for market in bookmaker.get('markets', []) if market.get('key') == 'h2h'), None)
+            if h2h_market:
+                home_odds = next((outcome['price'] for outcome in h2h_market.get('outcomes', []) if outcome['name'] == home_team), None)
+                away_odds = next((outcome['price'] for outcome in h2h_market.get('outcomes', []) if outcome['name'] == away_team), None)
+                if home_odds is not None and away_odds is not None:
+                    break
+        # Add a placeholder for the third feature (e.g., match importance)
+        third_feature = 0
+        upcoming_matches.append({'Home Team': home_team, 'Away Team': away_team, 'Home Odds': home_odds, 'Away Odds': away_odds, 'Third Feature': third_feature})
+    return pd.DataFrame(upcoming_matches)
+
+# Function to make predictions using the trained model
+def mma_make_predictions(model, upcoming_df):
+    # Extract features
+    X = upcoming_df[['Home Odds', 'Away Odds']]
+
+    # Check and handle NaN or infinite values
+    if np.any(np.isnan(X)) or np.any(np.isinf(X)):
+        # Impute NaN values with the median (you can choose a different strategy)
+        imputer = SimpleImputer(missing_values=np.nan, strategy='median')
+        X = imputer.fit_transform(X)
+        # Replace infinities, if any, assuming that infinities are a result of data errors
+        X = np.nan_to_num(X, nan=np.median(X), posinf=np.max(X[np.isfinite(X)]), neginf=np.min(X[np.isfinite(X)]))
+
+    # Predict probabilities
+    probabilities = model.predict_proba(X)
+
+    probabilities[:, 1] *= 1.1
+    probabilities = np.clip(probabilities, 0, 1)  # Ensuring probabilities are between 0 and 1
+
+    # Predict the winner based on adjusted probabilities
+    predictions = np.argmax(probabilities, axis=1)
+
+    return predictions, probabilities
+
+# Function to load the trained MMA model
+def mma_load_model():
+    return joblib.load('./mma_model.h5')
+
+# Function to load or update MMA predictions data
+def mma_load_predictions(api_key):
+    global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
+
+    data = mma_fetch_upcoming_matches(api_key)
+    upcoming_df = mma_preprocess_upcoming_matches(data)
+    model = mma_load_model()
+    predictions, probabilities = mma_make_predictions(model, upcoming_df)
+    upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
+    upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+    mma_predictions_data = upcoming_df.to_dict(orient='records')
+    mma_predictions_loaded = True
+    mma_initial_load_completed = True
+
+# Scheduler to update predictions data every day at a specified time
+schedule.every().day.at("06:00").do(mma_load_predictions, api_key=API_KEY)
+
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+# Run scheduler in a separate thread
+scheduler_thread = threading.Thread(target=run_scheduler)
+scheduler_thread.start()
+
+@app.get("/mmapredictions")
+async def load_mma_predictions():
+    global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
+    
+    # Load or update predictions data if not loaded yet
+    if not mma_initial_load_completed:
+        mma_load_predictions(API_KEY)
+    
+    return mma_predictions_data
