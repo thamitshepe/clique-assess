@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask, request, jsonify
 import httpx
 import os
 import asyncio
@@ -273,8 +274,10 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
+app = Flask(__name__)
+
 # Function to fetch NBA data with Redis caching
-async def fetch_nba_data(game_date: str) -> list:
+def fetch_nba_data(game_date: str) -> list:
     try:
         # Check if requested game date is in the cache
         cache_key = f"nba_data:{game_date}"
@@ -332,19 +335,24 @@ async def fetch_nba_data(game_date: str) -> list:
         return extracted_data
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
+        return {"error": f"Error fetching NBA data: {str(e)}"}
 
-
-@app.get("/api/nbadata/")
-async def get_nba_data(
-    date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
-):
+@app.route("/api/nbadata/")
+def get_nba_data():
     try:
+        date = request.args.get('date')
+        if not date:
+            return jsonify({"error": "Date parameter is missing"}), 400
         # Fetch NBA data with Redis caching
-        return await fetch_nba_data(date)
+        return jsonify(fetch_nba_data(date))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
+        return jsonify({"error": f"Error fetching NBA data: {str(e)}"}), 500
+
+if __name__ == "__main__":
+    from gevent.pywsgi import WSGIServer
+    http_server = WSGIServer(('127.0.0.1', 8282), app)
+    http_server.serve_forever()
     
 
 redis_instance = Redis.from_url(redis_url)
