@@ -273,6 +273,7 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
+# Function to fetch NBA data with Redis caching
 async def fetch_nba_data(game_date: str) -> list:
     try:
         # Check if requested game date is in the cache
@@ -282,11 +283,12 @@ async def fetch_nba_data(game_date: str) -> list:
         if cached_data:
             return json.loads(cached_data)
 
+        # Construct the URL with query parameters
+        url = f"{os.getenv('NBA_API_URL')}?apiKey={os.getenv('NBA_API_KEY')}&date={game_date}"
+
         # Call the NBA API endpoint to fetch data
-        headers = {"ApiKey": os.getenv("NBA_API_KEY")}
-        params = {"date": game_date}
         async with httpx.AsyncClient() as client:
-            response = await client.get(os.getenv("NBA_API_URL"), headers=headers, params=params)
+            response = await client.get(url)
             response.raise_for_status()
 
         # Extract relevant information from the response
