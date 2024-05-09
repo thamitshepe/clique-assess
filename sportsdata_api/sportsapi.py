@@ -339,12 +339,22 @@ async def fetch_nba_data(game_date: str) -> list:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
-@app.route("/api/nbadata/")
+@app.route("/api/nbadata/", methods=["GET", "POST"])
 async def get_nba_data(request):
-    try:
+    if request.method == "POST":
+        try:
+            data = await request.json()
+            date = data.get('date')
+            if not date:
+                raise HTTPException(status_code=400, detail="Date parameter is missing")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail="Invalid JSON payload")
+    else:
         date = request.query_params.get('date')
         if not date:
             raise HTTPException(status_code=400, detail="Date parameter is missing")
+    
+    try:
         # Fetch NBA data with Redis caching
         return JSONResponse(await fetch_nba_data(date))
 
