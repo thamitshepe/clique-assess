@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from flask import Flask, request, jsonify
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.exceptions import HTTPException
 import httpx
 import os
 import asyncio
@@ -274,10 +276,10 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
-app = Flask(__name__)
+app = Starlette()
 
 # Function to fetch NBA data with Redis caching
-def fetch_nba_data(game_date: str) -> list:
+async def fetch_nba_data(game_date: str) -> list:
     try:
         # Check if requested game date is in the cache
         cache_key = f"nba_data:{game_date}"
@@ -335,24 +337,28 @@ def fetch_nba_data(game_date: str) -> list:
         return extracted_data
 
     except Exception as e:
-        return {"error": f"Error fetching NBA data: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
 @app.route("/api/nbadata/")
-def get_nba_data():
+async def get_nba_data(request):
     try:
-        date = request.args.get('date')
+        date = request.query_params.get('date')
         if not date:
-            return jsonify({"error": "Date parameter is missing"}), 400
+            raise HTTPException(status_code=400, detail="Date parameter is missing")
         # Fetch NBA data with Redis caching
-        return jsonify(fetch_nba_data(date))
+        return JSONResponse(await fetch_nba_data(date))
 
     except Exception as e:
-        return jsonify({"error": f"Error fetching NBA data: {str(e)}"}), 500
+        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
-if __name__ == "__main__":
-    from gevent.pywsgi import WSGIServer
-    http_server = WSGIServer(('127.0.0.1', 8282), app)
-    http_server.serve_forever()
+# Optional: Define error handlers
+@app.exception_handler(400)
+async def bad_request(request, exc):
+    return JSONResponse({"error": str(exc)}, status_code=400)
+
+@app.exception_handler(500)
+async def internal_server_error(request, exc):
+    return JSONResponse({"error": "Internal Server Error"}, status_code=500)
     
 
 redis_instance = Redis.from_url(redis_url)
