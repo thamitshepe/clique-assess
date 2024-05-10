@@ -25,7 +25,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://dashboard.betvisionai.com"
+        "https://dashboard.betvisionai.com",
+        "https://sportsvision.onrender.com"
     ],  # Update with your allowed origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
@@ -274,54 +275,54 @@ async def get_nhl_data_api(game_date: str):
 
 
 # Function to fetch NBA data with Redis caching
-async def fetch_nba_data(game_date: str) -> list:
-    try:
-        # Check if requested game date is in the cache
-        cache_key = f"nba_data:{game_date}"
-        cached_data = redis.get(cache_key)
-
-        if cached_data:
-            return json.loads(cached_data)
-
-        # Construct the URL with query parameters
-        url = f"{os.getenv('NBA_API_URL')}?apiKey={os.getenv('NBA_API_KEY')}&date={game_date}"
-
-        # Call the NBA API endpoint to fetch data
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-
-        # Extract relevant information from the response
-        nba_data = response.json()
-        extracted_data = []
-        for event in nba_data:
-            extracted_game = {
-                "gameDate": event["commence_time"],
-                "homeTeam": {
-                    "name": event["home_team"]
-                },
-                "awayTeam": {
-                    "name": event["away_team"]
-                }
-            }
-            extracted_data.append(extracted_game)
-
-        # Cache the data in Redis with a 12-hour expiration
-        redis.setex(cache_key, 60 * 60 * 12, json.dumps(extracted_data))
-
-        return extracted_data
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
-
-
 @app.get("/api/nbadata/")
 async def get_nba_data(
     date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")
 ):
     try:
-        # Fetch NBA data with Redis caching
-        return await fetch_nba_data(date)
+        # Call the NBA API endpoint to fetch data
+        nba_data = scoreboardv2.ScoreboardV2(
+            day_offset=0,
+            game_date=date,
+            league_id="00"  # NBA league ID
+        )
+        # Extract relevant information from the response
+        result_sets = nba_data.get_dict().get("resultSets", [])
+        game_headers = None
+        line_scores = None
+        for result_set in result_sets:
+            if result_set.get("name") == "GameHeader":
+                game_headers = result_set.get("rowSet", [])
+            elif result_set.get("name") == "LineScore":
+                line_scores = result_set.get("rowSet", [])
+        
+        # Prepare the extracted data
+        extracted_data = []
+        if game_headers and line_scores:
+            for i in range(0, len(line_scores), 2):
+                home_line_score = line_scores[i]
+                away_line_score = line_scores[i+1]
+                game_id = home_line_score[2]
+                # Find the corresponding game header
+                game_header = next((gh for gh in game_headers if gh[2] == game_id), None)
+                if game_header:
+                    extracted_game = {
+                        "gameDate": game_header[0],
+                        "status": game_header[4],
+                        "homeTeam": {
+                            "abbreviation": home_line_score[4],
+                            "name": f"{home_line_score[5]} {home_line_score[6]}",
+                            "score": home_line_score[-3]
+                        },
+                        "awayTeam": {
+                            "abbreviation": away_line_score[4],
+                            "name": f"{away_line_score[5]} {away_line_score[6]}",
+                            "score": away_line_score[-3]
+                        }
+                    }
+                    extracted_data.append(extracted_game)
+
+        return extracted_data
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
