@@ -284,7 +284,9 @@ async def get_nba_data(
         nba_data = scoreboardv2.ScoreboardV2(
             day_offset=0,
             game_date=date,
-            league_id="00"  # NBA league ID
+            league_id="00",  # NBA league ID
+            timeout=60  # Increase timeout to 60 seconds
+
         )
         # Extract relevant information from the response
         result_sets = nba_data.get_dict().get("resultSets", [])
