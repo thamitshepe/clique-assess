@@ -20,7 +20,8 @@ WHITELIST = {
     "thamitshepe@icloud.com",
     "josephbriant97@gmail.com",
     "tracehaggard@outlook.com",
-    "perilousdreams@gmail.com"
+    "perilousdreams@gmail.com",
+    "rikikimaru@gmail.com"
 }
 
 # Configure CORS middleware
