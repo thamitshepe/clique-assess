@@ -15,7 +15,6 @@ class SubscriptionCheckRequest(BaseModel):
 WHITELIST = {
     "betvisionai@gmail.com",
     "securesolellc@gmail.com",
-    "dedicated.professor65@gmail.com",
     "beach.austin15@gmail.com",
     "thamitshepe@icloud.com",
     "josephbriant97@gmail.com",
@@ -46,7 +45,7 @@ async def check_subscription(request: SubscriptionCheckRequest):
         # Proceed with subscription check for non-whitelisted users
         customers = stripe.Customer.list(email=email).auto_paging_iter()
         for customer in customers:
-            subscriptions = stripe.Subscription.list(customer=customer.id, status='active').auto_paging_iter()
+            subscriptions = stripe.Subscription.list(customer=customer.id).auto_paging_iter()
             for subscription in subscriptions:
                 if subscription and (subscription.status == 'active' or 'trial' in subscription.status):
                     return {"subscribed": True}
