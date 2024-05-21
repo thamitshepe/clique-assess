@@ -32,6 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/api/check-subscription")
 async def check_subscription(request: SubscriptionCheckRequest):
     session_id = request.sessionId
@@ -42,13 +43,14 @@ async def check_subscription(request: SubscriptionCheckRequest):
         if email in {e.lower() for e in WHITELIST}:  # Normalize whitelist emails to lowercase
             return {"subscribed": True}  # User is in the whitelist, skip subscription check
 
-        # Proceed with subscription check for non-whitelisted users
-        customers = stripe.Customer.list(email=email).auto_paging_iter()
+        # Fetch all customers and filter by email case-insensitively
+        customers = stripe.Customer.list().auto_paging_iter()
         for customer in customers:
-            subscriptions = stripe.Subscription.list(customer=customer.id).auto_paging_iter()
-            for subscription in subscriptions:
-                if subscription and (subscription.status == 'active' or 'trial' in subscription.status):
-                    return {"subscribed": True}
+            if customer.email and customer.email.lower() == email:
+                subscriptions = stripe.Subscription.list(customer=customer.id).auto_paging_iter()
+                for subscription in subscriptions:
+                    if subscription and (subscription.status == 'active' or 'trial' in subscription.status):
+                        return {"subscribed": True}
         return {"subscribed": False}
     except stripe.error.StripeError as e:
         print(e)
