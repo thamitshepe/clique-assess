@@ -321,7 +321,7 @@ useEffect(() => {
             transform: translateY(-28%) translateX(11%) scale(0.8);
           }
         
-          @media (max-width: 768px) {
+          @media (max-width: 900px) {
             /* Adjust these values to achieve the desired look on mobile */
             .background-image {
               transform: translateY(-15%) translateX(10%) scale(0.7);
