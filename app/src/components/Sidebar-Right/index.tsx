@@ -37,24 +37,12 @@ const SidebarRight: React.FC<SidebarProps> = ({ sidebarOpen }) => {
               {/* Your added card component */}
               <div className="w-full md:w-full lg:w-full xl:w-full flex-col items-center">
                 <div className="flex gap-2">
-                  <h2 className="text-white text-md mb-4 cursor-pointer">Live Scores</h2>
+                  <h2 className="text-white text-md mb-4 cursor-pointer">Over/Under</h2>
                 </div>
                 <div className="flex-1 rounded-md">
                   <div className="py-1 h-[73.3vh] overflow-y-scroll scrollbar-thin scrollbar-thumb-body scrollbar-track-transparent scrollbar-thumb-rounded-full">
                     <div className="flex flex-col gap-4">
                       {/* Mini Cards within the row */}
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
-                      <div className="h-11 w-full rounded-md bg-body"></div>
                       <div className="h-11 w-full rounded-md bg-body"></div>
                     </div>
                   </div>

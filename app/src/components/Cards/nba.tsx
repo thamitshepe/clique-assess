@@ -130,10 +130,10 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
 export const NBALeagues: React.FC = () => (
   <div className="p-2">
     {/* Render NBA league */}
-    <div className="h-18 rounded-md mb-2 flex items-center">
+    <div className="h-10 rounded-md mb-2 flex items-center" style={{ minWidth: 'max-content' }}>
       {/* Use the NBA emblem */}
       {nbaIcons['NBA'] && (
-        <img className='h-14 w-14 mr-4' src={nbaIcons['NBA']} alt="NBA Emblem" />
+        <img className='h-14 w-14 mr-4 ml-1' src={nbaIcons['NBA']} alt="NBA Emblem" />
       )}
       <div>
         <p className="text-md font-medium text-white">NBA</p>

@@ -118,10 +118,10 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
 export const NHLLeagues: React.FC = () => (
   <div className="p-2">
     {/* Render NHL league */}
-    <div className="h-18 rounded-md mb-2 flex items-center">
+    <div className="h-10 rounded-md mb-2 flex items-center" style={{ minWidth: 'max-content' }}>
       {/* Use the NHL emblem */}
       {nhlIcons['NHL'] && (
-        <img className='h-14 w-14 mr-4' src={nhlIcons['NHL']} alt="NHL Emblem" />
+        <img className='h-14 w-14 mr-4 ml-1' src={nhlIcons['NHL']} alt="NHL Emblem" />
       )}
       <div>
         <p className="text-md font-medium text-white">NHL</p>

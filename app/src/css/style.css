@@ -13,13 +13,31 @@ body {
   scroll-behavior: smooth;
 }
 
+@media (max-width: 992px) {
+  html, body {
+    zoom: 0.8;
+  }
+}
+
+@media (min-width: 1500px) {
+  html, body {
+    zoom: 1.35;
+  }
+}
+
+@media (min-width: 4000px) {
+  html, body {
+    zoom: 1.7;
+  }
+}
+
 #root {
   height: 100%;
 }
 
-.carousel.carousel-slider {
-  position: absolute;
-  /* Add any other necessary styles */
+.text-container {
+  position: relative; /* Ensure z-index works properly */
+  z-index: 1; /* Ensure text appears above the image */
 }
 
 

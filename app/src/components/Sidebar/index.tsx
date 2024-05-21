@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
   return (
     <aside
-      className={`absolute left-0 top-0 z-9999 flex h-screen flex-col overflow-y-hidden bg-black duration-150 ease-linear lg:static lg:translate-x-0 ${sidebarExpanded ? 'w-38' : 'w-24'} dark:bg-0A203C `}
+      className={`relative left-0 top-0 z-9999 flex flex-col overflow-y-hidden bg-black duration-150 ease-linear lg:static lg:translate-x-0 ${sidebarExpanded ? 'w-46' : 'w-24'} dark:bg-0A203C `}
       onMouseEnter={() => setSidebarExpanded(true)}
       onMouseLeave={() => setSidebarExpanded(false)}
     >
@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         {/* <!-- Sidebar Menu --> */}
-        <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
+        <nav className="mt-5 py-4 px-6">
           {/* <!-- Menu Group --> */}
           <div>
             <ul className="mb-8 flex flex-col gap-3.5">
@@ -79,13 +79,13 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       <path d="M48.5 30C41.6078 30 36 35.6078 36 42.5C36 49.3922 41.6078 55 48.5 55C55.3922 55 61 49.3922 61 42.5C61 35.6078 55.3922 30 48.5 30ZM49.2938 34.0609L52.5078 32.3328C54.2875 33.0375 55.8406 34.1922 57.0219 35.6609L56.2563 39.1953L53.8047 40.3969L49.2938 37.1109V34.0609ZM44.5188 32.3234L47.7328 34.0578V37.1109L43.225 40.3969L40.7609 39.1937L39.9953 35.6375C41.1797 34.1719 42.7359 33.0234 44.5188 32.3234ZM39.4844 48.6781C38.4641 47.1938 37.8 45.4484 37.6172 43.5625L40.2625 40.6891L42.675 41.8688L44.4922 47.0297L42.9563 48.8703L39.4844 48.6781ZM51.2859 53.0641C50.3938 53.3 49.4641 53.4375 48.5 53.4375C47.3344 53.4375 46.2125 53.25 45.1578 52.9109L44.175 49.8516L45.7422 47.9688H51.2641L52.8031 49.7906L51.2859 53.0641ZM54.0219 48.8172L52.5109 47.0281L54.3531 41.8688L56.7547 40.6922L59.3844 43.5641C59.2266 45.1906 58.7031 46.7078 57.9078 48.05L54.0219 48.8172Z" fill="white"/>
                     </svg>
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>SCR</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Soccer</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
               {/* <!-- Menu Item Soccer --> */}
 
-              {/* <!-- Menu Item NFL --> */}
+              {/* <!-- Menu Item Football --> */}
               <li className="relative">
                 <NavLink
                   to="#"
@@ -110,13 +110,13 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       <path d="M12.2842 28.8195C12.2628 28.9808 12.2423 29.1428 12.2232 29.306C11.7789 33.1172 12.1325 36.0889 12.1477 36.2135L12.2174 36.7826L12.7866 36.8523C12.8635 36.8618 14.025 37.0001 15.7992 37.0001C16.8994 37.0001 18.2352 36.9469 19.694 36.7768C19.8572 36.7578 20.0192 36.7372 20.1805 36.7158L12.2842 28.8195Z" fill="#951B81"/>
                     </svg>
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>NFL</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Football</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item NFL --> */}
+              {/* <!-- Menu Item Football --> */}
 
-              {/* <!-- Menu Item NHL --> */}
+              {/* <!-- Menu Item Hockey --> */}
               <li className="relative">
                 <NavLink
                   to="#"
@@ -144,13 +144,13 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       </g>
                     </svg>
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>NHL</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Hockey</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item NHL --> */}
+              {/* <!-- Menu Item Hockey --> */}
 
-              {/* <!-- Menu Item NBA --> */}
+              {/* <!-- Menu Item Basketball --> */}
               <li className="relative">
                 <NavLink
                   to="#"
@@ -180,13 +180,13 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       <path d="M16.9374 15.5299C14.188 17.6233 12.3281 20.8271 12.0329 24.4668H23.7662V19.41C22.4284 19.3032 21.1216 18.9072 19.9491 18.2465C18.7571 17.5748 17.7269 16.643 16.9374 15.5299Z" fill="#F18800"/>
                     </svg>
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>NBA</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Basketball</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item NBA --> */}
+              {/* <!-- Menu Item Basketball --> */}
 
-              {/* <!-- Menu Item MLB --> */}
+              {/* <!-- Menu Item Baseball --> */}
               <li className="relative">
                 <NavLink
                   to="#"
@@ -213,13 +213,13 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       <path d="M16.6009 35.3878L20.8134 31.1754L18.8247 29.1866L14.6122 33.3991L14.2003 32.9872C13.9258 32.7127 13.4805 32.7127 13.2059 32.9872C12.9314 33.2618 12.9314 33.707 13.2059 33.9816L16.0184 36.7941C16.1557 36.9313 16.3357 37 16.5156 37C16.6956 37 16.8755 36.9313 17.0128 36.794C17.2874 36.5195 17.2874 36.0743 17.0128 35.7997L16.6009 35.3878Z" fill="#0090D7"/>
                     </svg>
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>MLB</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Baseball</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item MLB --> */}
+              {/* <!-- Menu Item Baseball --> */}
 
-              {/* <!-- Menu Item MMA --> */}
+              {/* <!-- Menu Item Boxing --> */}
               <li className="relative">
                 <NavLink
                   to="#"
@@ -245,11 +245,11 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       <path d="M15.3116 29.1286C15.4076 29.16 15.4928 29.2081 15.5672 29.2682L16.584 28.9589L15.947 28.108C15.852 28.1123 15.7546 28.101 15.6586 28.0693C15.2331 27.9299 15.0012 27.4722 15.1406 27.0466C15.2801 26.621 15.7379 26.389 16.1634 26.5286C16.264 26.5615 16.3537 26.6131 16.4303 26.677L17.4005 26.4006L16.7819 25.604C16.6822 25.6103 16.5796 25.5989 16.4789 25.5658C16.0535 25.4264 15.8216 24.9686 15.961 24.543C16.1005 24.1175 16.5583 23.8858 16.9838 24.025C17.408 24.1638 17.6398 24.6201 17.5023 25.0448L18.3461 26.1318L19.6692 25.7548C19.7105 25.6305 19.7794 25.5236 19.8663 25.4369C20.6123 22.9891 21.3985 21.653 21.3985 21.653C21.3985 21.653 20.5871 19.4849 18.1153 20.4503C21.042 19.0637 18.9161 16.8455 18.9161 16.8455C18.9161 16.8455 21.4329 18.7616 23.8645 19.8069C23.9844 19.789 24.1056 19.7791 24.2282 19.7791C24.2804 19.7791 24.3324 19.7807 24.3844 19.7841C24.4134 19.6515 24.4485 19.5058 24.4909 19.3461C24.8299 18.0697 25.989 16.7079 27.7975 16.4169C27.1962 15.0679 25.7594 13.6466 22.7585 12.6634C16.281 10.5411 14.4559 13.8185 13.0413 18.1347C12.3515 20.2407 13.2109 22.5522 13.2674 24.2136L12 30.0625C13.4138 30.9822 14.8556 31.6826 16.3651 32.1772C16.4161 32.1941 16.4673 32.2098 16.5184 32.2261C16.3376 31.9451 16.1613 31.6568 15.9894 31.36L15.706 30.8709L16.4522 29.9522L15.8325 30.1406C15.8312 30.144 15.8308 30.1477 15.8295 30.1513C15.6901 30.5768 15.2323 30.8086 14.8067 30.6691C14.3813 30.5297 14.1494 30.072 14.2888 29.6465C14.4281 29.2208 14.8861 28.9889 15.3116 29.1286Z" fill="#004F9F"/>
                     </svg>
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>MMA</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Boxing</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item MMA --> */}
+              {/* <!-- Menu Item Boxing --> */}
 
 
             </ul>

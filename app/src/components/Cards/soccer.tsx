@@ -152,7 +152,7 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
 
 export const FootballLeagues: React.FC = () => (
   <div className="p-2">
-      <div className="h-18 rounded-md mb-2 flex items-center">
+      <div className="h-18 rounded-md mb-2 flex items-center" style={{ minWidth: 'max-content' }}>
         {leagueIcons['PL'] && (
           <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="MLB Emblem" />
         )}
@@ -178,9 +178,9 @@ export const SoccerLeagues: React.FC = () => {
   return (
     <div className="p-2">
       {/* Premier League */}
-      <div className="h-18 rounded-md mb-4 flex items-center" onClick={() => handleLeagueClick('PL')} style={{ cursor: 'pointer' }}>
+      <div className="h-10 rounded-md mb-6 mt-2 flex items-center" onClick={() => handleLeagueClick('PL')} style={{ cursor: 'pointer' }}>
         {leagueIcons['PL'] && (
-          <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="Premier League Emblem" />
+          <img className='h-14 w-14 mr-4 ml-1' src={leagueIcons['PL']} alt="Premier League Emblem" />
         )}
         <div>
           <p className="text-md font-medium text-white">Premier League</p>
@@ -191,9 +191,9 @@ export const SoccerLeagues: React.FC = () => {
       </div>
       
       {/* Primeira Liga */}
-      <div className="h-18 rounded-md mb-4 flex items-center" onClick={() => handleLeagueClick('PPL')} style={{ cursor: 'pointer' }}>
+      <div className="h-10 rounded-md mb-6 flex items-center" onClick={() => handleLeagueClick('PPL')} style={{ cursor: 'pointer' }}>
         {leagueIcons['PPL'] && (
-          <img className='h-14 w-14 mr-4' src={leagueIcons['PPL']} alt="Primeira Liga Emblem" />
+          <img className='h-14 w-14 mr-4 ml-1' src={leagueIcons['PPL']} alt="Primeira Liga Emblem" />
         )}
         <div>
           <p className="text-md font-medium text-white">Primeira Liga</p>
@@ -204,9 +204,9 @@ export const SoccerLeagues: React.FC = () => {
       </div>
       
       {/* Bundesliga */}
-      <div className="h-18 rounded-md mb-4 flex items-center" onClick={() => handleLeagueClick('BL1')} style={{ cursor: 'pointer' }}>
+      <div className="h-10 rounded-md mb-2 flex items-center" onClick={() => handleLeagueClick('BL1')} style={{ cursor: 'pointer' }}>
         {leagueIcons['BL1'] && (
-          <img className='h-14 w-14 mr-4' src={leagueIcons['BL1']} alt="Bundesliga Emblem" />
+          <img className='h-14 w-14 mr-4 ml-1' src={leagueIcons['BL1']} alt="Bundesliga Emblem" />
         )}
         <div>
           <p className="text-md font-medium text-white">Bundesliga</p>
