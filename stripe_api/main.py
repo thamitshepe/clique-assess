@@ -15,11 +15,12 @@ class SubscriptionCheckRequest(BaseModel):
 WHITELIST = {
     "betvisionai@gmail.com",
     "securesolellc@gmail.com",
-    "dedicated.professor65@gmail.com",
     "beach.austin15@gmail.com",
     "thamitshepe@icloud.com",
-    "Josephbriant97@gmail.com",
-    "Tracehaggard@outlook.com"
+    "josephbriant97@gmail.com",
+    "tracehaggard@outlook.com",
+    "perilousdreams@gmail.com",
+    "rikikimaru@gmail.com"
 }
 
 # Configure CORS middleware
@@ -31,23 +32,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/api/check-subscription")
 async def check_subscription(request: SubscriptionCheckRequest):
     session_id = request.sessionId
-    email = request.email  # Retrieve email from request
+    email = request.email.lower()  # Normalize email to lowercase
 
     try:
         # Check if the email is in the whitelist
-        if email in WHITELIST:
+        if email in {e.lower() for e in WHITELIST}:  # Normalize whitelist emails to lowercase
             return {"subscribed": True}  # User is in the whitelist, skip subscription check
 
-        # Proceed with subscription check for non-whitelisted users
-        customers = stripe.Customer.list(email=email).auto_paging_iter()
+        # Fetch all customers and filter by email case-insensitively
+        customers = stripe.Customer.list().auto_paging_iter()
         for customer in customers:
-            subscriptions = stripe.Subscription.list(customer=customer.id, status='active').auto_paging_iter()
-            for subscription in subscriptions:
-                if subscription and subscription.status == 'active':
-                    return {"subscribed": True}
+            if customer.email and customer.email.lower() == email:
+                subscriptions = stripe.Subscription.list(customer=customer.id).auto_paging_iter()
+                for subscription in subscriptions:
+                    if subscription and (subscription.status == 'active' or 'trial' in subscription.status):
+                        return {"subscribed": True}
         return {"subscribed": False}
     except stripe.error.StripeError as e:
         print(e)
