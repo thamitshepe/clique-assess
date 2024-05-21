@@ -67,10 +67,6 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
           {/* Render game details */}
-          {/* Time section */}
-          <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
-            {format(new Date(game.gameDate), 'HH:mm')}
-          </p>
           {/* Home team section */}
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for home team */}
