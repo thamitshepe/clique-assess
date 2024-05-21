@@ -92,10 +92,6 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
             className="h-15 rounded-md bg-black mb-4 p-6 px-10 flex items-center justify-between"
             style={{ display: 'flex', justifyContent: 'space-between' }}
           >
-            {/* Time section */}
-            <p style={{ width: '6%' }} className="text-center align-center text-white text-md font-medium">
-              {format(new Date(match.utcDate), 'HH:mm')}
-            </p>
             {/* Home team section */}
             <div style={{ width: '20%' }} className="flex items-center">
               {/* SVG for home team */}
