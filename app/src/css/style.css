@@ -13,7 +13,7 @@ body {
   scroll-behavior: smooth;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1000px) {
   html, body {
     zoom: 0.75;
   }
@@ -33,11 +33,6 @@ body {
 
 #root {
   height: 100%;
-}
-
-.text-container {
-  position: relative; /* Ensure z-index works properly */
-  z-index: 1; /* Ensure text appears above the image */
 }
 
 
