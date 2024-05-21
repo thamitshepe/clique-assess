@@ -35,11 +35,11 @@ app.add_middleware(
 @app.post("/api/check-subscription")
 async def check_subscription(request: SubscriptionCheckRequest):
     session_id = request.sessionId
-    email = request.email  # Retrieve email from request
+    email = request.email.lower()  # Normalize email to lowercase
 
     try:
         # Check if the email is in the whitelist
-        if email in WHITELIST:
+        if email in {e.lower() for e in WHITELIST}:  # Normalize whitelist emails to lowercase
             return {"subscribed": True}  # User is in the whitelist, skip subscription check
 
         # Proceed with subscription check for non-whitelisted users
