@@ -333,8 +333,8 @@ useEffect(() => {
 
         <div className="w-full md:w-md lg:w-2/3 xl:w-2/3 flex-col items-center relative">
           <div className="flex gap-4">
-            <h2 className="text-white text-lg mb-4 mr-4 cursor-pointer">Matches</h2>
-            <h2 className="text-white text-lg mb-4 mr-4 cursor-pointer">Money Line</h2>
+            <h2 className="text-white text-lg mb-6 mr-4 cursor-pointer">Matches</h2>
+            <h2 className="text-white text-lg mb-6 mr-4 cursor-pointer">Money Line</h2>
           </div>
           <div className="flex-1">
             <div className="flex flex-col h-full">
