@@ -9,13 +9,13 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  zoom: 0.9;
+  zoom: 0.8;
   scroll-behavior: smooth;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 1100px) {
   html, body {
-    zoom: 0.7;
+    zoom: 0.9;
   }
 }
 
