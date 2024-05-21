@@ -298,8 +298,8 @@ useEffect(() => {
       <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-1 relative">
         <div className="bg-black rounded-xl px-8 flex relative">
           <div className="flex-1 mr-6">
-            <h2 className="text-3xl md:text-2xl font-semibold text-white mt-12 mb-10">BetVision AI</h2>
-            <div className="max">
+            <h2 className="text-3xl md:text-md font-semibold text-white mt-12 mb-10">BetVision AI</h2>
+            <div className="max-w-xs">
               <p className="text-sm text-white mb-10">
                 Maximize your winnings and minimize risks with our advanced prediction algorithms
               </p>
