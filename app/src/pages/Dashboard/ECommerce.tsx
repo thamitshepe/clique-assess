@@ -311,7 +311,8 @@ useEffect(() => {
         <img
           src={BG}
           alt="Background"
-          className="w-auto h-full transform -translate-y-7.875rem -translate-x-3.6875rem scale-80"
+          className="w-auto h-full"
+          style="transform: translate(-3.6875rem, -7.875rem) scale(0.8);"
         />
       </div>
       </div>
