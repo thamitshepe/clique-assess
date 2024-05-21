@@ -4,12 +4,16 @@
 
 html,
 body {
-  @apply w-full h-full m-0 p-0 overflow-hidden;
-  zoom: 0.9; /* Adjust zoom here if needed */
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  zoom: 0.9;
   scroll-behavior: smooth;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
   html, body {
     zoom: 0.7;
   }
@@ -28,24 +32,9 @@ body {
 }
 
 #root {
-  @apply h-full;
+  height: 100%;
 }
 
-/* Hiding scrollbar */
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
-}
-
-.no-scrollbar {
-  scrollbar-width: none; /* Firefox */
-}
-
-/* For IE and Edge */
-@supports (-ms-overflow-style: none) {
-  .no-scrollbar {
-    -ms-overflow-style: none;
-  }
-}
 
 /* Specify the style of the scrollbar thumb */
 ::-webkit-scrollbar-thumb {
@@ -79,6 +68,16 @@ body {
 @layer components {
 }
 
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 
   .chat-height {
     @apply h-[calc(100vh_-_8.125rem)] lg:h-[calc(100vh_-_5.625rem)];
