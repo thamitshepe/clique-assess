@@ -311,9 +311,23 @@ useEffect(() => {
         <img
           src={BG}
           alt="Background"
-          className="w-auto h-full"
-          style={{ transform: "translateY(-28%) translateX(11%) scale(0.8)" }} 
+          className="background-image"
         />
+        
+        <style jsx>{`
+          .background-image {
+            width: auto;
+            height: 100%;
+            transform: translateY(-28%) translateX(11%) scale(0.8);
+          }
+        
+          @media (max-width: 768px) {
+            /* Adjust these values to achieve the desired look on mobile */
+            .background-image {
+              transform: translateY(-20%) translateX(10%) scale(0.7);
+            }
+          }
+        `}</style>
       </div>
       </div>
 
