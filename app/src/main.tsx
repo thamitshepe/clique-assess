@@ -16,11 +16,9 @@ if (!PUBLISHABLE_KEY) {
 }
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <Router>
         <App />
       </Router>
     </ClerkProvider>
-  </React.StrictMode>
 );
