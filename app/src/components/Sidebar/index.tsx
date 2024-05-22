@@ -8,7 +8,7 @@ import baseBall from '../../images/icons/baseball-bat.png';
 import basketBall from '../../images/icons/basketball-ball.png';
 import boxingGloves from '../../images/icons/boxing-gloves.png';
 import footBall from '../../images/icons/football.png';
-import hockey from '../../images/icons/hockey.png';
+import hockey from '../../images/icons/Hockey.png';
 import { isMobile } from 'react-device-detect';
 
 interface SidebarProps {
