@@ -36,23 +36,20 @@ body {
 }
 
 .banner-image {
-  transform: translate(3rem, -8.8rem) scale(.85);
-  -webkit-transform: translate(3rem, -8.8rem) scale(.85); /* For older Safari and Chrome versions */
-  -ms-transform: translate(3rem, -8.8rem) scale(.85); /* For older Internet Explorer versions */
-  -moz-transform: translate(3rem, -8.8rem) scale(.85); /* For older Firefox versions */
-  -o-transform: translate(3rem, -8.8rem) scale(.85); /* For older Opera versions */
+  position: absolute;
+  transform: translate(-0.2rem) scale(1);
+  -webkit-transform: translate(-0.2rem) scale(1); /* For older Safari and Chrome versions */
+  -ms-transform: translate(-0.2rem) scale(1); /* For older Internet Explorer versions */
+  -moz-transform: translate(-0.2rem) scale(1); /* For older Firefox versions */
+  -o-transform: translate(-0.2rem) scale(1); /* For older Opera versions */
 }
 
-@media screen and (max-device-width: 1000px) {
-  .banner-image {
-    transform: translate(0rem, 0rem) scale(1);
-    
-  }
-}
 
 @media screen and (max-device-width: 1000px) {
-  body{
-  -webkit-text-size-adjust: 80%;
+  html, body{
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
   }
 }
 

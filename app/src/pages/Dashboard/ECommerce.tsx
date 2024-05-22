@@ -307,12 +307,12 @@ useEffect(() => {
             <button className="bg-[#623CEA] text-white px-8 py-2 rounded-lg hover:bg-[#5A31A3] transition duration-300 ease-in-out shadow-md shadow-white/30 mb-12">Props Picks</button>
           </div>
         </div>
-        <div className="absolute right-0 top-0">
+        <div className="static">
         <img
           src={BG}
           alt="Background"
-          className="banner-image w-auto h-full"
-          
+          className="absolute top-0 right-0 banner-image w-auto h-full"
+          style={{ transform: 'scale(1.2)' }}
         />
       </div>
       </div>
