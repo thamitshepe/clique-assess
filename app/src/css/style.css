@@ -34,6 +34,13 @@ body {
   height: 100%;
 }
 
+.banner-image {
+  transform: translate(-3.6875rem, -7.875rem) scale(0.8);
+  -webkit-transform: translate(-3.6875rem, -7.875rem) scale(0.8); /* For older Safari and Chrome versions */
+  -ms-transform: translate(-3.6875rem, -7.875rem) scale(0.8); /* For older Internet Explorer versions */
+  -moz-transform: translate(-3.6875rem, -7.875rem) scale(0.8); /* For older Firefox versions */
+  -o-transform: translate(-3.6875rem, -7.875rem) scale(0.8); /* For older Opera versions */
+}
 
 /* Specify the style of the scrollbar thumb */
 ::-webkit-scrollbar-thumb {

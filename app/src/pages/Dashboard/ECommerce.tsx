@@ -311,8 +311,8 @@ useEffect(() => {
         <img
           src={BG}
           alt="Background"
-          className="w-auto h-full"
-          style={{ transform: 'translate(-3.6875rem, -7.875rem) scale(0.8)', WebkitTransform: 'translate(-3.6875rem, -7.875rem) scale(0.8)' }}
+          className="banner-image w-auto h-full"
+          
         />
       </div>
       </div>
