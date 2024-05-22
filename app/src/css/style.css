@@ -11,6 +11,7 @@ body {
   overflow: hidden;
   zoom: 0.6;
   scroll-behavior: smooth;
+  font-size: medium;
 }
 
 @media screen and (min-device-width: 1100px) {
@@ -37,11 +38,11 @@ body {
 
 .banner-image {
   position: absolute;
-  transform: translate(-0.2rem) scale(1);
-  -webkit-transform: translate(-0.2rem) scale(1); /* For older Safari and Chrome versions */
-  -ms-transform: translate(-0.2rem) scale(1); /* For older Internet Explorer versions */
-  -moz-transform: translate(-0.2rem) scale(1); /* For older Firefox versions */
-  -o-transform: translate(-0.2rem) scale(1); /* For older Opera versions */
+  transform: translate(-1.1rem) scale(1.2);
+  -webkit-transform: translate(-1.1rem) scale(1.2); /* For older Safari and Chrome versions */
+  -ms-transform: translate(-1.1rem) scale(1.2); /* For older Internet Explorer versions */
+  -moz-transform: translate(-1.1rem) scale(1.2); /* For older Firefox versions */
+  -o-transform: translate(-1.1rem) scale(1.2); /* For older Opera versions */
 }
 
 

@@ -312,7 +312,10 @@ useEffect(() => {
           src={BG}
           alt="Background"
           className="absolute top-0 right-0 banner-image w-auto h-full"
-          style={{ transform: 'scale(1.2)' }}
+          style={{
+            transform: 'translateY(18.5rem)',
+            WebkitTransform: 'translateY(18.5rem)' // Webkit prefix for Safari and older versions of Chrome
+          }}          
         />
       </div>
       </div>
