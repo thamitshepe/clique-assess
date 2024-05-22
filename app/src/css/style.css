@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  zoom: 0.6;
+  zoom: 0.65;
   scroll-behavior: smooth;
   font-size: medium;
 }
@@ -18,7 +18,7 @@ body {
 @media only screen and (max-device-width: 812px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: landscape) {
   /* Adjust font size for body */
   body, span, p {
-    font-size: medium; /* Adjust as needed */
+    font-size: 14px; /* Adjust as needed */
   }
 }
 
