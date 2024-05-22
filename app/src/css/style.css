@@ -45,17 +45,14 @@ body {
 
 @media screen and (max-device-width: 1000px) {
   .banner-image {
-    transform: translate(-3rem, -3.8rem) scale(1);
-    -webkit-transform: translate(-3rem, -3.8rem) scale(1); /* For older Safari and Chrome versions */
-    -ms-transform: translate(-3rem, -3.8rem) scale(1); /* For older Internet Explorer versions */
-    -moz-transform: translate(-3rem, -3.8rem) scale85(1); /* For older Firefox versions */
-    -o-transform: translate(-3rem, -3.8rem) scale(1); /* For older Opera versions */
+    transform: translate(0rem, 0rem) scale(1);
+    
   }
 }
 
 @media screen and (max-device-width: 1000px) {
   body{
-  -webkit-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 80%;
   }
 }
 
