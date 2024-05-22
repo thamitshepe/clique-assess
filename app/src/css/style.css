@@ -26,7 +26,7 @@ body {
 @media only screen and (max-device-width: 812px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: landscape) {
   /* Adjust font size for body */
   .sport-icon {
-    scale: 1.3; /* Adjust as needed */
+    transform: scale(1.3); /* Adjust as needed */
   }
 }
 
