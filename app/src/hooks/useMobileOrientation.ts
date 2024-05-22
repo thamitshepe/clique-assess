@@ -1,44 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { isMobile } from 'react-device-detect';
+import { useOrientation } from '@uidotdev/usehooks';
 
-function useMobileOrientation() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLandscape, setIsLandscape] = useState(true);
+const useMobileOrientation = () => {
+  const [showLandscapeWarning, setShowLandscapeWarning] = useState(false);
+  const { type } = useOrientation();
 
   useEffect(() => {
-    const checkDevice = () => {
-      const userAgent = navigator.userAgent;
-      const isMobileDevice = /Mobi|Android/i.test(userAgent) || (window.innerWidth <= 800 && window.innerHeight <= 600);
-      setIsMobile(isMobileDevice);
-
-      if (isMobileDevice) {
-        const orientation = window.screen.orientation;
-        const isLandscapeOrientation = orientation.type.includes('landscape');
-
-        setIsLandscape(isLandscapeOrientation);
-      }
-    };
-
-    checkDevice();
-
     if (isMobile) {
-      const handleOrientationChange = () => {
-        const orientation = window.screen.orientation;
-        const isLandscapeOrientation = orientation.type.includes('landscape');
-
-        setIsLandscape(isLandscapeOrientation);
-      };
-
-      window.addEventListener('resize', checkDevice);
-      window.addEventListener('orientationchange', handleOrientationChange);
-
-      return () => {
-        window.removeEventListener('resize', checkDevice);
-        window.removeEventListener('orientationchange', handleOrientationChange);
-      };
+      if (!type.includes('landscape')) {
+        setShowLandscapeWarning(true);
+      } else {
+        setShowLandscapeWarning(false);
+      }
     }
-  }, [isMobile]);
+  }, [type]);
 
-  return { isMobile, isLandscape };
-}
+  return showLandscapeWarning;
+};
 
 export default useMobileOrientation;

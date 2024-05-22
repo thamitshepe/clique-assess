@@ -312,7 +312,7 @@ useEffect(() => {
           src={BG}
           alt="Background"
           className="w-auto h-full"
-          style="transform: translate(-3.6875rem, -7.875rem) scale(0.8);"
+          style={{ transform: 'translate(-3.6875rem, -7.875rem) scale(0.8)' }}
         />
       </div>
       </div>

@@ -13,7 +13,7 @@ import LandscapeWarning from './components/LandscapeWarning';
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
-  const { isMobile, isLandscape } = useMobileOrientation();
+  const showLandscapeWarning = useMobileOrientation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -25,7 +25,7 @@ function App() {
 
   useCheckSubscription();
 
-  if (isMobile && !isLandscape) {
+  if (showLandscapeWarning) {
     return <LandscapeWarning />;
   }
 
