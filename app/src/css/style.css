@@ -14,6 +14,14 @@ body {
   font-size: medium;
 }
 
+/* Media query for iPhone landscape Safari */
+@media only screen and (max-device-width: 812px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: landscape) {
+  /* Adjust font size for body */
+  body {
+    font-size: 14px; /* Adjust as needed */
+  }
+}
+
 @media screen and (min-device-width: 1100px) {
   html, body {
     zoom: 0.9;
