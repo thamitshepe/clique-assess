@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         <nav className="mt-5 py-4 px-6">
           {/* <!-- Menu Group --> */}
           <div>
-            <ul className="mb-8 flex flex-col gap-3.5">
+            <ul className="mb-8 flex flex-col gap-3.5 md:gap-4.5">
 
 
               {/* <!-- Menu Item Soccer --> */}
