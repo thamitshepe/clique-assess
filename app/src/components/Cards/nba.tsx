@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { isSameDay } from 'date-fns';
-import { format } from 'date-fns-tz';
 import axios from 'axios';
 import * as nbaIcons from '../../images/nba';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
@@ -76,12 +75,12 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
               alt={game.homeTeam.name}
               className="w-8 h-8 mr-6"
             />
-            <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
+            <p className="text-center align-center text-white text-sm" style={{ width: '80%' }}>
               {game.homeTeam.name}
             </p>
           </div>
           {/* Score section */}
-          <p style={{ width: '9%' }} className="text-center align-center text-white text-sm font-medium">
+          <p style={{ width: '9%' }} className="text-center align-center text-white text-sm">
             {game.homeTeam.score !== null && game.awayTeam.score !== null
               ? `${game.homeTeam.score} - ${game.awayTeam.score}`
               : '0 - 0'}
@@ -94,7 +93,7 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
               alt={game.awayTeam.name}
               className="w-8 h-8 mr-6"
             />
-            <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
+            <p className="text-center align-center text-white text-sm" style={{ width: '80%' }}>
               {game.awayTeam.name}
             </p>
           </div>
@@ -103,11 +102,11 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
             <>
               {/* Predicted win section */}
               <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
-                <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Predicted Winner']}</p>
+                <p className="text-center align-center text-white text-sm">{matchedPrediction['Predicted Winner']}</p>
               </div>
               {/* Probability section */}
               <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
-                <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
+                <p className="text-center align-center text-white text-sm">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
               </div>
             </>
           )}
@@ -132,8 +131,8 @@ export const NBALeagues: React.FC = () => (
         <img className='h-14 w-14 mr-4 ml-1' src={nbaIcons['NBA']} alt="NBA Emblem" />
       )}
       <div>
-        <p className="text-md font-medium text-white">NBA</p>
-        <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+        <p className="text-md text-white">NBA</p>
+        <p className="text-sm" style={{ color: 'darkgray' }}>
           United States
         </p>
       </div>

@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Soccer</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Soccer</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
@@ -104,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Football</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Football</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
@@ -129,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Hockey</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Hockey</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
@@ -154,7 +154,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Basketball</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Basketball</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
@@ -179,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Baseball</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Baseball</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
@@ -204,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi font-normal text-base text-bodydark1 duration-300 ease-in-out`}>Boxing</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Boxing</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>

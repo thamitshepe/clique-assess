@@ -318,7 +318,7 @@ useEffect(() => {
 
       <div className="mt-4 md:mt-6 2xl:mt-7.5 relative flex 3xl:flex-row gap-4 2xl:flex-row gap-4 1xl:flex-row gap-4 0.5xl:flex-col md:flex-col sm:flex-col" style={{ gap: '2rem' }}>
         <div className="w-full md:w-1/3 lg:w-1/3 xl:w-1/3 flex-col items-center mb-4 md:mb-0">
-          <h2 className="text-white text-lg mb-6">Leagues</h2>
+          <h2 className="text-white lg:text-lg md:text-md mb-6">Leagues</h2>
           <div className="flex-1 bg-black rounded-md overflow-y-auto scrollbar-thin scrollbar-thumb-body scrollbar-track-transparent scrollbar-thumb-rounded-full" style={{ minWidth: 'max-content' }}>
             <div className="p-2">
               {/* Conditionally render soccer or MLB leagues based on selectedSport */}
@@ -332,8 +332,8 @@ useEffect(() => {
 
         <div className="w-full md:w-md lg:w-2/3 xl:w-2/3 flex-col items-center relative">
           <div className="flex gap-4">
-            <h2 className="text-white text-lg mb-6 mr-4 cursor-pointer">Matches</h2>
-            <h2 className="text-white text-lg mb-6 mr-4 cursor-pointer">Money Line</h2>
+            <h2 className="text-white lg:text-lg md:text-md mb-6 mr-4 cursor-pointer">Matches</h2>
+            <h2 className="text-white lg:text-lg md:text-md mb-6 mr-4 cursor-pointer">Money Line</h2>
           </div>
           <div className="flex-1">
             <div className="flex flex-col h-full">

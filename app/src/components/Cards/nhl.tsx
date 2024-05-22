@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { isSameDay } from 'date-fns';
 import * as nhlIcons from '../../images/nhl'; // Import NHL icons
-import { format } from 'date-fns-tz';
 import axios from 'axios';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
@@ -68,12 +67,12 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for home team */}
             <img src={game.homeTeam.logo} alt={game.homeTeam.name} className="w-8 h-8 mr-6" />
-            <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
+            <p className="text-center align-center text-white text-sm" style={{ width: '80%' }}>
               {game.homeTeam.name}
             </p>
           </div>
           {/* Score section */}
-          <p style={{ width: '9%' }} className="text-center align-center text-white text-sm font-medium">
+          <p style={{ width: '9%' }} className="text-center align-center text-white text-sm">
             {game.homeTeam.score !== null && game.awayTeam.score !== null
               ? `${game.homeTeam.score} - ${game.awayTeam.score}`
               : '0 - 0'}
@@ -82,7 +81,7 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           <div style={{ width: '20%' }} className="flex items-center">
             {/* SVG for away team */}
             <img src={game.awayTeam.logo} alt={game.awayTeam.name} className="w-8 h-8 mr-6" />
-            <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
+            <p className="text-center align-center text-white text-sm" style={{ width: '80%' }}>
               {game.awayTeam.name}
             </p>
           </div>
@@ -91,11 +90,11 @@ export const NHLGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
             <>
               {/* Predicted win section */}
               <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
-                <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Predicted Winner']}</p>
+                <p className="text-center align-center text-white text-sm">{matchedPrediction['Predicted Winner']}</p>
               </div>
               {/* Probability section */}
               <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
-                <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
+                <p className="text-center align-center text-white text-sm">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
               </div>
             </>
           )}
@@ -120,8 +119,8 @@ export const NHLLeagues: React.FC = () => (
         <img className='h-14 w-14 mr-4 ml-1' src={nhlIcons['NHL']} alt="NHL Emblem" />
       )}
       <div>
-        <p className="text-md font-medium text-white">NHL</p>
-        <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+        <p className="text-md text-white">NHL</p>
+        <p className="text-sm" style={{ color: 'darkgray' }}>
           United States
         </p>
       </div>

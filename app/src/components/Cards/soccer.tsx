@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { isSameDay } from 'date-fns';
-import { format } from 'date-fns-tz';
 import * as leagueIcons from '../../images/soccer'; // Import league SVGs
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -96,13 +95,13 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
             <div style={{ width: '20%' }} className="flex items-center">
               {/* SVG for home team */}
               <img src={match.homeTeam.crest} alt={match.homeTeam.shortName} className="w-8 h-8 mr-6" />
-              <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
+              <p className="text-center align-center text-white text-sm" style={{ width: '80%' }}>
                 {match.homeTeam.shortName}
               </p>
             </div>
 
             {/* Score section */}
-            <p style={{ width: '9%' }} className="text-center align-center text-white text-sm font-medium ml-2 mr-2">
+            <p style={{ width: '9%' }} className="text-center align-center text-white text-sm ml-2 mr-2">
               {match.score?.fullTime?.home !== null && match.score?.fullTime?.away !== null
                 ? `${match.score.fullTime.home} - ${match.score.fullTime.away}`
                 : match.score?.halfTime?.home !== null && match.score?.halfTime?.away !== null
@@ -114,7 +113,7 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
             <div style={{ width: '20%' }} className="flex items-center">
               {/* SVG for away team */}
               <img src={match.awayTeam.crest} alt={match.awayTeam.shortName} className="w-8 h-8 mr-6" />
-              <p className="text-center align-center text-white text-sm font-medium" style={{ width: '80%' }}>
+              <p className="text-center align-center text-white text-sm" style={{ width: '80%' }}>
                 {match.awayTeam.shortName}
               </p>
             </div>
@@ -124,12 +123,12 @@ export const SoccerMatches: React.FC<{ leagues: Competition[]; selectedDate: Dat
               <>
                 {/* Predicted win section */}
                 <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
-                  <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Predicted Winner']}</p>
+                  <p className="text-center align-center text-white text-sm">{matchedPrediction['Predicted Winner']}</p>
                 </div>
 
                 {/* Probability section */}
                 <div style={{ width: '10%' }} className="flex flex-col items-center justify-center">
-                  <p className="text-center align-center text-white text-sm font-medium">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
+                  <p className="text-center align-center text-white text-sm">{matchedPrediction['Probability (%)'].toFixed(2)}%</p>
                 </div>
               </>
             )}
@@ -153,8 +152,8 @@ export const FootballLeagues: React.FC = () => (
           <img className='h-14 w-14 mr-4' src={leagueIcons['PL']} alt="MLB Emblem" />
         )}
         <div>
-          <p className="text-md font-medium text-white">Premier League</p>
-          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+          <p className="text-md text-white">Premier League</p>
+          <p className="text-sm" style={{ color: 'darkgray' }}>
             England
           </p>
         </div>
@@ -179,8 +178,8 @@ export const SoccerLeagues: React.FC = () => {
           <img className='h-14 w-14 mr-4 ml-1' src={leagueIcons['PL']} alt="Premier League Emblem" />
         )}
         <div>
-          <p className="text-md font-medium text-white">Premier League</p>
-          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+          <p className="text-md text-white">Premier League</p>
+          <p className="text-sm" style={{ color: 'darkgray' }}>
             England
           </p>
         </div>
@@ -192,8 +191,8 @@ export const SoccerLeagues: React.FC = () => {
           <img className='h-14 w-14 mr-4 ml-1' src={leagueIcons['PPL']} alt="Primeira Liga Emblem" />
         )}
         <div>
-          <p className="text-md font-medium text-white">Primeira Liga</p>
-          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+          <p className="text-md text-white">Primeira Liga</p>
+          <p className="text-sm" style={{ color: 'darkgray' }}>
             Portugal
           </p>
         </div>
@@ -205,8 +204,8 @@ export const SoccerLeagues: React.FC = () => {
           <img className='h-14 w-14 mr-4 ml-1' src={leagueIcons['BL1']} alt="Bundesliga Emblem" />
         )}
         <div>
-          <p className="text-md font-medium text-white">Bundesliga</p>
-          <p className="text-sm font-medium" style={{ color: 'darkgray' }}>
+          <p className="text-md text-white">Bundesliga</p>
+          <p className="text-sm" style={{ color: 'darkgray' }}>
             Germany
           </p>
         </div>
