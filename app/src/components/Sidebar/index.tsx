@@ -3,12 +3,12 @@ import { NavLink } from 'react-router-dom';
 import Logo from '../../images/logo/logo.svg';
 import { useDispatch } from 'react-redux';
 import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
-import soccerBall from 'app/src/images/icons/soccer-ball.png';
-import baseBall from 'app/src/images/icons/baseball-bat.png';
-import basketBall from 'app/src/images/icons/basketball-ball.png';
-import boxingGloves from 'app/src/images/icons/boxing-gloves.png';
-import footBall from 'app/src/images/icons/football.png';
-import hockey from 'app/src/images/icons/hockey.png';
+import soccerBall from '../../images/icons/soccer-ball.png';
+import baseBall from '../../images/icons/baseball-bat.png';
+import basketBall from '../../images/icons/basketball-ball.png';
+import boxingGloves from '../../images/icons/boxing-gloves.png';
+import footBall from '../../images/icons/football.png';
+import hockey from '../../images/icons/hockey.png';
 import { isMobile } from 'react-device-detect';
 
 interface SidebarProps {
