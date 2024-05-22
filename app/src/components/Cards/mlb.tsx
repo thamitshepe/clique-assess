@@ -124,7 +124,7 @@ export const MLBGames: React.FC<{ games: Game[]; selectedDate: Date;  gamesLoade
 export const MLBLeagues: React.FC = () => (
   <div className="p-2">
     {/* Render MLB league */}
-    <div className="h-10 rounded-md mb-2 flex items-center w-40" style={{ minWidth: '10rem' }}>
+    <div className="h-10 rounded-md mb-2 flex items-center" style={{ minWidth: '10rem' }}>
       {/* Use the MLB emblem */}
       {mlbIcons['mlb'] && (
         <img className='h-14 w-14 mr-4 ml-1' src={mlbIcons['mlb']} alt="MLB Emblem" />
