@@ -63,10 +63,10 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
         >
           {/* Render game details */}
           {/* Home team section */}
-          <div style={{ width: '20%' }} className="flex items-center">
+          <div style={{ width: '25%' }} className="flex items-center">
             {/* SVG for home team */}
             <img
-              src={nbaIconsTyped[modifyTeamName(game.homeTeam.name).replace(/\s/g, "_")]}
+              src={nbaIconsTyped[modifyTeamName(game.homeTeam.name).replace(/\s/g, "-")]}
               alt={game.homeTeam.name}
               className="w-8 h-8 mr-6"
             />
@@ -75,16 +75,16 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
             </p>
           </div>
           {/* Score section */}
-          <p style={{ width: '9%' }} className="text-center align-center text-white text-sm">
+          <p style={{ width: '15%' }} className="text-center align-center text-white text-sm">
             {game.homeTeam.score !== null && game.awayTeam.score !== null
               ? `${game.homeTeam.score} - ${game.awayTeam.score}`
               : '0 - 0'}
           </p>
           {/* Away team section */}
-          <div style={{ width: '20%' }} className="flex items-center">
+          <div style={{ width: '25%' }} className="flex items-center">
             {/* SVG for away team */}
             <img
-              src={nbaIconsTyped[modifyTeamName(game.awayTeam.name).replace(/\s/g, "_")]}
+              src={nbaIconsTyped[modifyTeamName(game.awayTeam.name).replace(/\s/g, "-")]}
               alt={game.awayTeam.name}
               className="w-8 h-8 mr-6"
             />
