@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import os
+import requests
 import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict, List
@@ -271,58 +272,44 @@ async def get_nhl_data_api(game_date: str):
     return await fetch_nhl_data(game_date)
 
 
+
 # Function to fetch NBA data with Redis caching
-async def get_nba_data(date: str) -> dict:
+async def get_nba_data() -> dict:
     try:
-        # Check if requested game date is in the cache
-        cache_key = f"nba_data:{date}"
+        # Use a fixed cache key for today's NBA data
+        cache_key = "nba_data"
         cached_data = redis.get(cache_key)
 
         if cached_data:
             time.sleep(1)  # Introduce a delay before returning cached data
             return json.loads(cached_data)
 
-        # Custom headers
-        custom_headers = {
-            'Host': 'stats.nba.com',
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-        }
+        # Fetch the URL from environment variables
+        url = os.getenv("NBA_API_URL")
 
-        # Instantiate scoreboardv2 endpoint with custom headers
-        scoreboard = scoreboardv2.ScoreboardV2(
-            day_offset=0,
-            game_date=date,
-            league_id="00",
-            headers=custom_headers
-        )
+        if not url:
+            raise HTTPException(status_code=500, detail="NBA data URL not set in environment variables")
 
-        # Call the endpoint and get data
-        data = scoreboard.get_dict()
+        # Fetch data from the URL
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Error fetching NBA data")
+
+        data = response.json()
 
         # Example extraction logic:
-        game_headers = data['resultSets'][0]['rowSet']
-        line_scores = data['resultSets'][1]['rowSet']
+        games = data['scoreboard']['games']
         
         extracted_data = []
-        for game_header, line_score in zip(game_headers, line_scores):
+        for game in games:
             extracted_game = {
-                "gameDate": game_header[0],
-                "status": game_header[4],
                 "homeTeam": {
-                    "abbreviation": line_score[4],
-                    "name": f"{line_score[5]} {line_score[6]}",
-                    "score": line_score[-3]
+                    "name": f"{game['homeTeam']['teamCity']} {game['homeTeam']['teamName']}",
+                    "score": game['homeTeam']['score']
                 },
                 "awayTeam": {
-                    "abbreviation": line_score[4],
-                    "name": f"{line_score[5]} {line_score[6]}",
-                    "score": line_score[-3]
+                    "name": f"{game['awayTeam']['teamCity']} {game['awayTeam']['teamName']}",
+                    "score": game['awayTeam']['score']
                 }
             }
             extracted_data.append(extracted_game)
@@ -336,5 +323,5 @@ async def get_nba_data(date: str) -> dict:
         raise HTTPException(status_code=500, detail=f"Error fetching NBA data: {str(e)}")
 
 @app.get("/api/nbadata/")
-async def fetch_nba_data_api(date: str = Query(..., description="Date in the format 'YYYY-MM-DD'")):
-    return await get_nba_data(date)
+async def fetch_nba_data_api():
+    return await get_nba_data()

@@ -5,21 +5,16 @@ import * as nbaIcons from '../../images/nba';
 import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
 
 interface Game {
-    gameDate: string;
-    status: string;
-    homeTeam: {
-      name: string;
-      abbreviation: string;
-      score: number | null;
-      logo: string; 
-    };
-    awayTeam: {
-      name: string;
-      abbreviation: string;
-      score: number | null;
-      logo: string; 
-    };
-  }
+  homeTeam: {
+    name: string;
+    score: number | null;
+  };
+  awayTeam: {
+    name: string;
+    score: number | null;
+  };
+}
+
 
 export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded: boolean; predictions?: any[]; }> = ({ games, selectedDate, gamesLoaded }) => {
   const [predictions, setPredictions] = useState<any[]>([]);
