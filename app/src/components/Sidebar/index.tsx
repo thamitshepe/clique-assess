@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         <nav className="mt-5 py-4 px-6">
           {/* <!-- Menu Group --> */}
           <div>
-            <ul className="mb-8 flex flex-col gap-3.5">
+            <ul className="mb-8 flex flex-col gap-3.5 md:gap-4.5">
 
 
               {/* <!-- Menu Item Soccer --> */}
@@ -73,9 +73,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                     <img
                       src={soccerBall} // Use the imported PNG icon
                       alt="soccer" // Provide an alt attribute for accessibility
-                      width={isMobile ? 88 : 44}
-                      height={isMobile ? 88 : 44}
-                      className="mr-3.5" // Add margin between icon and text
+                      width={44}
+                      height={44}
+                      className="sport-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
@@ -98,9 +98,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                     <img
                       src={footBall} // Use the imported PNG icon
                       alt="football" // Provide an alt attribute for accessibility
-                      width={isMobile ? 88 : 44}
-                      height={isMobile ? 88 : 44}
-                      className="mr-3.5" // Add margin between icon and text
+                      width={44}
+                      height={44}
+                      className="sport-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
@@ -123,9 +123,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                     <img
                       src={hockey} // Use the imported PNG icon
                       alt="hockey" // Provide an alt attribute for accessibility
-                      width={isMobile ? 88 : 44}
-                      height={isMobile ? 88 : 44}
-                      className="mr-3.5" // Add margin between icon and text
+                      width={44}
+                      height={44}
+                      className="sport-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
@@ -148,9 +148,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                     <img
                       src={basketBall} // Use the imported PNG icon
                       alt="basketball" // Provide an alt attribute for accessibility
-                      width={isMobile ? 88 : 44}
-                      height={isMobile ? 88 : 44}
-                      className="mr-3.5" // Add margin between icon and text
+                      width={44}
+                      height={44}
+                      className="sport-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
@@ -173,9 +173,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                     <img
                       src={baseBall} // Use the imported PNG icon
                       alt="baseball" // Provide an alt attribute for accessibility
-                      width={isMobile ? 88 : 44}
-                      height={isMobile ? 88 : 44}
-                      className="mr-3.5" // Add margin between icon and text
+                      width={44}
+                      height={44}
+                      className="sport-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
@@ -198,9 +198,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                     <img
                       src={boxingGloves} // Use the imported PNG icon
                       alt="boxing gloves" // Provide an alt attribute for accessibility
-                      width={isMobile ? 88 : 44}
-                      height={isMobile ? 88 : 44}
-                      className="mr-3.5" // Add margin between icon and text
+                      width={44}
+                      height={44}
+                      className="sport-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}

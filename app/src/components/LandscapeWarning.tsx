@@ -12,8 +12,7 @@ const LandscapeWarning = () => {
       }}
     >
       <div style={{ textAlign: 'center', color: 'white' }}>
-        <h1 className="text-lg">Please rotate your device</h1>
-        <p className="text-lg">This app works best in landscape mode. Please rotate your phone to continue.</p>
+        <p className="text-md">This app works best in landscape mode. Please rotate your phone to continue.</p>
       </div>
     </div>
   );
