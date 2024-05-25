@@ -66,7 +66,7 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           <div style={{ width: '25%' }} className="flex items-center">
             {/* SVG for home team */}
             <img
-              src={nbaIconsTyped[modifyTeamName(game.homeTeam.name).replace(/\s/g, "-")]}
+              src={nbaIconsTyped[modifyTeamName(game.homeTeam.name).replace(/\s/g, "_")]}
               alt={game.homeTeam.name}
               className="w-8 h-8 mr-6"
             />
@@ -84,7 +84,7 @@ export const NBAGames: React.FC<{ games: Game[]; selectedDate: Date; gamesLoaded
           <div style={{ width: '25%' }} className="flex items-center">
             {/* SVG for away team */}
             <img
-              src={nbaIconsTyped[modifyTeamName(game.awayTeam.name).replace(/\s/g, "-")]}
+              src={nbaIconsTyped[modifyTeamName(game.awayTeam.name).replace(/\s/g, "_")]}
               alt={game.awayTeam.name}
               className="w-8 h-8 mr-6"
             />
