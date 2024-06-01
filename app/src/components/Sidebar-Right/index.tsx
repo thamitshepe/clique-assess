@@ -1,7 +1,6 @@
 import React from 'react';
 import DropdownNotification from '../Header/DropdownNotification';
-import { UserButton } from '@clerk/clerk-react';
-import { useCheckSubscription } from '../../hooks/useCheckSubscription';
+import CustomUserButton from '../Header/CustomUserButton';  // Adjust the import path as needed
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -9,7 +8,6 @@ interface SidebarProps {
 }
 
 const SidebarRight: React.FC<SidebarProps> = ({ sidebarOpen }) => {
-  const loginLink = useCheckSubscription();
 
   React.useEffect(() => {
     localStorage.setItem('sidebar-expanded', sidebarOpen.toString());
@@ -24,23 +22,7 @@ const SidebarRight: React.FC<SidebarProps> = ({ sidebarOpen }) => {
     <aside className="static right-0 top-0 z-9999 flex h-screen flex-col overflow-y-hidden bg-black duration-150 ease-linear lg:static lg:translate-x-0 w-90">
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex justify-between items-center p-6">
-        <UserButton>
-          {loginLink && (
-            <UserButton.UserProfileLink
-              label="Manage Subscription"
-              url={loginLink}
-              labelIcon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                  fill="currentColor"
-                >
-                  <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z" />
-                </svg>
-              }
-            />
-          )}
-        </UserButton>
+        <CustomUserButton />
         <DropdownNotification />
       </div>
       {/* <!-- END SIDEBAR HEADER --> */}

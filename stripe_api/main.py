@@ -11,9 +11,6 @@ class SubscriptionCheckRequest(BaseModel):
     sessionId: str
     email: str  # Add email field
 
-class ManageSubscriptionRequest(BaseModel):
-    customerId: str
-
 # Define the whitelist of email addresses
 WHITELIST = {
     "betvisionai@gmail.com",
@@ -55,22 +52,6 @@ async def check_subscription(request: SubscriptionCheckRequest):
                     if subscription and (subscription.status == 'active' or 'trial' in subscription.status):
                         return {"subscribed": True}
         return {"subscribed": False}
-    except stripe.error.StripeError as e:
-        print(e)
-        raise HTTPException(status_code=400, detail="Stripe API error")
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@app.post("/api/manage-subscription")
-async def manage_subscription(request: ManageSubscriptionRequest):
-    customer_id = request.customerId
-
-    try:
-        # Generate the login link for the customer
-        login_link = stripe.Customer.create_login_link(customer_id)
-        return {"url": login_link.url}
     except stripe.error.StripeError as e:
         print(e)
         raise HTTPException(status_code=400, detail="Stripe API error")

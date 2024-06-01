@@ -83,6 +83,10 @@ body {
   width: 100% !important;
 }
 
+[data-radix-popper-content-wrapper] {
+  z-index: 9999;
+}
+
 
 
 @layer base {
