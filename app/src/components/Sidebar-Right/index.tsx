@@ -1,5 +1,4 @@
 import React from 'react';
-import DropdownNotification from '../Header/DropdownNotification';
 import CustomUserButton from '../Header/CustomUserButton';  // Adjust the import path as needed
 
 interface SidebarProps {
@@ -22,8 +21,8 @@ const SidebarRight: React.FC<SidebarProps> = ({ sidebarOpen }) => {
     <aside className="static right-0 top-0 z-9999 flex h-screen flex-col overflow-y-hidden bg-black duration-150 ease-linear lg:static lg:translate-x-0 w-90">
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex justify-between items-center p-6">
+        <div></div> {/* Add an empty div to push the CustomUserButton to the right */}
         <CustomUserButton />
-        <DropdownNotification />
       </div>
       {/* <!-- END SIDEBAR HEADER --> */}
 
