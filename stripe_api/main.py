@@ -54,7 +54,7 @@ async def check_subscription(request: SubscriptionCheckRequest):
             if customer.email and customer.email.lower() == email:
                 subscriptions = stripe.Subscription.list(customer=customer.id).auto_paging_iter()
                 for subscription in subscriptions:
-                    if subscription and (subscription.status == 'active' or 'trial' in subscription.status):
+                    if subscription and (subscription.status == 'active' or 'trial' or 'cancels' in subscription.status):
                         return {"subscribed": True}
         return {"subscribed": False}
     except stripe.error.StripeError as e:
