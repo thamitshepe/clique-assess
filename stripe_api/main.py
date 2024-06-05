@@ -16,7 +16,6 @@ WHITELIST = {
     "betvisionai@gmail.com",
     "securesolellc@gmail.com",
     "beach.austin15@gmail.com",
-    "thamitshepe@icloud.com",
     "josephbriant97@gmail.com",
     "tracehaggard@outlook.com",
     "perilousdreams@gmail.com",
