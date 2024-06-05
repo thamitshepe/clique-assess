@@ -63,3 +63,33 @@ async def check_subscription(request: SubscriptionCheckRequest):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+    # Webhook endpoint for Stripe events
+@app.post("/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    # Handle the event
+    if event['type'] == 'invoice.payment_succeeded':
+        invoice = event['data']['object']
+        if invoice['billing_reason'] == 'subscription_create' and invoice['amount_paid'] == 0:
+            subscription_id = invoice['subscription']
+            # Schedule the subscription for cancellation at the end of the trial
+            stripe.Subscription.modify(subscription_id, cancel_at_period_end=True)
+            print(f"Subscription {subscription_id} set to cancel at period end.")
+
+    return {"status": "success"}
