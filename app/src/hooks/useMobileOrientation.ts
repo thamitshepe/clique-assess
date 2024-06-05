@@ -1,27 +1,20 @@
 import { useState, useEffect } from 'react';
 import { isMobile } from 'react-device-detect';
+import { useOrientation } from '@uidotdev/usehooks';
 
 const useMobileOrientation = () => {
   const [showLandscapeWarning, setShowLandscapeWarning] = useState(false);
-
-  const handleOrientationChange = () => {
-    if (window.innerHeight > window.innerWidth) {
-      setShowLandscapeWarning(true); // portrait
-    } else {
-      setShowLandscapeWarning(false); // landscape
-    }
-  };
+  const { type } = useOrientation();
 
   useEffect(() => {
     if (isMobile) {
-      handleOrientationChange(); // Initial check
-      window.addEventListener('orientationchange', handleOrientationChange);
-
-      return () => {
-        window.removeEventListener('orientationchange', handleOrientationChange);
-      };
+      if (!type.includes('landscape')) {
+        setShowLandscapeWarning(true);
+      } else {
+        setShowLandscapeWarning(false);
+      }
     }
-  }, []);
+  }, [type]);
 
   return showLandscapeWarning;
 };
