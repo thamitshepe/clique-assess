@@ -55,6 +55,15 @@ interface Game {
   };
 }
 
+interface Fight {
+  homeFighter: {
+    name: string;
+  };
+  awayFighter: {
+    name: string;
+  };
+}
+
 export interface SportState {
   selectedSport: string;
 }
@@ -68,11 +77,15 @@ const NBALeagues = lazy(() => import('../../components/Cards/nba').then(module =
 const NBAGames = lazy(() => import('../../components/Cards/nba').then(module => ({ default: module.NBAGames })));
 const NHLGames = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLGames })));
 const NHLLeagues = lazy(() => import('../../components/Cards/nhl').then(module => ({ default: module.NHLLeagues })));
+const MMAFights = lazy(() => import('../../components/Cards/mma').then(module => ({ default: module.MMAFights })));
+const MMALeagues = lazy(() => import('../../components/Cards/mma').then(module => ({ default: module.MMALeagues })));
+
 
 const ECommerce: React.FC = () => {
   const [selectedDate] = useState(new Date()); // Directly set to today's date
   const selectedLeague = useAppSelector((state) => state.selectedLeague.selectedLeague);
   const [matches, setMatches] = useState<Competition[]>([]);
+  const [fights, setFights] = useState<Fight[]>([]); // Define fights as state
   const [games, setGames] = useState<Game[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
   const selectedSport = useAppSelector((state) => state.selectedSport.selectedSport);
@@ -200,7 +213,31 @@ const ECommerce: React.FC = () => {
       fetchNHLData();
     }
   }, [selectedDate, selectedSport]);
-  
+
+
+  useEffect(() => {
+  // Reset state variables for MMA data
+  if (selectedSport === 'mma') {
+    setFights([]); // Reset fights data
+    setMatchesLoading(true); // Set loading state to true immediately when the selected date changes
+
+    const fetchMMAData = async () => {
+      try {
+        const response = await axios.get(`https://sportsvision.onrender.com/api/mmadata?date=${formatDate(selectedDate)}`);
+        setFights(response.data); // Set MMA fights data
+      } finally {
+        // Set fightsLoaded to true after fights are fetched and set
+        setMatchesLoading(true);
+        // Wait for 3 seconds before setting loading to false
+        setTimeout(() => {
+          setMatchesLoading(false);
+        }, 3000);
+      }
+    };
+
+    fetchMMAData();
+  }
+}, [selectedDate, selectedSport]);
 
   useEffect(() => {
     if (selectedSport === 'soccer') {
@@ -247,8 +284,10 @@ const ECommerce: React.FC = () => {
           return < SoccerLeagues/>;
         case 'nhl':
           return < NHLLeagues/>;
-          case 'nba':
-            return < NBALeagues/>;
+        case 'nba':
+          return < NBALeagues/>;
+        case 'mma':
+          return < MMALeagues/>;
         default:
           return <MLBLeagues />;
       }
@@ -265,6 +304,8 @@ const ECommerce: React.FC = () => {
           return <NHLGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         case 'nba':
           return <NBAGames games={games} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
+        case 'mma':
+          return <MMAFights fights={fights} selectedDate={selectedDate} predictions={predictions} gamesLoaded={gamesLoaded} />;
         default:
         return <MLBGames games={games} predictions={predictions}  selectedDate={selectedDate} gamesLoaded={gamesLoaded} />;
       }
