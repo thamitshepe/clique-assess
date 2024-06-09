@@ -697,31 +697,24 @@ def mma_preprocess_upcoming_matches(data):
                 away_odds = next((outcome['price'] for outcome in h2h_market.get('outcomes', []) if outcome['name'] == away_team), None)
                 if home_odds is not None and away_odds is not None:
                     break
-        # Add a placeholder for the third feature (e.g., match importance)
         third_feature = 0
         upcoming_matches.append({'Home Team': home_team, 'Away Team': away_team, 'Home Odds': home_odds, 'Away Odds': away_odds, 'Third Feature': third_feature})
     return pd.DataFrame(upcoming_matches)
 
 # Function to make predictions using the trained model
 def mma_make_predictions(model, upcoming_df):
-    # Extract features
     X = upcoming_df[['Home Odds', 'Away Odds']]
 
-    # Check and handle NaN or infinite values
     if np.any(np.isnan(X)) or np.any(np.isinf(X)):
-        # Impute NaN values with the median (you can choose a different strategy)
         imputer = SimpleImputer(missing_values=np.nan, strategy='median')
         X = imputer.fit_transform(X)
-        # Replace infinities, if any, assuming that infinities are a result of data errors
         X = np.nan_to_num(X, nan=np.median(X), posinf=np.max(X[np.isfinite(X)]), neginf=np.min(X[np.isfinite(X)]))
 
-    # Predict probabilities
     probabilities = model.predict_proba(X)
 
     probabilities[:, 1] *= 1.1
-    probabilities = np.clip(probabilities, 0, 1)  # Ensuring probabilities are between 0 and 1
+    probabilities = np.clip(probabilities, 0, 1)
 
-    # Predict the winner based on adjusted probabilities
     predictions = np.argmax(probabilities, axis=1)
 
     return predictions, probabilities
@@ -743,6 +736,9 @@ def mma_load_predictions(api_key):
                 predictions, probabilities = mma_make_predictions(model, upcoming_df)
                 upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
                 upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+
+                # Replace any remaining NaN or infinite values before converting to dict
+                upcoming_df = upcoming_df.replace([np.inf, -np.inf], np.nan).fillna(0)
                 mma_predictions_data = upcoming_df.to_dict(orient='records')
                 mma_predictions_loaded = True
                 mma_initial_load_completed = True
@@ -750,8 +746,8 @@ def mma_load_predictions(api_key):
         print(f"Error in mma_load_predictions: {e}")
 
 # Scheduler to update predictions data every day at a specified time
-schedule.every().day.at("02:00").do(mma_load_predictions, api_key=API_KEY)
-schedule.every().day.at("14:00").do(mma_load_predictions, api_key=API_KEY)
+schedule.every().day.at("02:00").do(mma_load_predictions, api_key=os.getenv("API_KEY"))
+schedule.every().day.at("14:00").do(mma_load_predictions, api_key=os.getenv("API_KEY"))
 
 def run_scheduler():
     while True:
@@ -766,8 +762,7 @@ scheduler_thread.start()
 async def load_mma_predictions():
     global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
     
-    # Load or update predictions data if not loaded yet
     if not mma_initial_load_completed:
-        mma_load_predictions(API_KEY)
+        mma_load_predictions(os.getenv("API_KEY"))
     
     return mma_predictions_data
