@@ -41,8 +41,12 @@ export const MMAFights: React.FC<{ fights: Fight[]; selectedDate: Date; gamesLoa
   const items = useMemo(() => {
     return fights.map((fight, index) => {
       const matchedPrediction = predictions && predictions.find((prediction) => {
-        const homeFighterMatch = prediction['Home Fighter'].includes(fight.homeFighter.name());
-        const awayFighterMatch = prediction['Away Fighter'].includes(fight.awayFighter.name());
+        const homeFighterName = fight.homeFighter?.name || '';
+        const awayFighterName = fight.awayFighter?.name || '';
+  
+        const homeFighterMatch = prediction['Home Fighter']?.toLowerCase().includes(homeFighterName.toLowerCase());
+        const awayFighterMatch = prediction['Away Fighter']?.toLowerCase().includes(awayFighterName.toLowerCase());
+        
         return homeFighterMatch && awayFighterMatch;
       });
 
