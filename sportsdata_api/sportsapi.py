@@ -387,7 +387,7 @@ async def fetch_mma_data_api(date: str = Query(...)):
 # Function to clear Redis cache
 async def clear_redis_cache():
     try:
-        await redis.flushdb()  # Clears the entire Redis database
+        redis.flushdb()  # Clears the entire Redis database
         return {"message": "Redis cache cleared successfully."}
     except Exception as e:
         logging.error("Error clearing Redis cache: %s", str(e))
