@@ -449,6 +449,10 @@ def mlb_load_predictions(api_key):
         # Add predicted winner and probability to predictions data
         upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
         upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+
+        # Add "Risky Bet" label for predictions with probability below 65%
+        mask = upcoming_df['Probability (%)'] < 65
+        upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
         
         # Store predictions data globally
         mlb_predictions_data = upcoming_df.to_dict(orient='records')
@@ -730,6 +734,11 @@ def mma_load_predictions(api_key):
     predictions, probabilities = mma_make_predictions(model, upcoming_df)
     upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
     upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+    
+    # Add "Risky Bet" label for predictions with probability below 65%
+    mask = upcoming_df['Probability (%)'] < 65
+    upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
+    
     mma_predictions_data = upcoming_df.to_dict(orient='records')
     mma_predictions_loaded = True
     mma_initial_load_completed = True

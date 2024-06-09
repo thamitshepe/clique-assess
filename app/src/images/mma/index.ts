@@ -1,3 +1,3 @@
-import ufc from './ufc.png'
+import ufc from './ufc.svg'
 
 export {ufc}
