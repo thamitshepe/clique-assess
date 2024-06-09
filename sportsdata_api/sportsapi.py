@@ -331,7 +331,7 @@ async def get_mma_data(date: str) -> List[Dict[str, Any]]:
     try:
         # Use a cache key including the date
         cache_key = f"mma_data_{date}"
-        cached_data = redis_client.get(cache_key)
+        cached_data = redis.get(cache_key)
 
         if cached_data:
             time.sleep(1)  # Introduce a delay before returning cached data
@@ -377,7 +377,7 @@ async def get_mma_data(date: str) -> List[Dict[str, Any]]:
         extracted_data.sort(key=lambda x: x['startTime'])
 
         # Cache the data in Redis with a 12-hour expiration
-        redis_client.setex(cache_key, 60 * 60 * 12, json.dumps(extracted_data))
+        redis.setex(cache_key, 60 * 60 * 12, json.dumps(extracted_data))
 
         return extracted_data
 
