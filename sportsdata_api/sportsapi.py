@@ -5,7 +5,7 @@ import os
 import requests
 import asyncio
 from datetime import datetime, timezone
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 from pydantic import BaseModel, Field
 from redis import Redis
 from dotenv import load_dotenv
@@ -325,3 +325,55 @@ async def get_nba_data() -> dict:
 @app.get("/api/nbadata/")
 async def fetch_nba_data_api():
     return await get_nba_data()
+
+
+# Function to fetch MMA data with Redis caching
+async def get_mma_data() -> List[Dict[str, Any]]:
+    try:
+        # Use a fixed cache key for today's MMA data
+        cache_key = "mma_data"
+        cached_data = redis.get(cache_key)
+
+        if cached_data:
+            time.sleep(1)  # Introduce a delay before returning cached data
+            return json.loads(cached_data)
+
+        # Fetch the URL and API key from environment variables
+        url = os.getenv("MMA_API_URL")
+
+        if not url:
+            raise HTTPException(status_code=500, detail="MMA data URL or API key not set in environment variables")
+
+        # Set the headers
+        headers = {"accept": "application/json"}
+
+        # Fetch data from the URL
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Error fetching MMA data")
+
+        data = response.json()
+
+        # Example extraction logic:
+        summaries = data['summaries']
+        
+        extracted_data = []
+        for summary in summaries:
+            competitors = summary['sport_event']['competitors']
+            extracted_event = {
+                "homeCompetitor": next((competitor['name'] for competitor in competitors if competitor['qualifier'] == 'home'), None),
+                "awayCompetitor": next((competitor['name'] for competitor in competitors if competitor['qualifier'] == 'away'), None)
+            }
+            extracted_data.append(extracted_event)
+
+        # Cache the data in Redis with a 12-hour expiration
+        redis.setex(cache_key, 60 * 60 * 12, json.dumps(extracted_data))
+
+        return extracted_data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching MMA data: {str(e)}")
+
+@app.get("/api/mmadata/")
+async def fetch_mma_data_api():
+    return await get_mma_data()
