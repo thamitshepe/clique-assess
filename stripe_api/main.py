@@ -24,7 +24,8 @@ WHITELIST = {
     "rujunli0721@gmail.com",
     "antwaneg52@gmail.com",
     "gonmaca1@gmail.com",
-    "milesdeals7@gmail.com"
+    "milesdeals7@gmail.com", 
+    "landox93@gmail.com"
 }
 
 # Configure CORS middleware
