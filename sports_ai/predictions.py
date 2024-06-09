@@ -677,6 +677,10 @@ mma_initial_load_completed = False
 
 # Function to fetch data for upcoming matches from The Odds API
 def mma_fetch_upcoming_matches(api_key):
+    api_key = os.getenv('API_KEY')  # Fetch the API key from the environment variable
+    if not api_key:
+        raise ValueError("No API key found. Please set the 'ODDS_API_KEY' environment variable.")
+    
     url = f'https://api.the-odds-api.com/v4/sports/mma_mixed_martial_arts/odds/?apiKey={api_key}&regions=us&markets=h2h'
     response = requests.get(url)
     response.raise_for_status()  # Raise an exception for HTTP errors
@@ -734,16 +738,18 @@ def mma_load_model():
 # Function to load or update MMA predictions data
 def mma_load_predictions(api_key):
     global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
-
-    data = mma_fetch_upcoming_matches(api_key)
-    upcoming_df = mma_preprocess_upcoming_matches(data)
-    model = mma_load_model()
-    predictions, probabilities = mma_make_predictions(model, upcoming_df)
-    upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
-    upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
-    mma_predictions_data = upcoming_df.to_dict(orient='records')
-    mma_predictions_loaded = True
-    mma_initial_load_completed = True
+    
+    if not mma_predictions_loaded and not mma_initial_load_completed:
+        upcoming_data = mma_fetch_upcoming_matches(api_key)
+        if upcoming_data:
+            upcoming_df = mma_preprocess_upcoming_matches(upcoming_data)
+            model = mma_load_model()
+            predictions, probabilities = mma_make_predictions(model, upcoming_df)
+            upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
+            upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+            mma_predictions_data = upcoming_df.to_dict(orient='records')
+            mma_predictions_loaded = True
+            mma_initial_load_completed = True
 
 # Scheduler to update predictions data every day at a specified time
 schedule.every().day.at("02:00").do(mma_load_predictions, api_key=API_KEY)
