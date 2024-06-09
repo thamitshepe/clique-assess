@@ -120,17 +120,16 @@ def bl1_load_predictions(api_key):
         except Exception as e:
             print(f"Error loading predictions: {str(e)}")
 
-# Schedule task to load predictions data every day at 6 AM US Eastern Time
-schedule.every().day.at("06:00").do(bl1_load_predictions, API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(bl1_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(bl1_load_predictions, api_key=API_KEY)
 
-# Main function to run scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
@@ -241,19 +240,19 @@ def pl_load_predictions(api_key):
         except Exception as e:
             print(f"Error loading predictions: {str(e)}")
 
-# Schedule task to load predictions data every day at 6 AM US Eastern Time
-schedule.every().day.at("06:00").do(pl_load_predictions, API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(pl_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(pl_load_predictions, api_key=API_KEY)
 
-# Main function to run scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
+
 
 # Main endpoint to get soccer predictions
 @app.get("/plpredictions")
@@ -361,17 +360,16 @@ def ppl_load_predictions(api_key):
         except Exception as e:
             print(f"Error loading predictions: {str(e)}")
 
-# Schedule task to load predictions data every day at 6 AM US Eastern Time
-schedule.every().day.at("06:00").do(ppl_load_predictions, API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(ppl_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(ppl_load_predictions, api_key=API_KEY)
 
-# Main function to run scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
@@ -457,17 +455,16 @@ def mlb_load_predictions(api_key):
         mlb_predictions_loaded = True
         mlb_initial_load_completed = True
 
-# Schedule task to load predictions data every day at 6 AM US Eastern Time
-schedule.every().day.at("06:00").do(mlb_load_predictions, API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(mlb_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(mlb_load_predictions, api_key=API_KEY)
 
-# Main function to run scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
@@ -551,17 +548,16 @@ def nba_load_predictions(api_key):
             nba_predictions_loaded = True
             nba_initial_load_completed = True
 
-# Schedule task to load predictions data every day at 6 AM US Eastern Time
-schedule.every().day.at("06:00").do(nba_load_predictions, API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(nba_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(nba_load_predictions, api_key=API_KEY)
 
-# Main function to run scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
@@ -640,8 +636,9 @@ def nhl_load_predictions(api_key):
             nhl_predictions_loaded = True
             nhl_initial_load_completed = True
 
-# Scheduler to update predictions data every day at a specified time
-schedule.every().day.at("06:00").do(nhl_load_predictions, api_key=API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(nhl_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(nhl_load_predictions, api_key=API_KEY)
 
 def run_scheduler():
     while True:
@@ -649,7 +646,6 @@ def run_scheduler():
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
@@ -663,7 +659,6 @@ async def nhl_get_predictions():
     
     return nhl_predictions_data
 
-
 # Initialize global variables to store MMA predictions data
 mma_predictions_loaded = False
 mma_predictions_data = None
@@ -673,6 +668,7 @@ mma_initial_load_completed = False
 def mma_fetch_upcoming_matches(api_key):
     url = f'https://api.the-odds-api.com/v4/sports/mma_mixed_martial_arts/odds/?apiKey={api_key}&regions=us&markets=h2h'
     response = requests.get(url)
+    response.raise_for_status()  # Ensure we raise an error for bad status codes
     data = response.json()
     return data
 
@@ -738,8 +734,9 @@ def mma_load_predictions(api_key):
     mma_predictions_loaded = True
     mma_initial_load_completed = True
 
-# Scheduler to update predictions data every day at a specified time
-schedule.every().day.at("06:00").do(mma_load_predictions, api_key=API_KEY)
+# Scheduler to update predictions data twice a day
+schedule.every().day.at("02:00").do(mma_load_predictions, api_key=API_KEY)
+schedule.every().day.at("14:00").do(mma_load_predictions, api_key=API_KEY)
 
 def run_scheduler():
     while True:
