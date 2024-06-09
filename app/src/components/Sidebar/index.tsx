@@ -204,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>MMA</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Fighting</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>

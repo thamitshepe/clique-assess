@@ -129,18 +129,16 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 # Main endpoint to get soccer predictions
 @app.get("/bl1predictions")
-async def bl1_get_predictions():
+async def bl1_get_predictions(background_tasks: BackgroundTasks):
     global bl1_predictions_loaded, bl1_predictions_data, bl1_initial_load_completed
     
     # Load or update predictions data if not loaded yet
     if not bl1_initial_load_completed:
-        bl1_load_predictions(API_KEY)
+        background_tasks.add_task(bl1_load_predictions, API_KEY)
     
     return bl1_predictions_data
 
@@ -249,19 +247,17 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 
 # Main endpoint to get soccer predictions
 @app.get("/plpredictions")
-async def pl_get_predictions():
+async def pl_get_predictions(background_tasks: BackgroundTasks):
     global pl_predictions_loaded, pl_predictions_data, pl_initial_load_completed
     
     # Load or update predictions data if not loaded yet
     if not pl_initial_load_completed:
-        pl_load_predictions(API_KEY)
+        background_tasks.add_task(pl_load_predictions, API_KEY)
     
     return pl_predictions_data
 
@@ -369,18 +365,16 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 # Main endpoint to get soccer predictions
 @app.get("/pplpredictions")
-async def ppl_get_predictions():
+async def ppl_get_predictions(background_tasks: BackgroundTasks):
     global ppl_predictions_loaded, ppl_predictions_data, ppl_initial_load_completed
     
     # Load or update predictions data if not loaded yet
     if not ppl_initial_load_completed:
-        ppl_load_predictions(API_KEY)
+        background_tasks.add_task(ppl_load_predictions, API_KEY)
     
     return ppl_predictions_data
 
@@ -450,10 +444,6 @@ def mlb_load_predictions(api_key):
         upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
         upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
 
-        # Add "Risky Bet" label for predictions with probability below 65%
-        mask = upcoming_df['Probability (%)'] < 65
-        upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
-        
         # Store predictions data globally
         mlb_predictions_data = upcoming_df.to_dict(orient='records')
         mlb_predictions_loaded = True
@@ -468,18 +458,16 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 # Main endpoint to get predictions
 @app.get("/mlbpredictions")
-async def mlb_get_predictions():
+async def mlb_get_predictions(background_tasks: BackgroundTasks):
     global mlb_predictions_loaded, mlb_predictions_data
     
     # Load or update predictions data if not loaded yet
     if not mlb_initial_load_completed:
-        mlb_load_predictions(API_KEY)
+        background_tasks.add_task(mlb_load_predictions, API_KEY)
     
     return mlb_predictions_data
 
@@ -561,18 +549,16 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 # Main endpoint to get NBA predictions
 @app.get("/nbapredictions")
-async def nba_get_predictions():
+async def nba_get_predictions(background_tasks: BackgroundTasks):
     global nba_predictions_loaded, nba_predictions_data, nba_initial_load_completed
     
     # Load or update predictions data if not loaded yet
     if not nba_initial_load_completed:
-        nba_load_predictions(API_KEY)
+        background_tasks.add_task(nba_load_predictions,API_KEY)
     
     return nba_predictions_data
 
@@ -649,19 +635,19 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 @app.get("/nhlpredictions")
-async def nhl_get_predictions():
+async def nhl_get_predictions(background_tasks: BackgroundTasks):
     global nhl_predictions_loaded, nhl_predictions_data, nhl_initial_load_completed
     
     # Load or update predictions data if not loaded yet
     if not nhl_initial_load_completed:
-        nhl_load_predictions(API_KEY)
+        background_tasks.add_task(nhl_load_predictions, API_KEY)
     
     return nhl_predictions_data
+
+
 
 # Initialize global variables to store MMA predictions data
 mma_predictions_loaded = False
@@ -735,10 +721,6 @@ def mma_load_predictions(api_key):
     upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
     upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
     
-    # Add "Risky Bet" label for predictions with probability below 65%
-    mask = upcoming_df['Probability (%)'] < 65
-    upcoming_df['Predicted Winner'] = np.where(mask, upcoming_df['Predicted Winner'] + ' - Risky Bet', upcoming_df['Predicted Winner'])
-    
     mma_predictions_data = upcoming_df.to_dict(orient='records')
     mma_predictions_loaded = True
     mma_initial_load_completed = True
@@ -752,16 +734,14 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-# Run scheduler in a separate thread
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+run_scheduler()
 
 @app.get("/mmapredictions")
-async def load_mma_predictions():
+async def mma_get_predictions(background_tasks: BackgroundTasks):
     global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
     
     # Load or update predictions data if not loaded yet
     if not mma_initial_load_completed:
-        mma_load_predictions(API_KEY)
+        background_tasks.add_task(mma_load_predictions, API_KEY)
     
     return mma_predictions_data

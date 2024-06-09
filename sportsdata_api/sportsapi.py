@@ -363,8 +363,12 @@ async def get_mma_data(date: str) -> List[Dict[str, Any]]:
         for summary in summaries:
             competitors = summary['sport_event']['competitors']
             extracted_event = {
-                "homeFighter": next((competitor['name'] for competitor in competitors if competitor['qualifier'] == 'home'), None),
-                "awayFighter": next((competitor['name'] for competitor in competitors if competitor['qualifier'] == 'away'), None)
+                "homeFighter": {
+                    "name": next((competitor["name"] for competitor in competitors if competitor["qualifier"] == "home"), None)
+                },
+                "awayFighter": {
+                    "name": next((competitor["name"] for competitor in competitors if competitor["qualifier"] == "away"), None)
+                },
             }
             extracted_data.append(extracted_event)
 
