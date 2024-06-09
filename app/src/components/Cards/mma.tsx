@@ -26,7 +26,7 @@ export const MMAFights: React.FC<{ fights: Fight[]; selectedDate: Date; gamesLoa
     const fetchPredictions = async () => {
       try {
         if (isCurrentDate && gamesLoaded && (selectedSport === 'mma')) {
-          const response = await axios.get('https://betvision-ai.onrender.com/mmapredictions');
+          const response = await axios.get('https://betvision-ai.onrender.com/ufcpredictions');
           console.log('Predictions:', response.data);
           setPredictions(response.data);
         }

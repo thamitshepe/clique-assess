@@ -383,3 +383,16 @@ async def get_mma_data(date: str) -> List[Dict[str, Any]]:
 @app.get("/api/mmadata/")
 async def fetch_mma_data_api(date: str = Query(...)):
     return await get_mma_data(date)
+
+# Function to clear Redis cache
+async def clear_redis_cache():
+    try:
+        await redis.flushdb()  # Clears the entire Redis database
+        return {"message": "Redis cache cleared successfully."}
+    except Exception as e:
+        logging.error("Error clearing Redis cache: %s", str(e))
+        return {"message": "Failed to clear Redis cache.", "error": str(e)}
+    
+@app.post('/api/clearcache')
+async def clear_cache():
+    return await clear_redis_cache()

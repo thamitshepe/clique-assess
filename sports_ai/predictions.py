@@ -677,13 +677,8 @@ mma_initial_load_completed = False
 
 # Function to fetch data for upcoming matches from The Odds API
 def mma_fetch_upcoming_matches(api_key):
-    api_key = os.getenv('API_KEY')  # Fetch the API key from the environment variable
-    if not api_key:
-        raise ValueError("No API key found. Please set the 'ODDS_API_KEY' environment variable.")
-    
     url = f'https://api.the-odds-api.com/v4/sports/mma_mixed_martial_arts/odds/?apiKey={api_key}&regions=us&markets=h2h'
     response = requests.get(url)
-    response.raise_for_status()  # Raise an exception for HTTP errors
     data = response.json()
     return data
 
@@ -733,23 +728,26 @@ def mma_make_predictions(model, upcoming_df):
 
 # Function to load the trained MMA model
 def mma_load_model():
-    return joblib.load('./ufc_model.h5')
+    return joblib.load('./trained_model.h5')
 
 # Function to load or update MMA predictions data
 def mma_load_predictions(api_key):
     global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
     
-    if not mma_predictions_loaded and not mma_initial_load_completed:
-        upcoming_data = mma_fetch_upcoming_matches(api_key)
-        if upcoming_data:
-            upcoming_df = mma_preprocess_upcoming_matches(upcoming_data)
-            model = mma_load_model()
-            predictions, probabilities = mma_make_predictions(model, upcoming_df)
-            upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
-            upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
-            mma_predictions_data = upcoming_df.to_dict(orient='records')
-            mma_predictions_loaded = True
-            mma_initial_load_completed = True
+    try:
+        if not mma_predictions_loaded and not mma_initial_load_completed:
+            upcoming_data = mma_fetch_upcoming_matches(api_key)
+            if upcoming_data:
+                upcoming_df = mma_preprocess_upcoming_matches(upcoming_data)
+                model = mma_load_model()
+                predictions, probabilities = mma_make_predictions(model, upcoming_df)
+                upcoming_df['Predicted Winner'] = np.where(predictions == 1, upcoming_df['Home Team'], upcoming_df['Away Team'])
+                upcoming_df['Probability (%)'] = np.max(probabilities, axis=1) * 100
+                mma_predictions_data = upcoming_df.to_dict(orient='records')
+                mma_predictions_loaded = True
+                mma_initial_load_completed = True
+    except Exception as e:
+        print(f"Error in mma_load_predictions: {e}")
 
 # Scheduler to update predictions data every day at a specified time
 schedule.every().day.at("02:00").do(mma_load_predictions, api_key=API_KEY)
@@ -761,11 +759,10 @@ def run_scheduler():
         time.sleep(1)
 
 # Run scheduler in a separate thread
-import threading
 scheduler_thread = threading.Thread(target=run_scheduler)
 scheduler_thread.start()
 
-@app.get("/mmapredictions")
+@app.get("/ufcpredictions")
 async def load_mma_predictions():
     global mma_predictions_loaded, mma_predictions_data, mma_initial_load_completed
     
