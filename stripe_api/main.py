@@ -63,7 +63,7 @@ async def check_subscription(request: SubscriptionCheckRequest):
         print(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
-    # Webhook endpoint for Stripe events
+# Webhook endpoint for Stripe events
 @app.post("/webhook")
 async def stripe_webhook(request: Request):
     payload = await request.body()
@@ -75,10 +75,10 @@ async def stripe_webhook(request: Request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
-    except ValueError as e:
+    except ValueError:
         # Invalid payload
         raise HTTPException(status_code=400, detail="Invalid payload")
-    except stripe.error.SignatureVerificationError as e:
+    except stripe.error.SignatureVerificationError:
         # Invalid signature
         raise HTTPException(status_code=400, detail="Invalid signature")
 
@@ -87,8 +87,21 @@ async def stripe_webhook(request: Request):
         invoice = event['data']['object']
         if invoice['billing_reason'] == 'subscription_create' and invoice['amount_paid'] == 0:
             subscription_id = invoice['subscription']
-            # Schedule the subscription for cancellation at the end of the trial
-            stripe.Subscription.modify(subscription_id, cancel_at_period_end=True)
-            print(f"Subscription {subscription_id} set to cancel at period end.")
+            subscription = stripe.Subscription.retrieve(subscription_id)
+            
+            # Define your specific product ID
+            specific_product_id = os.getenv("TRIAL_PRODUCT_ID")
+
+            # Check if the subscription contains the specific product
+            product_found = False
+            for item in subscription['items']['data']:
+                if item['price']['product'] == specific_product_id:
+                    product_found = True
+                    break
+
+            if product_found:
+                # Schedule the subscription for cancellation at the end of the trial
+                stripe.Subscription.modify(subscription_id, cancel_at_period_end=True)
+                print(f"Subscription {subscription_id} with product {specific_product_id} set to cancel at period end.")
 
     return {"status": "success"}
