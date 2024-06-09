@@ -728,7 +728,7 @@ def mma_make_predictions(model, upcoming_df):
 
 # Function to load the trained MMA model
 def mma_load_model():
-    return joblib.load('./trained_model.h5')
+    return joblib.load('./ufc_model.h5')
 
 # Function to load or update MMA predictions data
 def mma_load_predictions(api_key):
