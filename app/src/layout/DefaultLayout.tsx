@@ -1,7 +1,6 @@
 import React, { useState, ReactNode } from 'react';
 import Header from '../components/Header/index';
 import Sidebar from '../components/Sidebar/index';
-import SidebarRight from '../components/Sidebar-Right/index';
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -34,10 +33,6 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
               {/* <!-- Main Content End --> */}
             </div>
           </div>
-
-          {/* <!-- ===== Sidebar Right Start ===== --> */}
-          <SidebarRight sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-          {/* <!-- ===== Sidebar Right End ===== --> */}
         </div>
         {/* <!-- ===== Page Wrapper End ===== --> */}
       </div>

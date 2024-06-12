@@ -2,13 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import Logo from '../../images/logo/logo.svg';
 import { useDispatch } from 'react-redux';
-import { setSelectedSport } from '../../store/selectedSportSlice'; // Import the action creator
+import { setSelectedState } from '../../store/selectedStateSlice'; // Import the action creator
 import soccerBall from '../../images/icons/soccer-ball.png';
 import baseBall from '../../images/icons/baseball-bat.png';
-import basketBall from '../../images/icons/basketball-ball.png';
-import boxingGloves from '../../images/icons/boxing-gloves.png';
-import footBall from '../../images/icons/football.png';
-import hockey from '../../images/icons/Hockey.png';
 import { isMobile } from 'react-device-detect';
 
 interface SidebarProps {
@@ -17,12 +13,12 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = (props) => {
-  // Get the selected sport using the useSport hook
+  // Get the selected state using the useState hook
   const dispatch = useDispatch();
 
   // Function to handle icon click
-  const handleIconClick = (sport: string) => {
-    dispatch(setSelectedSport(sport)); // Dispatch the action with the selected sport
+  const handleIconClick = (state: string) => {
+    dispatch(setSelectedState(state)); // Dispatch the action with the selected state
   };
 
 
@@ -60,12 +56,12 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             <ul className="mb-8 flex flex-col gap-3.5 md:gap-4.5">
 
 
-              {/* <!-- Menu Item Soccer --> */}
+              {/* <!-- Menu Item Users --> */}
               <li className="relative">
                 <NavLink
                     to="#"
                     className={`group relative flex items-center rounded-sm p-0 mb-3 duration-300 ease-in-out`}
-                    onClick={() => handleIconClick('soccer')}
+                    onClick={() => handleIconClick('Users')}
                   >
                   {/* Flex container to hold the icon and text */}
                   <div className="flex items-end"> {/* Changed items-center to items-end */}
@@ -75,97 +71,22 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       alt="soccer" // Provide an alt attribute for accessibility
                       width={44}
                       height={44}
-                      className="sport-icon mr-3.5" // Add margin between icon and text
+                      className="state-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Soccer</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Users</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item Soccer --> */}
+              {/* <!-- Menu Item Users --> */}
 
-              {/* <!-- Menu Item Football --> */}
-              <li className="relative">
-                <NavLink
-                  to="#"
-                  className={`group relative flex items-center rounded-sm p-0 mb-3 duration-300 ease-in-out`}
-                  onClick={() => handleIconClick('nfl')}
-                >
-                  {/* Flex container to hold the icon and text */}
-                  <div className="flex items-end"> {/* Changed items-center to items-end */}
-                    {/* Icon */}
-                    <img
-                      src={footBall} // Use the imported PNG icon
-                      alt="football" // Provide an alt attribute for accessibility
-                      width={44}
-                      height={44}
-                      className="sport-icon mr-3.5" // Add margin between icon and text
-                      style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
-                    />
-                    {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Football</span> {/* Added mb-1 for bottom margin */}
-                  </div>
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Football --> */}
-
-              {/* <!-- Menu Item Hockey --> */}
-              <li className="relative">
-                <NavLink
-                  to="#"
-                  className={`group relative flex items-center rounded-sm p-0 mb-3 duration-300 ease-in-out`}
-                  onClick={() => handleIconClick('nhl')}
-                >
-                  {/* Flex container to hold the icon and text */}
-                  <div className="flex items-end"> {/* Changed items-center to items-end */}
-                    {/* Icon */}
-                    <img
-                      src={hockey} // Use the imported PNG icon
-                      alt="hockey" // Provide an alt attribute for accessibility
-                      width={44}
-                      height={44}
-                      className="sport-icon mr-3.5" // Add margin between icon and text
-                      style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
-                    />
-                    {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Hockey</span> {/* Added mb-1 for bottom margin */}
-                  </div>
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Hockey --> */}
-
-              {/* <!-- Menu Item Basketball --> */}
-              <li className="relative">
-                <NavLink
-                  to="#"
-                  className={`group relative flex items-center rounded-sm p-0 mb-3 duration-300 ease-in-out`}
-                  onClick={() => handleIconClick('nba')}
-                >
-                  {/* Flex container to hold the icon and text */}
-                  <div className="flex items-end"> {/* Changed items-center to items-end */}
-                    {/* Icon */}
-                    <img
-                      src={basketBall} // Use the imported PNG icon
-                      alt="basketball" // Provide an alt attribute for accessibility
-                      width={44}
-                      height={44}
-                      className="sport-icon mr-3.5" // Add margin between icon and text
-                      style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
-                    />
-                    {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Basketball</span> {/* Added mb-1 for bottom margin */}
-                  </div>
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Basketball --> */}
-
-              {/* <!-- Menu Item Baseball --> */}
+              {/* <!-- Menu Item Groups --> */}
               <li className="relative">
                 <NavLink
                   to="#"
                   className={`group relative flex items-center rounded-sm p-0 mb-3 duration-300 ease-in-out}`}
-                  onClick={() => handleIconClick('mlb')}
+                  onClick={() => handleIconClick('Groups')}
                 >
                   {/* Flex container to hold the icon and text */}
                   <div className="flex items-end"> {/* Changed items-center to items-end */}
@@ -175,41 +96,15 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                       alt="baseball" // Provide an alt attribute for accessibility
                       width={44}
                       height={44}
-                      className="sport-icon mr-3.5" // Add margin between icon and text
+                      className="state-icon mr-3.5" // Add margin between icon and text
                       style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
                     />
                     {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Baseball</span> {/* Added mb-1 for bottom margin */}
+                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Groups</span> {/* Added mb-1 for bottom margin */}
                   </div>
                 </NavLink>
               </li>
-              {/* <!-- Menu Item Baseball --> */}
-
-              {/* <!-- Menu Item MMA --> */}
-              <li className="relative">
-                <NavLink
-                  to="#"
-                  className={`group relative flex items-center rounded-sm p-0 mb-3 duration-300 ease-in-out}`}
-                  onClick={() => handleIconClick('mma')}
-                >
-                  {/* Flex container to hold the icon and text */}
-                  <div className="flex items-end"> {/* Changed items-center to items-end */}
-                    {/* Icon */}
-                    <img
-                      src={boxingGloves} // Use the imported PNG icon
-                      alt="boxing gloves" // Provide an alt attribute for accessibility
-                      width={44}
-                      height={44}
-                      className="sport-icon mr-3.5" // Add margin between icon and text
-                      style={{ transform: 'scale(1)' }} // Set the scale to 1 to maintain original size
-                    />
-                    {/* Text */}
-                    <span className={`ml-0 mb-2 ${sidebarExpanded ? 'block' : 'hidden'} font-satoshi text-md text-bodydark1 duration-300 ease-in-out`}>Fighting</span> {/* Added mb-1 for bottom margin */}
-                  </div>
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item MMA --> */}
-
+              {/* <!-- Menu Item Groups --> */}
 
             </ul>
           </div>

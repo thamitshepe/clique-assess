@@ -2,18 +2,15 @@ import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
-import ECommerce from './pages/Dashboard/ECommerce';
-import { Provider } from 'react-redux';
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
-import store from './store/store';
-import { useCheckSubscription } from './hooks/useCheckSubscription';
-import useMobileOrientation from './hooks/useMobileOrientation';
-import LandscapeWarning from './components/LandscapeWarning';
+import SignIn from './pages/Authentication/SignIn';
+import SignUp from './pages/Authentication/SignUp';
+import Admin from './pages/Dashboard/Admin';
+import { Provider } from 'react-redux'; // Import Provider
+import store from './store/store'; // Import your Redux store
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
-  const showLandscapeWarning = useMobileOrientation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -23,32 +20,41 @@ function App() {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
-  useCheckSubscription();
-
-  if (showLandscapeWarning) {
-    return <LandscapeWarning />;
-  }
-
   return loading ? (
     <Loader />
   ) : (
     <Provider store={store}>
-      <Routes>
-        <Route
-          index
-          element={
-            <>
-              <PageTitle title="BetVision AI" />
-              <SignedIn>
-                <ECommerce />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn />
-              </SignedOut>
-            </>
-          }
-        />
-      </Routes>
+      <>
+        <Routes>
+          <Route
+            index
+            element={
+              <>
+                <PageTitle title="Cliqueof10" />
+                <Admin />
+              </>
+            }
+          />
+          <Route
+            path="/auth/signin"
+            element={
+              <>
+                <PageTitle title="Signin | Cliqueof10" />
+                <SignIn />
+              </>
+            }
+          />
+          <Route
+            path="/auth/signup"
+            element={
+              <>
+                <PageTitle title="Signup | Cliqueof10" />
+                <SignUp />
+              </>
+            }
+          />
+        </Routes>
+      </>
     </Provider>
   );
 }

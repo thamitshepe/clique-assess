@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "author": {
-    "name": "BetVision AI",
-    "email": "hello@betvision.ai",
-    "url": "https://betvision.ai"
+    "name": "Clique Assessment",
+    "email": "hi@thami.dev",
+    "url": "https://thami.dev"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.0.1",

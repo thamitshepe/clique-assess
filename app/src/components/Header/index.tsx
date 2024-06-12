@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
-import { UserButton } from '@clerk/clerk-react';
-/*import DropdownNotification from '../Header/DropdownNotification';*/
 
 
 const Header = () => {
@@ -37,18 +34,9 @@ const Header = () => {
       <div className="flex items-center justify-between px-8 py-8 md:px-8 2xl:px-11 text-white">
         <ul className="flex items-center gap-8 lg:gap-10 lg:text-lg">
           <li>
-            AI Predictions
-          </li>
-          <li>
-            Prize Picks
-          </li>
-          <li>
-            Parlay Builder
+            Double Click to Edit
           </li>
         </ul>
-        <div className="ml-auto">
-          <UserButton />
-        </div>
       </div>
     </header>
   );

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "cliquechatty",
+  "private_key_id": "4ad85ea9d1aa980c6c59995a757a6c48b665a10c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCaQR9S1KJithpf\n2WsXzZyLCpbuy89iURS1pqWcTsTfFQmZZq0ZTeAEVD65xnMnxXqJ07tGup3INMcK\n5lJ/e/n5f/Xz9UOrl8sdF22Pxcgn5ezZHduhPJtquqdH7ecGc3swDUIynQe0ulY5\nm/80JAgMnHdZALy9ByXV4Pn5xfxG2BvbmXkmekzGHZl0YMqtYMOXQfjHpa3h8iEl\naYK6KSq28W8J0iyGzV9k34pU07p9Okf0nddDnfOovhQXadjtGmv+NK0OMoguydt5\nOAc5TShTfOrCa6hv9xrDOetvGnWXPCUIExSL2fNTOUBvTuMwlmbxUrpHG86hPyuj\n9HfGZ/7zAgMBAAECggEAHuJSBLIJDy15q14rGHl00cvde1M4Iu2r8VC70MdemHGs\nWdfaaXoTk5pQcr6eeMSLq8PGN7uOcrLKdU63DspCOueZVW5yTY1XP+xcZdBKKl7Z\nJIFbY3VwgpZ7fqXNvxdo/y5wZhTVoaQ7Nk6a8pQSPoAnTx0cLNadBy0Dr7Qptf8o\nLam7Qh7TfLY5Sm5gqCmHUHQiGg2jRNrV0xlFzsPYQxIBpXgDpx5iGPl19tXhbM1t\nslZzRbfKe0Uw6SclPcjo/RGS+fm7jzGlO5SgQ88wnMlMnz6sWkmCTuu89fS17z7T\n15tAktlq9tLAuNwLJceTCBKOMeUTk1VZtFQqMLNmjQKBgQDQnVGx6GjDSPYwaYDW\n0JX51hCQ5eEBX2Uo1TxY8TXnmXsJjZUdLPKdGJFVAZU4frn8nT8F9uw8C5PwTyll\n3aJax93CWwgwKcpXUi5tpWttaYu8mgzWl7GB2W/DdoZNk1ume+b5G+OlkeDBzEoA\nj3yN0ZZK/s72E2bc8QhyeAC2XQKBgQC9StO5jKIsDg9iPX/4urvfibKrAJbeMTYq\nqPHiTzl/XQ9KstgBd5FHvT9fRovUmIQCzsw6MQ6eq1NSYATHwSmuPRa355qm+k/6\nC/rc92Iqbun7oENbhwP7wwg/uHmz84NBJqZ9Wxsr5Bk0FkddhqkfjVTj3XzSTYqj\nM+ylCXaVjwKBgFn0vJmewi4TdDWECQ6Ye1N0P0h8F/5jiFeHO7KOsNPhlvCToM0n\n6KZdRa4GNLZbzw9jLx3/T/bEd1KUkCFg5PWIYdPBNVKvcpUc1vBo+F4BuUPmmcqf\nNufrPwpmPZuOA2NS4lJg+FUZBnYLBY4gUXFGAyzrm4r46s4zEZVqscPxAoGAAUSa\nDHkjsPXbJoZQ8CKYFZQ/jSOw3wYnXbvJ+wEa2n6OFqsCBWh+oaNj5Eh9sUvgPoCS\nH6WqemedZETeY1Qo6lDgcRTtFUdB9+PSp15E2xHpIVVefiN2ZF5XFM4wioMMEwim\nPtq4YN/jR1UK31aClYKF2gzmxCXe0t8LK8PXdoMCgYA4nE0iWM+QXUaCeZgiji38\ntvfaDZBcBMYfpgbRJOHmG/IBi/qLnYyhHjooa/jIrG9qfe1HXJlKsHwq9preLQ0G\nhA5lO9iMhYpdaTD6ybrG3tT0VJ3lY+mxyF5vJuo8H9amvSZ+4/4t9dJg2nhbXLyY\nccUUTSflx2Nidr8ErIin8w==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-j0mhd@cliquechatty.iam.gserviceaccount.com",
+  "client_id": "111057905685482037987",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-j0mhd%40cliquechatty.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
