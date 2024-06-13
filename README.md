@@ -7,7 +7,7 @@ In app folder.
 run npm install then npm run dev 
 
 In react-firebase-chat folder
-run npm install, also in the 
+run npm install, also in the functions folder 
 then run npm start 
 
 In backend folder, 
