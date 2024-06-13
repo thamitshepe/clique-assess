@@ -83,7 +83,7 @@ export const Users: React.FC = () => {
   };
 
   return (
-    <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent scrollbar-thumb-rounded-full" style={{ height: '90vh' }}>
+    <div className="overflow-y-scroll scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent scrollbar-thumb-rounded-full h-full" style={{ height: "100vh" }}>
       {users.map((user, index) => (
         <div
           key={index}
@@ -98,8 +98,8 @@ export const Users: React.FC = () => {
               alt="User Avatar"
             />
             <div className="flex flex-col">
-              <p className="text-white text-md">{user.name}</p>
-              <p className="text-white text-sm truncate" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p className="text-white text-md text-left">{user.name}</p>
+              <p className="text-white text-sm text-left truncate" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {user.interests.join(', ')}
               </p>
             </div>
@@ -127,6 +127,7 @@ export const Users: React.FC = () => {
             <input type="text" onKeyDown={(e) => { if (e.key === 'Enter') handleAddInterest(e.currentTarget.value); }} placeholder="Add interest" />
             <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4">Save</button>
             <button onClick={handleCloseModal} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Cancel</button>
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Delete</button>
           </div>
         </div>
       )}

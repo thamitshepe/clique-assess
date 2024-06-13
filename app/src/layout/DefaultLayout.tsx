@@ -23,10 +23,10 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             {/* <!-- ===== Header End ===== --> */}
 
             {/* Adjust here: Make the main content a flex container */}
-            <div className="flex flex-1 overflow-y-scroll scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent scrollbar-thumb-rounded-full">
+            <div className="flex flex-1 h-full overflow-y-hidden">
               {/* <!-- Main Content Start --> */}
-              <main className="flex-1 relative">
-                <div className="mx-auto mt-24 max-w-screen-3xl p-4 md:p-6 2xl:p-10">
+              <main className="flex-1 relative h-full overflow-y-hidden">
+                <div className="mx-auto max-w-screen-3xl p-4 md:p-6 2xl:p-10">
                   {children}
                 </div>
               </main>

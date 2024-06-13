@@ -3,9 +3,8 @@ import { NavLink } from 'react-router-dom';
 import Logo from '../../images/logo/logo.svg';
 import { useDispatch } from 'react-redux';
 import { setSelectedState } from '../../store/selectedStateSlice'; // Import the action creator
-import soccerBall from '../../images/icons/soccer-ball.png';
-import baseBall from '../../images/icons/baseball-bat.png';
-import { isMobile } from 'react-device-detect';
+import User from '../../images/icons/user.png';
+import Group from '../../images/icons/group.png';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -67,8 +66,8 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                   <div className="flex items-end"> {/* Changed items-center to items-end */}
                     {/* Icon */}
                     <img
-                      src={soccerBall} // Use the imported PNG icon
-                      alt="soccer" // Provide an alt attribute for accessibility
+                      src={User} // Use the imported PNG icon
+                      alt="Users" // Provide an alt attribute for accessibility
                       width={44}
                       height={44}
                       className="state-icon mr-3.5" // Add margin between icon and text
@@ -92,8 +91,8 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                   <div className="flex items-end"> {/* Changed items-center to items-end */}
                     {/* Icon */}
                     <img
-                      src={baseBall} // Use the imported PNG icon
-                      alt="baseball" // Provide an alt attribute for accessibility
+                      src={Group} // Use the imported PNG icon
+                      alt="groups" // Provide an alt attribute for accessibility
                       width={44}
                       height={44}
                       className="state-icon mr-3.5" // Add margin between icon and text

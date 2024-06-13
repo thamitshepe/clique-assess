@@ -1,29 +1,40 @@
 import React, { lazy, Suspense, useState, useEffect } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
-import { useAppSelector } from '../../store/hooks'; // Import the useAppSelector hook
+import { useAppSelector } from '../../store/hooks';
+import ChatModal from '../../components/Cards/ChatModal'; // Import the ChatModal component
+import Groups from '../../components/Cards/Groups';
 
-// Lazy-loaded components for Users and Groups
 const Users = lazy(() => import('../../components/Cards/Users').then(module => ({ default: module.Users })));
-const Groups = lazy(() => import('../../components/Cards/Groups').then(module => ({ default: module.Groups })));
 
 const Admin: React.FC = () => {
   const selectedState = useAppSelector((state) => state.selectedState.selectedState);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mock data loading simulation
     setTimeout(() => {
       setDataLoading(false);
     }, 2000);
   }, []);
 
-  // Render the appropriate component based on selectedState
+  const openChatModal = (groupId: string) => {
+    setSelectedGroupId(groupId);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedGroupId(null);
+  };
+
   const renderComponent = () => {
     switch (selectedState) {
       case 'Users':
         return <Users />;
       case 'Groups':
-        return <Groups />;
+        // Pass openChatModal and onClose props to Groups component correctly
+        return <Groups openChatModal={openChatModal} onClose={closeModal} />;
       default:
         return <Users />;
     }
@@ -31,7 +42,6 @@ const Admin: React.FC = () => {
 
   const SkeletonLoader: React.FC = () => (
     <div className="p-2">
-      {/* Placeholder for match items */}
       <div className="h-19 rounded-md bg-black mb-4 p-6 flex items-center justify-between animate-pulse">
       </div>
     </div>
@@ -49,6 +59,9 @@ const Admin: React.FC = () => {
             </div>
           </div>
         </div>
+        {isModalOpen && selectedGroupId && (
+          <ChatModal groupId={selectedGroupId} onClose={closeModal} />
+        )}
       </div>
     </DefaultLayout>
   );
