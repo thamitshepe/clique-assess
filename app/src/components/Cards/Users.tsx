@@ -61,12 +61,14 @@ export const Users: React.FC = () => {
   };
 
   const handleSave = () => {
+    const cleanInterests = (interests: string[]) => interests.map(interest => interest.trim().replace(/['"]/g, ''));
+
     const payload = {
       userId: selectedUserId,
       action: 'update',
       interests: {
-        add: [...addedInterests],
-        delete: [...deletedInterests],
+        add: cleanInterests(addedInterests),
+        delete: cleanInterests(deletedInterests),
       },
       name: selectedUserName,
     };

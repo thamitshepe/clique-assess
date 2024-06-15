@@ -3,8 +3,7 @@ from flask_cors import CORS
 from firebase_admin import credentials, firestore, initialize_app
 from sklearn.cluster import KMeans
 import google.generativeai as genai
-import random
-import string
+import asyncio
 
 
 app = Flask(__name__)
@@ -57,8 +56,11 @@ def update_user_data():
         if action == 'update':
             if interests:
                 # Clean up interests lists by stripping extra spaces and quotes
-                deleted_interests = [interest.strip().strip("'") for interest in interests.get('delete', [])]
-                added_interests = [interest.strip().strip("'") for interest in interests.get('add', [])]
+                def clean_interests(interest_list):
+                    return [interest.strip().strip("'").strip('"') for interest in interest_list]
+
+                deleted_interests = clean_interests(interests.get('delete', []))
+                added_interests = clean_interests(interests.get('add', []))
 
                 if deleted_interests:
                     user_ref.update({'interests': firestore.ArrayRemove(deleted_interests)})
@@ -133,97 +135,87 @@ def update_group_data():
         return jsonify({'error': str(e)}), 500
 
 
-# Route for triggering clustering process with GET request
 @app.route('/re-cluster', methods=['GET'])
-def re_cluster():
+async def re_cluster():
     try:
-        run_clustering_for_new_user()
+        await run_clustering_for_new_user()
         return jsonify({'message': 'Clustering performed successfully'}), 200
     except Exception as e:
+        # Log the error with a detailed message
+        app.logger.error('Error during clustering: %s', str(e))
         return jsonify({'error': str(e)}), 500
 
 def fetch_user_data_from_firestore():
-    users_ref = db.collection('users')
-    user_data = []
-
-    # Fetch user data from Firestore
-    for doc in users_ref.stream():
-        user_data.append(doc.to_dict())
-
-    return user_data
+    try:
+        users_ref = db.collection('users')
+        user_data = []
+        for doc in users_ref.stream():
+            user_data.append(doc.to_dict())
+        return user_data
+    except Exception as e:
+        app.logger.error('Error fetching user data from Firestore: %s', str(e))
+        raise
 
 def preprocess_interests_and_generate_embeddings(user_data):
     embeddings = []
-
-    for user in user_data:
-        user_id = user['userId']
-        user_name = user['name']
-        interests = user['interests']
-
-        # Format interests as a comma-separated string
-        interests_str = ','.join(interests)
-
-        # Generate embeddings for user's interests using Gemini API
-        response = genai.embed_content(model="models/embedding-001", content=interests_str, task_type="clustering")
-        embedding = response["embedding"]
-
-        embeddings.append((user_id, user_name, embedding))
-
-    return embeddings
+    try:
+        for user in user_data:
+            user_id = user['userId']
+            user_name = user['name']
+            interests = user['interests']
+            interests_str = ','.join(interests)
+            response = genai.embed_content(model="models/embedding-001", content=interests_str, task_type="clustering")
+            embedding = response["embedding"]
+            embeddings.append((user_id, user_name, embedding))
+        return embeddings
+    except Exception as e:
+        app.logger.error('Error during embedding generation: %s', str(e))
+        raise
 
 def perform_clustering(embeddings):
-    # Extract embeddings
-    embeddings_array = [emb[2] for emb in embeddings]
-
-    # Determine the number of clusters
-    num_clusters = len(embeddings) // 10 + 1
-
-    # Perform KMeans clustering
-    kmeans = KMeans(n_clusters=num_clusters, random_state=10)
-    kmeans.fit(embeddings_array)
-    clusters = kmeans.labels_
-
-    return clusters
+    try:
+        embeddings_array = [emb[2] for emb in embeddings]
+        num_clusters = len(embeddings) // 10 + 1
+        kmeans = KMeans(n_clusters=num_clusters, random_state=10)
+        kmeans.fit(embeddings_array)
+        clusters = kmeans.labels_
+        return clusters
+    except Exception as e:
+        app.logger.error('Error during clustering: %s', str(e))
+        raise
 
 def assign_group_id_and_create_groups(user_data, clusters):
     groups_ref = db.collection('groups')
-
-    # Create a dictionary to map users to their respective groups
     user_groups = {f"groupId{cluster_num}": [] for cluster_num in range(len(set(clusters)))}
+    try:
+        for i, user in enumerate(user_data):
+            group_id = f"groupId{clusters[i]}"
+            user_ref = db.collection('users').document(user['userId'])
+            user_ref.update({'groupId': group_id})
+            user_groups[group_id].append(user['userId'])
+        for cluster_num in range(len(set(clusters))):
+            group_id = f"groupId{cluster_num}"
+            group_data = {
+                'createdAt': firestore.SERVER_TIMESTAMP,
+                'groupId': group_id,
+                'name': f'Group {cluster_num}',
+                'users': user_groups[group_id]
+            }
+            groups_ref.document(group_id).set(group_data)
+    except Exception as e:
+        app.logger.error('Error during group creation: %s', str(e))
+        raise
 
-    # Assign group ID to users and update user documents with group ID
-    for i, user in enumerate(user_data):
-        group_id = f"groupId{clusters[i]}"
-        user_ref = db.collection('users').document(user['userId'])
-        
-        # Update user document with group ID, completely overwrite existing data
-        user_ref.update({'groupId': group_id})
-        
-        # Add user to user_groups dictionary
-        user_groups[group_id].append(user['userId'])
-
-    # Create a group document for each cluster
-    for cluster_num in range(len(set(clusters))):
-        # Assign group ID
-        group_id = f"groupId{cluster_num}"
-
-        # Create group document
-        group_data = {
-            'createdAt': firestore.SERVER_TIMESTAMP,
-            'groupId': group_id,
-            'name': f'Group {cluster_num}',
-            'users': user_groups[group_id]  # Add users array to group document
-        }
-
-        # Add group document to Firestore, completely overwrite existing document
-        groups_ref.document(group_id).set(group_data)
-
-def run_clustering_for_new_user():
-    user_data = fetch_user_data_from_firestore()
-    embeddings = preprocess_interests_and_generate_embeddings(user_data)
-    clusters = perform_clustering(embeddings)
-    assign_group_id_and_create_groups(user_data, clusters)
-    print("Clustering completed and group documents created in Firestore.")
+async def run_clustering_for_new_user():
+    try:
+        user_data = fetch_user_data_from_firestore()
+        embeddings = preprocess_interests_and_generate_embeddings(user_data)
+        clusters = perform_clustering(embeddings)
+        assign_group_id_and_create_groups(user_data, clusters)
+        app.logger.info('Clustering completed and group documents created in Firestore.')
+    except Exception as e:
+        app.logger.error('Error in clustering process: %s', str(e))
+        raise
 
 if __name__ == '__main__':
     app.run(debug=True)
