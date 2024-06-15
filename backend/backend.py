@@ -14,26 +14,6 @@ cred = credentials.Certificate("service_key.json")
 initialize_app(cred)
 db = firestore.client()
 
-@app.route('/users', methods=['GET'])
-def get_users():
-    try:
-        users_ref = db.collection('users')
-        users = []
-
-        # Fetch user data from Firestore
-        for doc in users_ref.stream():
-            user_data = doc.to_dict()
-            user = {
-                'userId': doc.id,  # Add userId field using document ID
-                'name': user_data['name'],
-                'interests': user_data['interests']
-            }
-            users.append(user)
-
-        return jsonify(users), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 # Configure API key (assuming it's stored in an environment variable)
 genai.configure(api_key='AIzaSyAzfWkrMY6lXep8aCbiJanV1qxlKZ0Kor8')
 
@@ -88,12 +68,37 @@ def update_user_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/users', methods=['GET'])
+def get_users():
+    try:
+        users_ref = db.collection('users')
+        users = []
+
+        # Fetch user data from Firestore
+        user_docs = users_ref.stream()
+
+        # Process user documents
+        for doc in user_docs:
+            user_data = doc.to_dict()
+            user = {
+                'userId': doc.id,  # Add userId field using document ID
+                'name': user_data.get('name', 'Unknown'),
+                'interests': user_data.get('interests', [])  # Handle missing 'interests' field gracefully
+            }
+            users.append(user)
+
+        return jsonify(users), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/groups', methods=['GET'])
 def get_groups():
     try:
         groups_ref = db.collection('groups')
-        users_ref = db.collection('users')  # Assuming 'users' is the collection with user details
+        users_ref = db.collection('users')
         groups = []
+        user_ids = set()
 
         # Fetch group data from Firestore
         for doc in groups_ref.stream():
@@ -101,29 +106,30 @@ def get_groups():
             group = {
                 'groupId': doc.id,  # Add groupId field using document ID
                 'name': group_data['name'],
-                'users': []  # Initialize an empty array for users
+                'users': group_data.get('users', [])  # Initialize with user IDs
             }
-
-            # Fetch user details using user IDs
-            for userId in group_data.get('users', []):
-                user_doc = users_ref.document(userId).get()
-                if user_doc.exists:
-                    user_data = user_doc.to_dict()
-                    user_info = {
-                        'userId': userId,
-                        'name': user_data.get('name', 'Unknown')  # Default to 'Unknown' if name field is missing
-                    }
-                    group['users'].append(user_info)
-                else:
-                    group['users'].append({'userId': userId, 'name': 'Unknown'})  # Handle case where user document is missing
-
             groups.append(group)
+            user_ids.update(group['users'])
+
+        # Fetch all user details in one batch
+        user_docs = users_ref.where('userId', 'in', list(user_ids)).stream()
+        users = {doc.id: doc.to_dict() for doc in user_docs}
+
+        # Replace user IDs with user details
+        for group in groups:
+            group['users'] = [
+                {
+                    'userId': user_id,
+                    'name': users.get(user_id, {}).get('name', 'Unknown')
+                }
+                for user_id in group['users']
+            ]
 
         return jsonify(groups), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/update_group_data', methods=['PUT'])
+
 def update_group_data():
     try:
         data = request.json  # Payload containing groupId, action, users, and name
