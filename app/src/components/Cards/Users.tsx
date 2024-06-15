@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 
 interface User {
   userId: string;
@@ -19,17 +21,30 @@ export const Users: React.FC = () => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Fetch user data from Flask backend
-    axios.get('http://localhost:5000/users')
-      .then(response => {
-        // Set fetched users data to state
-        setUsers(response.data);
-      })
-      .catch(error => {
-        // Handle error if fetching data fails
-        console.error('Error fetching user data:', error);
-      });
+    // Function to fetch user data from Flask backend
+    const fetchUserData = () => {
+      axios.get('http://localhost:5000/users')
+        .then(response => {
+          // Set fetched users data to state
+          setUsers(response.data);
+        })
+        .catch(error => {
+          // Handle error if fetching data fails
+          console.error('Error fetching user data:', error);
+        });
+    };
 
+    // Initial fetch
+    fetchUserData();
+
+    // Set up Firestore listener
+    const unsubscribe = firebase.firestore().collection('users').onSnapshot(() => {
+      // Re-fetch user data whenever the users collection changes
+      fetchUserData();
+    });
+
+    // Clean up listener on unmount
+    return () => unsubscribe();
   }, []);
 
   const handleUserDoubleClick = (userId: string, userName: string, interests: string[]) => {
@@ -41,14 +56,15 @@ export const Users: React.FC = () => {
 
   const handleRemoveInterest = (index: number) => {
     const updatedInterests = [...selectedInterests];
-    const removedInterest = updatedInterests.splice(index, 1)[0];
+    const removedInterest = updatedInterests.splice(index, 1)[0].trim().replace(/^'|'$/g, '');
     setSelectedInterests(updatedInterests);
     setDeletedInterests([...deletedInterests, removedInterest]);
   };
 
   const handleAddInterest = (interest: string) => {
-    setSelectedInterests([...selectedInterests, interest]);
-    setAddedInterests([...addedInterests, interest]);
+    const cleanedInterest = interest.trim().replace(/^'|'$/g, '');
+    setSelectedInterests([...selectedInterests, cleanedInterest]);
+    setAddedInterests([...addedInterests, cleanedInterest]);
   };
 
   const handleCloseModal = () => {
@@ -61,14 +77,15 @@ export const Users: React.FC = () => {
   };
 
   const handleSave = () => {
-    const cleanInterests = (interests: string[]) => interests.map(interest => interest.trim().replace(/['"]/g, ''));
+    const cleanedDeletedInterests = deletedInterests.map(interest => interest.trim().replace(/^'|'$/g, ''));
+    const cleanedAddedInterests = addedInterests.map(interest => interest.trim().replace(/^'|'$/g, ''));
 
     const payload = {
       userId: selectedUserId,
       action: 'update',
       interests: {
-        add: cleanInterests(addedInterests),
-        delete: cleanInterests(deletedInterests),
+        add: cleanedAddedInterests,
+        delete: cleanedDeletedInterests,
       },
       name: selectedUserName,
     };
@@ -81,6 +98,20 @@ export const Users: React.FC = () => {
       })
       .catch(error => {
         console.error('Error updating user data:', error);
+      });
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    axios.delete(`http://localhost:5000/delete_document?type=user&documentId=${userId}`)
+      .then(response => {
+        console.log('Deleted user successfully:', response.data);
+        // Optionally, update state to reflect the deletion
+        const updatedUsers = users.filter(user => user.userId !== userId);
+        setUsers(updatedUsers);
+        handleCloseModal(); // Close modal after deletion
+      })
+      .catch(error => {
+        console.error('Error deleting user:', error);
       });
   };
 
@@ -129,7 +160,7 @@ export const Users: React.FC = () => {
             <input type="text" onKeyDown={(e) => { if (e.key === 'Enter') handleAddInterest(e.currentTarget.value); }} placeholder="Add interest" />
             <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4">Save</button>
             <button onClick={handleCloseModal} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Cancel</button>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Delete</button>
+            <button onClick={() => handleDeleteUser(selectedUserId[0])} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Delete</button>
           </div>
         </div>
       )}

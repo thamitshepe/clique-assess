@@ -54,18 +54,29 @@ def update_user_data():
         user_ref = db.collection('users').document(user_id)
 
         if action == 'update':
-            if interests:
-                # Clean up interests lists by stripping extra spaces and quotes
-                def clean_interests(interest_list):
-                    return [interest.strip().strip("'").strip('"') for interest in interest_list]
+            # Fetch the current user data for comparison
+            user_doc = user_ref.get()
+            if user_doc.exists:
+                user_data = user_doc.to_dict()
+                current_interests = user_data.get('interests', [])
 
-                deleted_interests = clean_interests(interests.get('delete', []))
-                added_interests = clean_interests(interests.get('add', []))
+                if interests:
+                    # Clean up interests lists by stripping extra spaces and quotes
+                    deleted_interests = [interest.strip().strip("'") for interest in interests.get('delete', [])]
+                    added_interests = [interest.strip().strip("'") for interest in interests.get('add', [])]
 
-                if deleted_interests:
-                    user_ref.update({'interests': firestore.ArrayRemove(deleted_interests)})
-                if added_interests:
-                    user_ref.update({'interests': firestore.ArrayUnion(added_interests)})
+                    # Log current interests and the interests to be removed
+                    print(f"Current interests: {current_interests}")
+                    print(f"Interests to delete: {deleted_interests}")
+
+                    # Ensure exact matches for deletion
+                    exact_deleted_interests = [interest for interest in deleted_interests if interest in current_interests]
+
+                    if exact_deleted_interests:
+                        user_ref.update({'interests': firestore.ArrayRemove(exact_deleted_interests)})
+
+                    if added_interests:
+                        user_ref.update({'interests': firestore.ArrayUnion(added_interests)})
 
             if new_name:
                 user_ref.update({'name': new_name})
@@ -81,6 +92,7 @@ def update_user_data():
 def get_groups():
     try:
         groups_ref = db.collection('groups')
+        users_ref = db.collection('users')  # Assuming 'users' is the collection with user details
         groups = []
 
         # Fetch group data from Firestore
@@ -89,8 +101,22 @@ def get_groups():
             group = {
                 'groupId': doc.id,  # Add groupId field using document ID
                 'name': group_data['name'],
-                'users': group_data.get('users', [])  # Assume 'users' is an array field
+                'users': []  # Initialize an empty array for users
             }
+
+            # Fetch user details using user IDs
+            for userId in group_data.get('users', []):
+                user_doc = users_ref.document(userId).get()
+                if user_doc.exists:
+                    user_data = user_doc.to_dict()
+                    user_info = {
+                        'userId': userId,
+                        'name': user_data.get('name', 'Unknown')  # Default to 'Unknown' if name field is missing
+                    }
+                    group['users'].append(user_info)
+                else:
+                    group['users'].append({'userId': userId, 'name': 'Unknown'})  # Handle case where user document is missing
+
             groups.append(group)
 
         return jsonify(groups), 200
@@ -103,10 +129,10 @@ def update_group_data():
         data = request.json  # Payload containing groupId, action, users, and name
         group_id_list = data.get('groupId')
         action = data.get('action')
-        users = data.get('users', [])
+        users = data.get('users', {})
         new_name = data.get('name')
 
-        # Ensure group_id is extracted correctly from the list
+        # Ensure groupId is extracted correctly from the list
         if not isinstance(group_id_list, list) or len(group_id_list) != 1:
             return jsonify({'error': 'groupId should be a list containing exactly one ID'}), 400
         group_id = group_id_list[0]
@@ -115,12 +141,12 @@ def update_group_data():
 
         if action == 'update':
             if users:
-                # Clean up users list (assuming users are stored as an array of user IDs)
-                deleted_users = [user.strip() for user in users.get('delete', [])]
-                added_users = [user.strip() for user in users.get('add', [])]
+                deleted_users = users.get('delete', [])
+                added_users = users.get('add', [])
 
                 if deleted_users:
                     group_ref.update({'users': firestore.ArrayRemove(deleted_users)})
+
                 if added_users:
                     group_ref.update({'users': firestore.ArrayUnion(added_users)})
 
@@ -134,6 +160,25 @@ def update_group_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/delete_document', methods=['DELETE'])
+def delete_document():
+    try:
+        document_type = request.args.get('type')  # 'group' or 'user'
+        document_id = request.args.get('documentId')  # groupId or userId
+
+        if document_type == 'group':
+            # Delete group document
+            db.collection('groups').document(document_id).delete()
+            return jsonify({'message': f'Group document {document_id} deleted successfully.'}), 200
+        elif document_type == 'user':
+            # Delete user document
+            db.collection('users').document(document_id).delete()
+            return jsonify({'message': f'User document {document_id} deleted successfully.'}), 200
+        else:
+            return jsonify({'error': 'Invalid document type specified.'}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/re-cluster', methods=['GET'])
 async def re_cluster():

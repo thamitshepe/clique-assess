@@ -1,40 +1,55 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { firestore } from '../../firebase';
 import './ChatComponent.css';
-import db from "../../firebase";
 
-interface ChatComponentProps {
+interface ChatModalProps {
   groupId: string;
-  onClose: () => void; // Add onClose prop to handle modal closing
+  onClose: () => void;
 }
 
-const ChatModal: React.FC<ChatComponentProps> = ({ groupId, onClose }) => {
+const ChatModal: React.FC<ChatModalProps> = ({ groupId, onClose }) => {
   const dummy = useRef<HTMLSpanElement>(null);
-  const messagesRef = db.collection('messages'); // Use db from Firebase instance
   const [messages, setMessages] = useState<any[]>([]);
 
   useEffect(() => {
-    const unsubscribe = messagesRef
-      .where('groupId', '==', groupId)
-      .orderBy('createdAt')
-      .limit(25)
-      .onSnapshot((snapshot) => {
-        const messages = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        setMessages(messages);
+    if (groupId) {
+      const q = query(
+        collection(firestore, 'messages'),
+        where('groupId', '==', groupId),
+        orderBy('createdAt')
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const fetchedMessages = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setMessages(fetchedMessages);
+      }, (error) => {
+        console.error("Error fetching messages: ", error);
       });
-
-    return () => unsubscribe();
+      return () => unsubscribe();
+    }
   }, [groupId]);
 
+  useEffect(() => {
+    if (dummy.current) {
+      dummy.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
   return (
-    <>
-      <main>
-        {messages.map((msg) => (
-          <ChatMessage key={msg.id} message={msg} />
-        ))}
-        <span ref={dummy}></span>
-      </main>
-      <button onClick={onClose}>Close Chat Modal</button> {/* Change button text and use onClose prop */}
-    </>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-4 rounded-lg relative">
+        <main>
+          {messages.length > 0 ? messages.map((msg) => (
+            <ChatMessage key={msg.id} message={msg} />
+          )) : <p>No messages yet</p>}
+          <span ref={dummy}></span>
+        </main>
+        <button onClick={onClose} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded">Close</button>
+      </div>
+    </div>
   );
 };
 
@@ -47,10 +62,8 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
-  const { text, uid, photoURL } = message;
-  // Replace with your authentication logic
-  const currentUserUid = ''; // Replace with your logic to get current user's UID
-  const messageClass = uid === currentUserUid ? 'sent' : 'received';
+  const { text, photoURL } = message;
+  const messageClass = 'received';
 
   return (
     <div className={`message ${messageClass}`}>

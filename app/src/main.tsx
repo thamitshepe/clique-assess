@@ -6,9 +6,12 @@ import './css/style.css';
 import './css/montserrat.css';
 import 'jsvectormap/dist/css/jsvectormap.css';
 import 'flatpickr/dist/flatpickr.min.css';
+import { register } from './hooks/serviceWorker';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-      <Router>
-        <App />
-      </Router>
+  <Router>
+    <App />
+  </Router>
 );
+
+register();

@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
-import SignIn from './pages/Authentication/SignIn';
-import SignUp from './pages/Authentication/SignUp';
 import Admin from './pages/Dashboard/Admin';
-import { Provider } from 'react-redux'; // Import Provider
-import store from './store/store'; // Import your Redux store
+import { Provider } from 'react-redux';
+import store from './store/store';
+import { setupNotifications } from './firebase';
+import { toastNotification, sendNativeNotification } from './hooks/notificationHelpers';
+import useVisibilityChange from './hooks/useVisibilityChange';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
+  const isForeground = useVisibilityChange();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -19,6 +21,27 @@ function App() {
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
+
+  useEffect(() => {
+    setupNotifications((message) => {
+      if (message && message.notification) {
+        const { title, body } = message.notification;
+
+        if (isForeground) {
+          toastNotification({
+            title,
+            description: body,
+            status: "info",
+          });
+        } else {
+          sendNativeNotification({
+            title,
+            body,
+          });
+        }
+      }
+    });
+  }, [isForeground]);
 
   return loading ? (
     <Loader />
@@ -32,24 +55,6 @@ function App() {
               <>
                 <PageTitle title="Cliqueof10" />
                 <Admin />
-              </>
-            }
-          />
-          <Route
-            path="/auth/signin"
-            element={
-              <>
-                <PageTitle title="Signin | Cliqueof10" />
-                <SignIn />
-              </>
-            }
-          />
-          <Route
-            path="/auth/signup"
-            element={
-              <>
-                <PageTitle title="Signup | Cliqueof10" />
-                <SignUp />
               </>
             }
           />
